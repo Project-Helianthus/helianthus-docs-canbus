@@ -53,13 +53,10 @@ grep -Fq 'or interface mutation.' architecture/can-transport.md
 grep -Fq 'must not transmit, acknowledge, probe, configure, bring up,' contracts/socketcan-receive-only.md
 grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md
 
-safety_docs=(
-  'README.md'
-  'architecture/can-transport.md'
-  'architecture/registry-boundary.md'
-  'contracts/socketcan-receive-only.md'
-  "$spec"
-)
+safety_docs=()
+while IFS= read -r doc; do
+  safety_docs+=("$doc")
+done < <(find . -type f -name '*.md' -not -path './.git/*' -not -path './scripts/fixtures/*' -print | sort)
 tx_permission='(MAY|may|permitted to|authorized to)([[:space:]]+[[:alpha:]-]+){0,6}[[:space:]]+(transmit|send|write|acknowledge|probe|configure|emit|inject|publish|output)|(transmit|send|write|acknowledge|probe|configure|emit|inject|publish|output)[[:space:]].*(MAY|may|permitted|authorized)'
 if grep -Ein "$tx_permission" "${safety_docs[@]}"; then
   echo 'CAN documentation contains a receive-only exception' >&2

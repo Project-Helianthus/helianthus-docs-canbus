@@ -54,6 +54,11 @@ cp -R . "$registry_permission_fixture"
 perl -0pi -e 's/(# Multi-Vendor CAN Registry Boundary)/$1\n\nA profile MAY publish a diagnostic record./' "$registry_permission_fixture/architecture/registry-boundary.md"
 assert_rejected "$registry_permission_fixture"
 
+new_document_fixture="$tmp_dir/new-document"
+cp -R . "$new_document_fixture"
+cp scripts/fixtures/unsafe-tx-policy.md "$new_document_fixture/architecture/tx-policy.md"
+assert_rejected "$new_document_fixture"
+
 indirect_permission_fixture="$tmp_dir/indirect-permission"
 cp -R . "$indirect_permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nA diagnostic frame transmit is permitted./' "$indirect_permission_fixture/protocols/gree/vrf-canbus.md"
