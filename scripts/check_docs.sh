@@ -42,11 +42,17 @@ grep -Fq 'Not equivalent to CAN' "$spec"
 grep -Fq 'M94' "$spec"
 grep -Fq 'M115' "$spec"
 
-forbidden='reverse[ -]?engineering|decompil|disassembl|firmware|corpus|ghidra|provenance|acquisition|captur(e|ed|ing)?|laborator(y|ies)|trace(s)?|dump(s)?|mapping[[:space:]]+source|installed[[:space:]]+field[[:space:]]+unit|obtained from|source archive|vendor manual'
-if grep -Ein "$forbidden" "$spec"; then
-  echo 'Gree protocol contract contains prohibited material' >&2
-  exit 1
-fi
+forbidden_terms=(
+  'reverse engineering' decompil disassembl firmware corpus ghidra provenance
+  acquisition capture laboratory trace dump 'mapping source' 'installed field unit'
+  'obtained from' 'source archive' 'vendor manual'
+)
+for forbidden in "${forbidden_terms[@]}"; do
+  if grep -Fiq "$forbidden" "$spec"; then
+    echo "Gree protocol contract contains prohibited material: $forbidden" >&2
+    exit 1
+  fi
+done
 
 grep -Fq 'sends a CAN frame. There is no transmit API, automatic configuration, probing,' architecture/can-transport.md
 grep -Fq 'or interface mutation.' architecture/can-transport.md

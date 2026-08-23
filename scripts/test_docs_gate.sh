@@ -82,10 +82,14 @@ for action in transmit send write acknowledge probe configure emit inject publis
   perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation MAY $action a diagnostic CAN frame./" "$direct_fixture/protocols/gree/vrf-canbus.md"
   assert_rejected "$direct_fixture"
 
-  indirect_fixture="$tmp_dir/indirect-$action"
-  cp -R . "$indirect_fixture"
-  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nA diagnostic CAN frame $action is permitted./" "$indirect_fixture/protocols/gree/vrf-canbus.md"
-  assert_rejected "$indirect_fixture"
+  trailing_index=0
+  for trailing_permission in MAY may permitted authorized; do
+    trailing_index=$((trailing_index + 1))
+    indirect_fixture="$tmp_dir/indirect-${action}-${trailing_index}"
+    cp -R . "$indirect_fixture"
+    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nA diagnostic CAN frame $action is $trailing_permission./" "$indirect_fixture/protocols/gree/vrf-canbus.md"
+    assert_rejected "$indirect_fixture"
+  done
 done
 
 for forbidden_material in \
