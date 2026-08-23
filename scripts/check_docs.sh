@@ -42,7 +42,7 @@ grep -Fq 'Not equivalent to CAN' "$spec"
 grep -Fq 'M94' "$spec"
 grep -Fq 'M115' "$spec"
 
-forbidden='reverse[ -]?engineering|decompil|disassembl|firmware|corpus|ghidra|provenance|acquisition|captur(e|ed|ing)?|laborator(y|ies)|trace(s)?|dump(s)?|obtained from|source archive|vendor manual'
+forbidden='reverse[ -]?engineering|decompil|disassembl|firmware|corpus|ghidra|provenance|acquisition|captur(e|ed|ing)?|laborator(y|ies)|trace(s)?|dump(s)?|mapping[[:space:]]+source|installed[[:space:]]+field[[:space:]]+unit|obtained from|source archive|vendor manual'
 if grep -Ein "$forbidden" "$spec"; then
   echo 'Gree protocol contract contains prohibited material' >&2
   exit 1
@@ -59,7 +59,7 @@ safety_docs=(
   'contracts/socketcan-receive-only.md'
   "$spec"
 )
-tx_permission='(MAY|may|permitted to|authorized to)[[:space:]]+(transmit|send|write|acknowledge|probe|configure)|(transmit|send|write|acknowledge|probe|configure)[[:space:]].*(MAY|may|permitted|authorized)'
+tx_permission='(MAY|may|permitted to|authorized to)([[:space:]]+[[:alpha:]-]+){0,6}[[:space:]]+(transmit|send|write|acknowledge|probe|configure)|(transmit|send|write|acknowledge|probe|configure)[[:space:]].*(MAY|may|permitted|authorized)'
 if grep -Ein "$tx_permission" "${safety_docs[@]}"; then
   echo 'CAN documentation contains a receive-only exception' >&2
   exit 1
