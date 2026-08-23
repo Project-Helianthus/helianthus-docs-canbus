@@ -51,6 +51,10 @@ fi
 grep -Fq 'sends a CAN frame. There is no transmit API, automatic configuration, probing,' architecture/can-transport.md
 grep -Fq 'or interface mutation.' architecture/can-transport.md
 grep -Fq 'must not transmit, acknowledge, probe, configure, bring up,' contracts/socketcan-receive-only.md
+grep -Fq 'Caller MUST configure the physical controller in listen-only mode before' contracts/socketcan-receive-only.md
+grep -Fq 'opening the descriptor. A descriptor backed by a normal controller MUST NOT be' contracts/socketcan-receive-only.md
+grep -Fq 'admitted.' contracts/socketcan-receive-only.md
+grep -Fq 'The caller MUST supply a descriptor backed by a controller already in physical' architecture/can-transport.md
 grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md
 
 safety_docs=()

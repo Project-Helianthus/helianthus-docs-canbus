@@ -4,7 +4,13 @@
 
 The caller supplies an already-open SocketCAN descriptor and owns network
 namespace selection, interface creation, bit-rate configuration, and controller
-mode.
+mode. Caller MUST configure the physical controller in listen-only mode before
+opening the descriptor. A descriptor backed by a normal controller MUST NOT be
+admitted.
+
+The library cannot verify or set physical controller mode through this contract.
+The integrator records the controller's listen-only configuration as the
+admission precondition; the library's no-transmit API does not replace it.
 
 ## Receive Semantics
 

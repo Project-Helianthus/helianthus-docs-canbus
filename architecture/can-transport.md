@@ -22,8 +22,10 @@ The transport accepts observations from a SocketCAN file descriptor. It never
 sends a CAN frame. There is no transmit API, automatic configuration, probing,
 or interface mutation.
 
-Physical controller listen-only mode is configured outside the library. Library
-receive-only behavior is not evidence of electrical listen-only mode.
+The caller MUST supply a descriptor backed by a controller already in physical
+listen-only mode. This is an admission precondition, not a capability the
+library can set or verify. Library receive-only behavior is not evidence of
+electrical listen-only mode.
 
 ## Vendor Independence
 

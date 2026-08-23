@@ -39,6 +39,11 @@ cp -R . "$deny_fixture"
 perl -0pi -e 's/sends a CAN frame\. There is no transmit API, automatic configuration, probing,/sends a CAN frame./' "$deny_fixture/architecture/can-transport.md"
 assert_rejected "$deny_fixture"
 
+listen_only_fixture="$tmp_dir/listen-only"
+cp -R . "$listen_only_fixture"
+perl -0pi -e 's/Caller MUST configure the physical controller in listen-only mode before/Caller SHOULD configure the physical controller in listen-only mode before/' "$listen_only_fixture/contracts/socketcan-receive-only.md"
+assert_rejected "$listen_only_fixture"
+
 permission_fixture="$tmp_dir/permission"
 cp -R . "$permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY be used to transmit a diagnostic frame./' "$permission_fixture/protocols/gree/vrf-canbus.md"
@@ -63,3 +68,22 @@ indirect_permission_fixture="$tmp_dir/indirect-permission"
 cp -R . "$indirect_permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nA diagnostic frame transmit is permitted./' "$indirect_permission_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$indirect_permission_fixture"
+
+for material in firmware corpus ghidra trace dump; do
+  material_fixture="$tmp_dir/material-$material"
+  cp -R . "$material_fixture"
+  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\n$material detail: restricted./" "$material_fixture/protocols/gree/vrf-canbus.md"
+  assert_rejected "$material_fixture"
+done
+
+for action in transmit send write acknowledge probe configure emit inject publish output; do
+  direct_fixture="$tmp_dir/direct-$action"
+  cp -R . "$direct_fixture"
+  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation MAY $action a diagnostic CAN frame./" "$direct_fixture/protocols/gree/vrf-canbus.md"
+  assert_rejected "$direct_fixture"
+
+  indirect_fixture="$tmp_dir/indirect-$action"
+  cp -R . "$indirect_fixture"
+  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nA diagnostic CAN frame $action is permitted./" "$indirect_fixture/protocols/gree/vrf-canbus.md"
+  assert_rejected "$indirect_fixture"
+done
