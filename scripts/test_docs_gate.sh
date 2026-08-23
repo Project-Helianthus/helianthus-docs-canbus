@@ -23,3 +23,8 @@ deny_fixture="$tmp_dir/deny"
 cp -R . "$deny_fixture"
 perl -0pi -e 's/sends a CAN frame\. There is no transmit API, automatic configuration, probing,/sends a CAN frame./' "$deny_fixture/architecture/can-transport.md"
 assert_rejected "$deny_fixture"
+
+permission_fixture="$tmp_dir/permission"
+cp -R . "$permission_fixture"
+perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY transmit a diagnostic frame./' "$permission_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$permission_fixture"

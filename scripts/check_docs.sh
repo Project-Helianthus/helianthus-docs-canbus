@@ -52,3 +52,15 @@ grep -Fq 'sends a CAN frame. There is no transmit API, automatic configuration, 
 grep -Fq 'or interface mutation.' architecture/can-transport.md
 grep -Fq 'must not transmit, acknowledge, probe, configure, bring up,' contracts/socketcan-receive-only.md
 grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md
+
+safety_docs=(
+  'README.md'
+  'architecture/can-transport.md'
+  'contracts/socketcan-receive-only.md'
+  "$spec"
+)
+tx_permission='(MAY|may|permitted to|authorized to)[[:space:]]+(transmit|send|write|acknowledge|probe|configure)|(transmit|send|write|acknowledge|probe|configure)[[:space:]].*(MAY|may|permitted|authorized)'
+if grep -Ein "$tx_permission" "${safety_docs[@]}"; then
+  echo 'CAN documentation contains a receive-only exception' >&2
+  exit 1
+fi
