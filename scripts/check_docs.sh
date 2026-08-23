@@ -59,7 +59,7 @@ safety_docs=(
   'contracts/socketcan-receive-only.md'
   "$spec"
 )
-tx_permission='(MAY|may|permitted to|authorized to)([[:space:]]+[[:alpha:]-]+){0,6}[[:space:]]+(transmit|send|write|acknowledge|probe|configure)|(transmit|send|write|acknowledge|probe|configure)[[:space:]].*(MAY|may|permitted|authorized)'
+tx_permission='(MAY|may|permitted to|authorized to)([[:space:]]+[[:alpha:]-]+){0,6}[[:space:]]+(transmit|send|write|acknowledge|probe|configure|emit|inject|publish|output)|(transmit|send|write|acknowledge|probe|configure|emit|inject|publish|output)[[:space:]].*(MAY|may|permitted|authorized)'
 if grep -Ein "$tx_permission" "${safety_docs[@]}"; then
   echo 'CAN documentation contains a receive-only exception' >&2
   exit 1

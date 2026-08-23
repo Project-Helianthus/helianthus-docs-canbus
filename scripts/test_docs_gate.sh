@@ -39,6 +39,11 @@ cp -R . "$permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY be used to transmit a diagnostic frame./' "$permission_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$permission_fixture"
 
+emit_fixture="$tmp_dir/emit"
+cp -R . "$emit_fixture"
+perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY emit a diagnostic CAN frame./' "$emit_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$emit_fixture"
+
 indirect_permission_fixture="$tmp_dir/indirect-permission"
 cp -R . "$indirect_permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nA diagnostic frame transmit is permitted./' "$indirect_permission_fixture/protocols/gree/vrf-canbus.md"
