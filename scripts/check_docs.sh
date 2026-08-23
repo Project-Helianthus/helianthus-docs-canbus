@@ -42,7 +42,7 @@ grep -Fq 'Not equivalent to CAN' "$spec"
 grep -Fq 'M94' "$spec"
 grep -Fq 'M115' "$spec"
 
-forbidden='reverse[ -]?engineering|decompil|disassembl|firmware|corpus|ghidra|provenance|acquisition|obtained from|source archive|vendor manual'
+forbidden='reverse[ -]?engineering|decompil|disassembl|firmware|corpus|ghidra|provenance|acquisition|captur(e|ed|ing)?|laborator(y|ies)|trace(s)?|dump(s)?|obtained from|source archive|vendor manual'
 if grep -Ein "$forbidden" "$spec"; then
   echo 'Gree protocol contract contains prohibited material' >&2
   exit 1
@@ -50,3 +50,5 @@ fi
 
 grep -Fq 'sends a CAN frame. There is no transmit API, automatic configuration, probing,' architecture/can-transport.md
 grep -Fq 'or interface mutation.' architecture/can-transport.md
+grep -Fq 'must not transmit, acknowledge, probe, configure, bring up,' contracts/socketcan-receive-only.md
+grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md

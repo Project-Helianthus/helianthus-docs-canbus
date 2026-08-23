@@ -53,14 +53,15 @@ above 0xff is invalid. An invalid frame has no profile projection.
 
 ## Candidate Decode Families
 
-| Family | Rows | Source forms | Projection boundary |
-| --- | ---: | --- | --- |
-| M94 | 94 | packed bit, u8, u16 little-endian stream | May emit a passive state delta |
-| M115 | 115 | packed bit, u8, u16 little-endian stream | No state-delta emission |
+| Family label | Revision status | Projection boundary |
+| --- | --- | --- |
+| M94 | Decoder details are not specified by this revision | Raw data only |
+| M115 | Decoder details are not specified by this revision | Raw data only |
 
-M94 has 93 unique source keys: source key 0x220d appears twice and both
-matching rows are applied in ascending row order. M115 has 115 unique source
-keys. There is no active M152 family in this profile.
+M94 and M115 are profile-qualified decoder labels. This revision defines no
+complete row map, target-cell map, transform set, or automatic family
+classifier for either label. A conforming registry MUST retain the payload raw
+until a later revision supplies the complete deterministic contract.
 
 The candidate M115 selector set is:
 
@@ -68,21 +69,19 @@ The candidate M115 selector set is:
 605d 6079 6084 608d 608e 6091 6098 6099 60a0 60a4 60a9
 ~~~
 
-All selector values outside this set are classified as candidate M94. This is a
-profile-qualified decoder choice, not a canonical product classification. A
-registry MUST expose a capability only after its full profile gate is satisfied.
+An M115 selector match is not a Gree identifier and does not admit a Gree
+projection. Every selector outside this set remains opaque. M94 has no positive
+admission discriminator in this revision and therefore also remains opaque. A
+registry MUST expose a capability only after a later revision defines and the
+installation satisfies a complete positive profile gate.
 
 ## State and Unknown Data
 
-Byte sources replace their target byte. Packed-bit sources replace only their
-target bit. A matching row MAY apply a profile-qualified transform after its
-ordinary write. A transform MUST be deterministic, bounded to declared target
-cells, and MUST preserve every unspecified source byte as raw data.
-
 Numeric source key and raw payload are authoritative. Labels, units, ranges,
-writability, and operational meaning are not established by this contract
-unless a later profile revision defines them with an exact capability gate.
-Unmatched frames, fields, and selectors remain opaque.
+writability, target cells, transforms, and operational meaning are not
+established by this revision. A later revision MAY define them only with a
+complete deterministic map and an exact capability gate. All frames, fields,
+and selectors remain opaque in this revision.
 
 ## Registry Admission
 
@@ -98,8 +97,8 @@ overlap MUST produce an opaque observation with no vendor projection.
 | Standard identifier | Opaque observation; no Gree projection |
 | Extended identifier with dlc = 0 | Opaque observation; no Gree projection |
 | Coordinate span above 0xff | Opaque observation; no Gree projection |
-| M94 duplicate key 0x220d | Apply both rows in ascending row order |
-| Unknown selector | Opaque observation unless a full declared gate admits it |
+| M115 selector match | Opaque observation; no Gree projection |
+| Any M94 candidate frame | Opaque observation; no Gree projection |
 
 ## Compatibility
 

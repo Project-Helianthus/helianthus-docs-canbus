@@ -39,4 +39,5 @@ contracts stay outside protocols/; vendor wire contracts stay inside it.
 
 ~~~bash
 ./scripts/check_docs.sh
+./scripts/test_docs_gate.sh
 ~~~
