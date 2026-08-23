@@ -56,6 +56,7 @@ grep -Fq 'default-denied and no document authorizes a live bus operation.' READM
 safety_docs=(
   'README.md'
   'architecture/can-transport.md'
+  'architecture/registry-boundary.md'
   'contracts/socketcan-receive-only.md'
   "$spec"
 )

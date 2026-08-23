@@ -29,6 +29,11 @@ cp -R . "$provenance_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nProvenance: restricted./' "$provenance_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$provenance_fixture"
 
+acquisition_fixture="$tmp_dir/acquisition"
+cp -R . "$acquisition_fixture"
+perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAcquisition detail: restricted./' "$acquisition_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$acquisition_fixture"
+
 deny_fixture="$tmp_dir/deny"
 cp -R . "$deny_fixture"
 perl -0pi -e 's/sends a CAN frame\. There is no transmit API, automatic configuration, probing,/sends a CAN frame./' "$deny_fixture/architecture/can-transport.md"
@@ -43,6 +48,11 @@ emit_fixture="$tmp_dir/emit"
 cp -R . "$emit_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY emit a diagnostic CAN frame./' "$emit_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$emit_fixture"
+
+registry_permission_fixture="$tmp_dir/registry-permission"
+cp -R . "$registry_permission_fixture"
+perl -0pi -e 's/(# Multi-Vendor CAN Registry Boundary)/$1\n\nA profile MAY publish a diagnostic record./' "$registry_permission_fixture/architecture/registry-boundary.md"
+assert_rejected "$registry_permission_fixture"
 
 indirect_permission_fixture="$tmp_dir/indirect-permission"
 cp -R . "$indirect_permission_fixture"
