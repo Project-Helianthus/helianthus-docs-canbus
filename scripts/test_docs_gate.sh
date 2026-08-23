@@ -87,3 +87,22 @@ for action in transmit send write acknowledge probe configure emit inject publis
   perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nA diagnostic CAN frame $action is permitted./" "$indirect_fixture/protocols/gree/vrf-canbus.md"
   assert_rejected "$indirect_fixture"
 done
+
+for forbidden_material in \
+  'reverse engineering' decompilation disassembly firmware corpus ghidra provenance \
+  acquisition capture laboratory trace dump 'mapping source' 'installed field unit' \
+  'obtained from' 'source archive' 'vendor manual'; do
+  material_fixture="$tmp_dir/all-material-${RANDOM}"
+  cp -R . "$material_fixture"
+  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\n$forbidden_material detail: restricted./" "$material_fixture/protocols/gree/vrf-canbus.md"
+  assert_rejected "$material_fixture"
+done
+
+for permission in MAY may 'permitted to' 'authorized to'; do
+  for action in transmit send write acknowledge probe configure emit inject publish output; do
+    form_fixture="$tmp_dir/form-${RANDOM}"
+    cp -R . "$form_fixture"
+    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation $permission $action a diagnostic CAN frame./" "$form_fixture/protocols/gree/vrf-canbus.md"
+    assert_rejected "$form_fixture"
+  done
+done
