@@ -9,6 +9,7 @@ implementation-neutral vendor protocol contracts.
 - [Registry boundary](architecture/registry-boundary.md)
 - [Receive-only SocketCAN contract](contracts/socketcan-receive-only.md)
 - [Gree VRF CAN contract](protocols/gree/vrf-canbus.md)
+- [Growatt low-voltage BMS CAN V1.05 candidate](protocols/growatt/low-voltage-bms-can-v105.md)
 
 ## Scope
 

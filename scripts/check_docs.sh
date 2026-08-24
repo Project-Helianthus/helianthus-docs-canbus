@@ -9,11 +9,20 @@ required=(
   'contracts/socketcan-receive-only.md'
   'protocols/LICENSE'
   'protocols/gree/vrf-canbus.md'
+  'protocols/growatt/low-voltage-bms-can-v105.md'
 )
 
 for path in "${required[@]}"; do
   test -f "$path"
 done
+
+growatt_spec='protocols/growatt/low-voltage-bms-can-v105.md'
+for heading in 'Scope and Safety' 'Candidate Link Metadata' 'Candidate Applicability' 'Admission and Evidence' 'Compatibility'; do
+  grep -Fqx "## $heading" "$growatt_spec"
+done
+grep -Fq '500 kbit/s' "$growatt_spec"
+grep -Fq 'No electrical inference is permitted' "$growatt_spec"
+grep -Fq 'received frame MUST remain opaque and no Growatt projection' "$growatt_spec"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
@@ -50,6 +59,12 @@ forbidden_terms=(
 for forbidden in "${forbidden_terms[@]}"; do
   if grep -Fiq "$forbidden" "$spec"; then
     echo "Gree protocol contract contains prohibited material: $forbidden" >&2
+    exit 1
+  fi
+done
+for forbidden in "${forbidden_terms[@]}"; do
+  if grep -Fiq "$forbidden" "$growatt_spec"; then
+    echo "Growatt protocol contract contains prohibited material: $forbidden" >&2
     exit 1
   fi
 done
