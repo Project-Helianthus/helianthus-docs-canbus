@@ -72,3 +72,9 @@ if grep -Ein "$tx_permission" "${safety_docs[@]}"; then
   echo 'CAN documentation contains a receive-only exception' >&2
   exit 1
 fi
+
+tx_mandate='(MUST|must|SHOULD|should|shall)[[:space:]]+(transmit|send|write|acknowledge|probe|emit|inject|publish|output)'
+if grep -Ein "$tx_mandate" "${safety_docs[@]}"; then
+  echo 'CAN documentation contains a positive transmit mandate' >&2
+  exit 1
+fi

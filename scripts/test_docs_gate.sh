@@ -110,3 +110,12 @@ for permission in MAY may 'permitted to' 'authorized to'; do
     assert_rejected "$form_fixture"
   done
 done
+
+for mandate in MUST must SHOULD should shall; do
+  for action in transmit send write acknowledge probe emit inject publish output; do
+    mandate_fixture="$tmp_dir/mandate-${RANDOM}"
+    cp -R . "$mandate_fixture"
+    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation $mandate $action a diagnostic CAN frame./" "$mandate_fixture/protocols/gree/vrf-canbus.md"
+    assert_rejected "$mandate_fixture"
+  done
+done
