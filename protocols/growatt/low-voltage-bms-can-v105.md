@@ -2,10 +2,10 @@
 
 ## Scope and Safety
 
-This contract defines only the candidate applicability boundary named
-growatt.bms.low_voltage.can.v1_05. It does not define a universal CAN profile,
-electrical layer, connector, transceiver, frame identifier, payload layout, or
-send operation.
+This page is documentation-only candidate metadata for
+growatt.bms.low_voltage.can.v1_05. It does not authorize a registry flavor or
+classifier. It does not define a universal CAN profile, electrical layer,
+connector, transceiver, frame identifier, payload layout, or send operation.
 
 A conforming implementation MUST remain receive-only. It MUST NOT transmit,
 acknowledge, probe, configure, or otherwise change a CAN interface or attached
@@ -29,8 +29,8 @@ single observed frame.
 
 The candidate is limited to an installation that explicitly declares this
 profile revision and a compatible low-voltage Growatt BMS integration. Product
-families reported with this candidate include SPF TL HVM-WPV-P, SPF KT HVM, and
-WIT HU variants. This list is not an automatic identification rule.
+families reported with this candidate include SPF TL HVM-WPV-P and SPF KT HVM.
+This list is not an automatic identification rule.
 
 An installation not meeting every declared condition remains unknown. A
 different Growatt protocol revision or a similarly named profile remains a
@@ -38,8 +38,9 @@ separate candidate.
 
 ## Admission and Evidence
 
-No positive frame discriminator is defined by this revision. Therefore every
-received frame MUST remain opaque and no Growatt projection, capability, unit,
+No V1.05 frame authority, positive frame discriminator, or sanitized
+conformance vector is defined by this page. Therefore every received frame MUST
+remain opaque and no Growatt registry classifier, projection, capability, unit,
 state, or property may be exposed.
 
 An implementation MAY retain bounded raw classic-CAN evidence only. It MUST

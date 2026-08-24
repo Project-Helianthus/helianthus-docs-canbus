@@ -22,7 +22,8 @@ for heading in 'Scope and Safety' 'Candidate Link Metadata' 'Candidate Applicabi
 done
 grep -Fq '500 kbit/s' "$growatt_spec"
 grep -Fq 'No electrical inference is permitted' "$growatt_spec"
-grep -Fq 'received frame MUST remain opaque and no Growatt projection' "$growatt_spec"
+grep -Fq 'It does not authorize a registry flavor or' "$growatt_spec"
+grep -Fq 'remain opaque and no Growatt registry classifier' "$growatt_spec"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
