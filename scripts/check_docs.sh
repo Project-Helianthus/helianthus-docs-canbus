@@ -6,6 +6,7 @@ required=(
   'LICENSE'
   'architecture/can-transport.md'
   'architecture/registry-boundary.md'
+  'contracts/socketcan-diagnostics.md'
   'contracts/socketcan-receive-only.md'
   'protocols/LICENSE'
   'protocols/gree/vrf-canbus.md'
@@ -76,6 +77,11 @@ grep -Fq 'must not transmit, acknowledge, probe, configure, bring up,' contracts
 grep -Fq 'Caller MUST configure the physical controller in listen-only mode before' contracts/socketcan-receive-only.md
 grep -Fq 'opening the descriptor. A descriptor backed by a normal controller MUST NOT be' contracts/socketcan-receive-only.md
 grep -Fq 'admitted.' contracts/socketcan-receive-only.md
+
+diagnostics='contracts/socketcan-diagnostics.md'
+for heading in 'Scope' 'Observation Record' 'Record Classification and Outcome' 'Queue and Loss Reporting' 'Receive Lifecycle' 'Adapter Boundary' 'Receive-Only Boundary'; do
+  grep -Fqx "## $heading" "$diagnostics"
+done
 grep -Fq 'The caller MUST supply a descriptor backed by a controller already in physical' architecture/can-transport.md
 grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md
 
