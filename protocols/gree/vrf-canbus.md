@@ -47,7 +47,7 @@ unit7  = 8
 opcode7 in { 0x10, 0x11, 0x52, 0x58 }
 ~~~
 
-The equivalent single comparison is:
+The class8 and opcode7 comparison is:
 
 ~~~text
 (id & 0x1fe0007f) in {
@@ -57,6 +57,15 @@ The equivalent single comparison is:
   0x1ee00058,
 }
 ~~~
+
+It MUST be combined with the independent unit7 comparison:
+
+~~~text
+((id >> 7) & 0x7f) = 8
+~~~
+
+The masked comparison alone is insufficient because it does not include
+unit7. Both comparisons are required.
 
 `opaque7` remains part of the source identity and MUST NOT be normalized,
 discarded, or assigned a device meaning. A standard identifier, a different
@@ -157,14 +166,14 @@ Each accepted vector has an extended identifier, `class8 = 0xf7`, and
 
 | Identifier | DLC | Payload | Required opaque result |
 | --- | --- | --- | --- |
-| `0x1ee00010` | 3 | `05 a1 a2` | `state_0f = a1`, `state_10 = a2` |
-| `0x1ee00010` | 2 | `20 a3` | `state_11 = a3` |
-| `0x1ee00052` | 2 | `59 01` | packed-bit update of `state_12` |
-| `0x1ee00058` | 3 | `5d a4 a5` | `state_13 = a4`, `state_14 = a5` |
-| `0x1ee00058` | 3 | `5f a6 a7` | `state_15 = a6`, `state_16 = a7` |
-| `0x1ee00058` | 3 | `59 a8 a9` | `state_17 = a8`, `state_18 = a9` |
-| `0x1ee00058` | 3 | `5b aa ab` | `state_19 = aa`, `state_1a = ab` |
-| `0x1ee00011` | 2 | `09 ac` | `state_1b = ac` |
+| `0x1ee00410` | 3 | `05 a1 a2` | `state_0f = a1`, `state_10 = a2` |
+| `0x1ee00410` | 2 | `20 a3` | `state_11 = a3` |
+| `0x1ee00452` | 2 | `59 01` | packed-bit update of `state_12` |
+| `0x1ee00458` | 3 | `5d a4 a5` | `state_13 = a4`, `state_14 = a5` |
+| `0x1ee00458` | 3 | `5f a6 a7` | `state_15 = a6`, `state_16 = a7` |
+| `0x1ee00458` | 3 | `59 a8 a9` | `state_17 = a8`, `state_18 = a9` |
+| `0x1ee00458` | 3 | `5b aa ab` | `state_19 = aa`, `state_1a = ab` |
+| `0x1ee00411` | 2 | `09 ac` | `state_1b = ac` |
 
 The following inputs MUST be rejected as candidate state updates: a standard
 identifier; an identifier with a class8, unit7, or opcode7 outside the gate; a
