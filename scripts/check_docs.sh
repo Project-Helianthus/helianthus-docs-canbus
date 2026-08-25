@@ -6,6 +6,7 @@ required=(
   'LICENSE'
   'architecture/can-transport.md'
   'architecture/registry-boundary.md'
+  'contracts/registry-conformance.md'
   'contracts/socketcan-diagnostics.md'
   'contracts/socketcan-replay.md'
   'contracts/socketcan-receive-only.md'
@@ -87,6 +88,11 @@ done
 replay='contracts/socketcan-replay.md'
 for heading in 'Scope' 'Replay Input' 'Replay Rules' 'Outcome Assertions' 'Matrix Crosswalk' 'Safety Boundary'; do
   grep -Fqx "## $heading" "$replay"
+done
+
+registry='contracts/registry-conformance.md'
+for heading in 'Scope' 'Evidence Admission' 'Profile Result' 'Conflict Resolution' 'Conformance Outcomes' 'Projection Boundary'; do
+  grep -Fqx "## $heading" "$registry"
 done
 grep -Fq 'The caller MUST supply a descriptor backed by a controller already in physical' architecture/can-transport.md
 grep -Fq 'default-denied and no document authorizes a live bus operation.' README.md

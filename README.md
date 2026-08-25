@@ -7,6 +7,7 @@ implementation-neutral vendor protocol contracts.
 
 - [CAN transport architecture](architecture/can-transport.md)
 - [Registry boundary](architecture/registry-boundary.md)
+- [Fail-closed CAN registry conformance](contracts/registry-conformance.md)
 - [Passive SocketCAN diagnostic model](contracts/socketcan-diagnostics.md)
 - [Passive SocketCAN conformance replay guide](contracts/socketcan-replay.md)
 - [Receive-only SocketCAN contract](contracts/socketcan-receive-only.md)
