@@ -38,7 +38,8 @@ projection value; those values remain owned by the matching profile.
 
 ## Conflict Resolution
 
-The registry evaluates every configured non-nil profile. Exactly one eligible
+The registry evaluates configured non-nil profiles in order until all are
+processed or a second eligible result is encountered. Exactly one eligible
 result is returned unchanged. Zero eligible results return the zero
 `Classification` value. A second eligible result is a conflict: the registry
 MUST return the zero `Classification` value and MUST NOT select a winner by
