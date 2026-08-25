@@ -8,8 +8,9 @@ does not define frame meaning, device identity, profile selection, controller
 configuration, or physical-layer behavior.
 
 The complete executable conformance matrix is maintained by
-`helianthus-canbus` as T01 through T88. This guide is a human-readable
-crosswalk and MUST NOT replace that matrix or duplicate its fixtures.
+`helianthus-canbus` as T01 through T88. A replay MUST use the matrix from the
+same transport revision it validates. This guide is a human-readable crosswalk
+and MUST NOT replace that matrix or duplicate its fixtures.
 
 ## Replay Input
 
@@ -87,8 +88,8 @@ matrix:
 | T67..T78 | Cancellation, deadline, terminal error, close, and opener behavior. |
 | T79..T88 | Receive-only public surface, no live endpoint in tests, portability, and bounded resources. |
 
-The current matrix is available at
-https://github.com/Project-Helianthus/helianthus-canbus/blob/main/testdata/transport_matrix.json.
+This guide is aligned with the matrix at
+https://github.com/Project-Helianthus/helianthus-canbus/blob/cb4c25a1a389da23963ce2d632074d231337b9e2/testdata/transport_matrix.json.
 
 ## Safety Boundary
 
