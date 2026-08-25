@@ -64,6 +64,14 @@ grep -Fq '0x1ee00052' "$spec"
 grep -Fq '0x1ee00058' "$spec"
 grep -Fq 'class8 = 0xf7' "$spec"
 grep -Fq 'unit7 = 8' "$spec"
+grep -Fq '0x1ee00410' "$spec"
+grep -Fq '0x1ee00411' "$spec"
+grep -Fq '0x1ee00452' "$spec"
+grep -Fq '0x1ee00458' "$spec"
+if grep -Fq '0x1ee00010` |' "$spec"; then
+  echo 'Gree candidate vectors omit the required unit7 field' >&2
+  exit 1
+fi
 grep -Fq 'Candidate State Cells' "$spec"
 grep -Fq 'Synthetic Conformance Vectors' "$spec"
 
