@@ -57,6 +57,15 @@ grep -Fq '29-bit extended' "$spec"
 grep -Fq 'Not equivalent to CAN' "$spec"
 grep -Fq 'M94' "$spec"
 grep -Fq 'M115' "$spec"
+grep -Fq '0x1fe0007f' "$spec"
+grep -Fq '0x1ee00010' "$spec"
+grep -Fq '0x1ee00011' "$spec"
+grep -Fq '0x1ee00052' "$spec"
+grep -Fq '0x1ee00058' "$spec"
+grep -Fq 'class8 = 0xf7' "$spec"
+grep -Fq 'unit7 = 8' "$spec"
+grep -Fq 'Candidate State Cells' "$spec"
+grep -Fq 'Synthetic Conformance Vectors' "$spec"
 
 forbidden_terms=(
   'reverse engineering' decompil disassembl firmware corpus ghidra provenance

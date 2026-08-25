@@ -36,6 +36,32 @@ selected from an interface name, connector, or single received frame.
 opaque7 MUST be retained without a semantic assignment. The layout does not
 establish sender/receiver direction or a final unit identity.
 
+## Candidate Identifier Gate
+
+A Gree candidate data frame MUST use a 29-bit extended identifier and satisfy
+all of the following conditions:
+
+~~~text
+class8 = 0xf7
+unit7  = 8
+opcode7 in { 0x10, 0x11, 0x52, 0x58 }
+~~~
+
+The equivalent single comparison is:
+
+~~~text
+(id & 0x1fe0007f) in {
+  0x1ee00010,
+  0x1ee00011,
+  0x1ee00052,
+  0x1ee00058,
+}
+~~~
+
+`opaque7` remains part of the source identity and MUST NOT be normalized,
+discarded, or assigned a device meaning. A standard identifier, a different
+class8 or unit7 value, or any other opcode7 is outside this candidate contract.
+
 ## Receive Layout
 
 For table-driven data frames, data[0] is start_coordinate and the remaining
@@ -83,6 +109,29 @@ established by this revision. A later revision MAY define them only with a
 complete deterministic map and an exact capability gate. All frames, fields,
 and selectors remain opaque in this revision.
 
+## Candidate State Cells
+
+The following state cells are bounded storage locations, not HVAC properties.
+They have no unit, range, direction, writability, or user-visible name. A
+receiver MUST update a cell only when the coordinate stream completely covers
+the listed coordinate or coordinate pair. Any uncovered, malformed, or
+unlisted cell remains opaque.
+
+| opcode7 | Required coordinate coverage | Opaque state cell update |
+| --- | --- | --- |
+| `0x10` | `0x05` through `0x06` | `state_0f`, `state_10` from the two byte coordinates |
+| `0x10` | `0x20` | `state_11` from the byte coordinate |
+| `0x52` | packed bit coordinate `0x59` | `state_12` from that one packed bit |
+| `0x58` | `0x5d` through `0x5e` | `state_13`, `state_14` from the two byte coordinates |
+| `0x58` | `0x5f` through `0x60` | `state_15`, `state_16` from the two byte coordinates |
+| `0x58` | `0x59` through `0x5a` | `state_17`, `state_18` from the two byte coordinates |
+| `0x58` | `0x5b` through `0x5c` | `state_19`, `state_1a` from the two byte coordinates |
+| `0x11` | `0x09` | `state_1b` from the byte coordinate |
+
+These cells are an internal candidate frame/state boundary only. They MUST NOT
+be projected as temperatures, modes, alarms, setpoints, equipment identities,
+or other semantic values.
+
 ## Registry Admission
 
 A registry MUST require explicit Gree candidate profile selection and every
@@ -99,6 +148,28 @@ overlap MUST produce an opaque observation with no vendor projection.
 | Coordinate span above 0xff | Opaque observation; no Gree projection |
 | M115 selector match | Opaque observation; no Gree projection |
 | Any M94 candidate frame | Opaque observation; no Gree projection |
+
+## Synthetic Conformance Vectors
+
+The following vectors are synthetic and define only this candidate contract.
+Each accepted vector has an extended identifier, `class8 = 0xf7`, and
+`unit7 = 8`. Hex payloads include `start_coordinate` as their first byte.
+
+| Identifier | DLC | Payload | Required opaque result |
+| --- | --- | --- | --- |
+| `0x1ee00010` | 3 | `05 a1 a2` | `state_0f = a1`, `state_10 = a2` |
+| `0x1ee00010` | 2 | `20 a3` | `state_11 = a3` |
+| `0x1ee00052` | 2 | `59 01` | packed-bit update of `state_12` |
+| `0x1ee00058` | 3 | `5d a4 a5` | `state_13 = a4`, `state_14 = a5` |
+| `0x1ee00058` | 3 | `5f a6 a7` | `state_15 = a6`, `state_16 = a7` |
+| `0x1ee00058` | 3 | `59 a8 a9` | `state_17 = a8`, `state_18 = a9` |
+| `0x1ee00058` | 3 | `5b aa ab` | `state_19 = aa`, `state_1a = ab` |
+| `0x1ee00011` | 2 | `09 ac` | `state_1b = ac` |
+
+The following inputs MUST be rejected as candidate state updates: a standard
+identifier; an identifier with a class8, unit7, or opcode7 outside the gate; a
+DLC of zero; or a stream that does not cover every required coordinate. A
+rejected input has no candidate state update and no semantic projection.
 
 ## Compatibility
 

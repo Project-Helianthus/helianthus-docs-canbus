@@ -16,9 +16,9 @@ transmit, probing, configuration, acknowledgment, and live bus actions.
 ## Documentation Routing
 
 This repository is the public CAN documentation destination:
-https://github.com/Project-Helianthus/helianthus-docs-canbus. Gree VRF CAN and
-UART public protocol material is canonical in
-https://github.com/Project-Helianthus/helianthus-docs-gree-vrf.
+https://github.com/Project-Helianthus/helianthus-docs-canbus. Gree VRF CAN
+protocol material is canonical under `protocols/gree/`; UART remains a
+separate protocol surface and MUST NOT be conflated with CAN.
 
 ## Workflow
 
