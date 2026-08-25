@@ -12,21 +12,24 @@ required=(
   'contracts/socketcan-receive-only.md'
   'protocols/LICENSE'
   'protocols/gree/vrf-canbus.md'
-  'protocols/growatt/low-voltage-bms-can-v105.md'
+  'protocols/growatt/low-voltage-bms-can-v104.md'
 )
 
 for path in "${required[@]}"; do
   test -f "$path"
 done
 
-growatt_spec='protocols/growatt/low-voltage-bms-can-v105.md'
-for heading in 'Scope and Safety' 'Candidate Link Metadata' 'Candidate Applicability' 'Admission and Evidence' 'Compatibility'; do
+growatt_spec='protocols/growatt/low-voltage-bms-can-v104.md'
+for heading in 'Scope and Safety' 'Link Profile' 'Required Frame Geometry' 'Frame Map' 'Status and Errors' 'Optional Frames' 'Registry Admission' 'Unknown Data' 'Compatibility'; do
   grep -Fqx "## $heading" "$growatt_spec"
 done
 grep -Fq '500 kbit/s' "$growatt_spec"
-grep -Fq 'No electrical inference is permitted' "$growatt_spec"
-grep -Fq 'It does not authorize a registry flavor or' "$growatt_spec"
-grep -Fq 'remain opaque and no Growatt registry classifier' "$growatt_spec"
+grep -Fq '11-bit standard' "$growatt_spec"
+grep -Fq 'big-endian' "$growatt_spec"
+grep -Fq '0x311' "$growatt_spec"
+grep -Fq '0x313' "$growatt_spec"
+grep -Fq '0x321' "$growatt_spec"
+grep -Fq 'MUST remain opaque' "$growatt_spec"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
