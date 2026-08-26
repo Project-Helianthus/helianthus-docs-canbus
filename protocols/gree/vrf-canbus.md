@@ -171,6 +171,23 @@ otherwise valid decode attempt has no matching row.
 These transforms describe state projection only. They do not establish final
 property names or units.
 
+## Bounded Opaque Cell Projection
+
+After the candidate identifier gate, frame gates, selected map, and applicable
+post-decode cleanup succeed, an implementation may expose each updated state
+cell as the bounded pair `cell` and `value`. `cell` is the numeric state-cell
+identifier and `value` is its final unsigned byte after all ordered updates.
+
+The pair remains opaque. It has no unit, range, direction, writability,
+equipment identity, or HVAC property meaning. A rejected or unqualified frame
+has no cell/value projection.
+
+When an implementation receives native frame context, it must retain and
+expose every available identifier field, identifier format, DLC, raw DLC, and
+payload byte. Native data remains separate from a semantic projection. A
+missing native field must not be fabricated, hashed, summarized, or replaced
+with a redaction marker.
+
 ## Offline Command Encoding Boundary
 
 The [command map](gree-vrf-command-map.md) defines deterministic in-memory

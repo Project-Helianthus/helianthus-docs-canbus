@@ -63,6 +63,7 @@ headings=(
   'Receive Layout'
   'Active Maps'
   'State-Cell Update Rules'
+  'Bounded Opaque Cell Projection'
   'Offline Command Encoding Boundary'
   'Compatibility'
 )
@@ -87,6 +88,10 @@ grep -Fq '`M94` | `A` | 94 | 73' "$spec"
 grep -Fq '`M115` | `B` | 115 | 83' "$spec"
 grep -Fq '0x220d' "$spec"
 grep -Fq 'all_slot_flags' "$spec"
+grep -Fq 'cell` and `value`' "$spec"
+grep -Fq 'A rejected or unqualified frame' "$spec"
+grep -Fq 'identifier format, DLC, raw DLC, and' "$spec"
+grep -Fq 'must not be fabricated, hashed, summarized, or replaced' "$spec"
 grep -Fq 'exactly `0x23 bytes` long' protocols/gree/gree-vrf-can-bridge-record-v1.md
 grep -Fq '19..20' protocols/gree/gree-vrf-can-bridge-record-v1.md
 grep -Fq 'recipient, transport, direction, timing, or' protocols/gree/gree-vrf-can-bridge-record-v1.md

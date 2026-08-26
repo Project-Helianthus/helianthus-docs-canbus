@@ -71,6 +71,16 @@ copy_fixture "$bridge_boundary_fixture"
 perl -0pi -e 's/recipient, transport, direction, timing, or/recipient, transport, direction, timing, target checksum rule, or/' "$bridge_boundary_fixture/protocols/gree/gree-vrf-can-bridge-record-v1.md"
 assert_rejected "$bridge_boundary_fixture"
 
+opaque_projection_fixture="$tmp_dir/opaque-projection"
+copy_fixture "$opaque_projection_fixture"
+perl -0pi -e 's/## Bounded Opaque Cell Projection/## Opaque Cell Projection/' "$opaque_projection_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$opaque_projection_fixture"
+
+raw_projection_fixture="$tmp_dir/raw-projection"
+copy_fixture "$raw_projection_fixture"
+perl -0pi -e 's/identifier format, DLC, raw DLC, and/identifier format and/' "$raw_projection_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$raw_projection_fixture"
+
 emit_fixture="$tmp_dir/emit"
 copy_fixture "$emit_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY emit a diagnostic CAN frame./' "$emit_fixture/protocols/gree/vrf-canbus.md"
