@@ -608,6 +608,7 @@ DEFAULT_ROOT = Path(__file__).resolve().parents[1] / "protocols" / "gree"
 EXPECTED_FILES = (
     "README.md",
     "gree-vrf-can-bridge-record-v1.md",
+    "gree-vrf-can-opaque-cell-mcp-v1.md",
     "gree-vrf-can-profile.json",
     "gree-vrf-command-map.json",
     "gree-vrf-command-map.md",
@@ -629,6 +630,9 @@ MARKDOWN_REQUIRED_CLAIMS = {
     ),
     "gree-vrf-can-bridge-record-v1.md": (
         ("bounded bridge record", ("exactly `0x23 bytes` long", "19..20", "must remain separate from uart")),
+    ),
+    "gree-vrf-can-opaque-cell-mcp-v1.md": (
+        ("opaque-cell boundary", ("native byte value exactly", "remains opaque", "read-only api contract")),
     ),
     "vrf-uart.md": (
         ("UART envelope", ("`57600 8n1`", "`0x05d1`", "total frame length is `n + 19`")),
