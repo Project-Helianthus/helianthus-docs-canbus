@@ -39,7 +39,7 @@ for contract in "${json_contracts[@]}"; do
 done
 
 growatt_spec='protocols/growatt/low-voltage-bms-can-v104.md'
-for heading in 'Scope and Safety' 'Link Profile' 'Required Frame Geometry' 'Frame Map' 'Status and Errors' 'Optional Frames' 'Registry Admission' 'Unknown Data' 'Compatibility'; do
+for heading in 'Scope and Safety' 'Link Profile' 'Required Frame Geometry' 'Frame Map' 'Status and Errors' 'Optional Frames' 'Registry Admission' 'Native MCP Observation Boundary' 'Unknown Data' 'Compatibility'; do
   grep -Fqx "## $heading" "$growatt_spec"
 done
 grep -Fq '500 kbit/s' "$growatt_spec"
@@ -49,6 +49,9 @@ grep -Fq '0x311' "$growatt_spec"
 grep -Fq '0x313' "$growatt_spec"
 grep -Fq '0x321' "$growatt_spec"
 grep -Fq 'MUST remain opaque' "$growatt_spec"
+grep -Fq 'raw_evidence' "$growatt_spec"
+grep -Fq 'outbound_allowed' "$growatt_spec"
+grep -Fq 'Payload bytes beyond the effective payload length' "$growatt_spec"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
