@@ -12,6 +12,7 @@ other.
 - [UART-to-CAN command map](gree-vrf-command-map.md)
 - [Machine-readable command map](gree-vrf-command-map.json)
 - [CAN bridge-record boundary](gree-vrf-can-bridge-record-v1.md)
+- [Opaque-cell MCP candidate boundary](gree-vrf-can-opaque-cell-mcp-v1.md)
 
 The bridge-record boundary is structural only. Its opaque positions, recipient,
 direction, and trailer remain unspecified; it is not a complete parser or
