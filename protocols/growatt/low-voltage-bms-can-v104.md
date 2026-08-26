@@ -102,6 +102,54 @@ If two profiles admit the same evidence, the registry MUST return no profile
 and no semantic projection. If the required tuple is incomplete, malformed, or
 inconsistent, the evidence MUST remain raw and opaque.
 
+## Native MCP Observation Boundary
+
+An MCP status result for an admitted V1.04 snapshot MUST retain each available
+native observation alongside its decoded fields. `raw_evidence` records use the
+following fields when the provider has them: interface identity, listener
+sequence, monotonic observation time, identifier, extended-identifier state,
+RTR state, effective payload length, raw DLC, and data bytes.
+
+The implementation MUST preserve an available native field without replacing it
+with a digest, a placeholder, or a semantic substitute. A provider that lacks a
+field leaves that field unavailable; it MUST NOT fabricate a value from another
+observation. Payload bytes beyond the effective payload length are not frame
+payload and MUST NOT be reported as live data. The V1.04 frames defined here
+have effective payload length eight, so all eight data bytes are preserved for
+an accepted report frame. Raw DLC remains transport metadata and does not extend
+the payload beyond eight bytes.
+
+An invalid individual raw observation MUST NOT clear an otherwise admitted
+snapshot or its valid decoded values. It remains a transport diagnostic outcome
+and is either excluded from `raw_evidence` or reported by the transport's error
+contract without becoming a V1.04 frame projection.
+
+`outbound_allowed` reflects the provider's available capability state. It does
+not authorize a caller to transmit, acknowledge, probe, configure, or mutate a
+CAN interface or attached equipment.
+
+The following is synthetic structural data only:
+
+```json
+{
+  "profile": "growatt.bms.low_voltage.can.v1_04",
+  "outbound_allowed": false,
+  "raw_evidence": [
+    {
+      "interface": "can0",
+      "sequence": 1,
+      "monotonic_nanos": 0,
+      "identifier": 785,
+      "extended": false,
+      "rtr": false,
+      "dlc": 8,
+      "raw_dlc": 8,
+      "data": [0, 0, 0, 0, 0, 0, 0, 0]
+    }
+  ]
+}
+```
+
 ## Unknown Data
 
 Frames outside the listed identifiers, reserved payload bits, unknown version
