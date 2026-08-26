@@ -11,12 +11,31 @@ required=(
   'contracts/socketcan-replay.md'
   'contracts/socketcan-receive-only.md'
   'protocols/LICENSE'
+  'protocols/gree/README.md'
   'protocols/gree/vrf-canbus.md'
+  'protocols/gree/gree-vrf-can-profile.json'
+  'protocols/gree/gree-vrf-command-map.md'
+  'protocols/gree/gree-vrf-command-map.json'
+  'protocols/gree/gree-vrf-can-bridge-record-v1.md'
+  'protocols/gree/vrf-uart.md'
+  'protocols/gree/gree-vrf-uart.json'
+  'protocols/gree/gree-vrf-property-catalog.md'
+  'protocols/gree/gree-vrf-uart-vectors.json'
   'protocols/growatt/low-voltage-bms-can-v104.md'
 )
 
 for path in "${required[@]}"; do
   test -f "$path"
+done
+
+json_contracts=(
+  'protocols/gree/gree-vrf-can-profile.json'
+  'protocols/gree/gree-vrf-command-map.json'
+  'protocols/gree/gree-vrf-uart.json'
+  'protocols/gree/gree-vrf-uart-vectors.json'
+)
+for contract in "${json_contracts[@]}"; do
+  python3 -m json.tool "$contract" >/dev/null
 done
 
 growatt_spec='protocols/growatt/low-voltage-bms-can-v104.md'
@@ -40,11 +59,11 @@ headings=(
   'Scope and Safety'
   'Candidate Link Profile'
   'Extended Identifier Layout'
+  'Candidate Identifier Gate'
   'Receive Layout'
-  'Candidate Decode Families'
-  'State and Unknown Data'
-  'Registry Admission'
-  'Conformance Examples'
+  'Active Maps'
+  'State-Cell Update Rules'
+  'Offline Command Encoding Boundary'
   'Compatibility'
 )
 for heading in "${headings[@]}"; do
@@ -54,7 +73,7 @@ done
 grep -Fq 'receive-only' "$spec"
 grep -Fq '20 kbit/s' "$spec"
 grep -Fq '29-bit extended' "$spec"
-grep -Fq 'Not equivalent to CAN' "$spec"
+grep -Fq 'CAN+ is only a hypothesis' "$spec"
 grep -Fq 'M94' "$spec"
 grep -Fq 'M115' "$spec"
 grep -Fq '0x1fe0007f' "$spec"
@@ -63,25 +82,29 @@ grep -Fq '0x1ee00011' "$spec"
 grep -Fq '0x1ee00052' "$spec"
 grep -Fq '0x1ee00058' "$spec"
 grep -Fq 'class8 = 0xf7' "$spec"
-grep -Fq 'unit7 = 8' "$spec"
-grep -Fq '0x1ee00410' "$spec"
-grep -Fq '0x1ee00411' "$spec"
-grep -Fq '0x1ee00452' "$spec"
-grep -Fq '0x1ee00458' "$spec"
-if grep -Fq '0x1ee00010` |' "$spec"; then
-  echo 'Gree candidate vectors omit the required unit7 field' >&2
-  exit 1
-fi
-grep -Fq 'Candidate State Cells' "$spec"
-grep -Fq 'Synthetic Conformance Vectors' "$spec"
+grep -Fq 'unit7  = 8' "$spec"
+grep -Fq '`M94` | `A` | 94 | 73' "$spec"
+grep -Fq '`M115` | `B` | 115 | 83' "$spec"
+grep -Fq '0x220d' "$spec"
+grep -Fq 'all_slot_flags' "$spec"
+grep -Fq 'exactly `0x23 bytes` long' protocols/gree/gree-vrf-can-bridge-record-v1.md
+grep -Fq '19..20' protocols/gree/gree-vrf-can-bridge-record-v1.md
+grep -Fq 'recipient, transport, direction, timing, or' protocols/gree/gree-vrf-can-bridge-record-v1.md
+grep -Fq '`57600 8N1`' protocols/gree/vrf-uart.md
+grep -Fq '0x05d1' protocols/gree/vrf-uart.md
+grep -Fq 'Gree VRF Protocol Contracts' protocols/gree/README.md
 
 forbidden_terms=(
   'reverse engineering' decompil disassembl firmware corpus ghidra provenance
   acquisition capture laboratory trace dump 'mapping source' 'installed field unit'
   'obtained from' 'source archive' 'vendor manual'
 )
+gree_docs=()
+while IFS= read -r doc; do
+  gree_docs+=("$doc")
+done < <(find protocols/gree -type f -print | sort)
 for forbidden in "${forbidden_terms[@]}"; do
-  if grep -Fiq "$forbidden" "$spec"; then
+  if grep -Fiq "$forbidden" "${gree_docs[@]}"; then
     echo "Gree protocol contract contains prohibited material: $forbidden" >&2
     exit 1
   fi

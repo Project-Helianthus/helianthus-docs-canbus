@@ -56,6 +56,21 @@ copy_fixture "$permission_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY be used to transmit a diagnostic frame./' "$permission_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$permission_fixture"
 
+gree_contract_fixture="$tmp_dir/gree-contract"
+copy_fixture "$gree_contract_fixture"
+rm "$gree_contract_fixture/protocols/gree/gree-vrf-can-profile.json"
+assert_rejected "$gree_contract_fixture"
+
+gree_json_fixture="$tmp_dir/gree-json"
+copy_fixture "$gree_json_fixture"
+printf '\nnot-json\n' >> "$gree_json_fixture/protocols/gree/gree-vrf-can-profile.json"
+assert_rejected "$gree_json_fixture"
+
+bridge_boundary_fixture="$tmp_dir/bridge-boundary"
+copy_fixture "$bridge_boundary_fixture"
+perl -0pi -e 's/recipient, transport, direction, timing, or/recipient, transport, direction, timing, target checksum rule, or/' "$bridge_boundary_fixture/protocols/gree/gree-vrf-can-bridge-record-v1.md"
+assert_rejected "$bridge_boundary_fixture"
+
 emit_fixture="$tmp_dir/emit"
 copy_fixture "$emit_fixture"
 perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY emit a diagnostic CAN frame./' "$emit_fixture/protocols/gree/vrf-canbus.md"

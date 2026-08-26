@@ -1,0 +1,1071 @@
+{
+  "candidate_command_identifier": {
+    "extended_id_formula": "word & 0x1fffffff",
+    "fixed_prefix": null,
+    "seed_status": "opaque",
+    "word_formula": "(seed & 0xffffc000) | 0x001fc000 | (unit7 << 7) | ((register >> 8) & 0x7f)"
+  },
+  "encodings": {
+    "0x6f": {
+      "data": [
+        "register_index",
+        "0x01",
+        "bool(value)"
+      ],
+      "dlc": 3,
+      "kind": "bool"
+    },
+    "0x71": {
+      "data": [
+        "register_index",
+        "0x01",
+        "value"
+      ],
+      "dlc": 3,
+      "kind": "u8"
+    },
+    "0x73": {
+      "data": [
+        "register_index",
+        "0x03",
+        "value_lo",
+        "value_hi"
+      ],
+      "dlc": 4,
+      "kind": "u16_le"
+    }
+  },
+  "entries": [
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x00",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "GetEr"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x01",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x02",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x03",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x04",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x05",
+      "profile_a_candidate_labels": [
+        "AllErr",
+        "GetEr"
+      ],
+      "profile_b_candidate_labels": [
+        "Pow"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x06",
+      "profile_a_candidate_labels": [
+        "Pow"
+      ],
+      "profile_b_candidate_labels": [
+        "Tur"
+      ],
+      "raw_u16le": "0x6f00",
+      "register": "0x6f00"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x07",
+      "profile_a_candidate_labels": [
+        "MasSub"
+      ],
+      "profile_b_candidate_labels": [
+        "ModS"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x08",
+      "profile_a_candidate_labels": [
+        "SvSt"
+      ],
+      "profile_b_candidate_labels": [
+        "FanMod"
+      ],
+      "raw_u16le": "0x6f02",
+      "register": "0x6f02"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x09",
+      "profile_a_candidate_labels": [
+        "Blo"
+      ],
+      "profile_b_candidate_labels": [
+        "WdSpd"
+      ],
+      "raw_u16le": "0x6f15",
+      "register": "0x6f15"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x0a",
+      "profile_a_candidate_labels": [
+        "Air"
+      ],
+      "profile_b_candidate_labels": [
+        "RunMod"
+      ],
+      "raw_u16le": "0x6f16",
+      "register": "0x6f16"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x0b",
+      "profile_a_candidate_labels": [
+        "Mod"
+      ],
+      "profile_b_candidate_labels": [
+        "IDUAirQu"
+      ],
+      "raw_u16le": "0x7100",
+      "register": "0x7100"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x0c",
+      "profile_a_candidate_labels": [
+        "Quiet"
+      ],
+      "profile_b_candidate_labels": [
+        "ODUViti"
+      ],
+      "raw_u16le": "0x710c",
+      "register": "0x710c"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x0d",
+      "profile_a_candidate_labels": [
+        "SwhSlp"
+      ],
+      "profile_b_candidate_labels": [
+        "Inloop"
+      ],
+      "raw_u16le": "0x710d",
+      "register": "0x710d"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x0e",
+      "profile_a_candidate_labels": [
+        "Tur"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f01",
+      "register": "0x6f01"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x0f",
+      "profile_a_candidate_labels": [
+        "WdSpd"
+      ],
+      "profile_b_candidate_labels": [
+        "InVitiGr"
+      ],
+      "raw_u16le": "0x7101",
+      "register": "0x7101"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x10",
+      "profile_a_candidate_labels": [
+        "SetDeciTem",
+        "SetTem"
+      ],
+      "profile_b_candidate_labels": [
+        "InVitiGrCg"
+      ],
+      "raw_u16le": "0x7300",
+      "register": "0x7300"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x11",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "IFDtiGr"
+      ],
+      "raw_u16le": "0x7301",
+      "register": "0x7301"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x12",
+      "profile_a_candidate_labels": [
+        "CoolSvStTemMin"
+      ],
+      "profile_b_candidate_labels": [
+        "VitiGr"
+      ],
+      "raw_u16le": "0x7302",
+      "register": "0x7302"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x13",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "TemSor"
+      ],
+      "raw_u16le": "0x7303",
+      "register": "0x7303"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x14",
+      "profile_a_candidate_labels": [
+        "HeatSvStTemMax"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7304",
+      "register": "0x7304"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x15",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7305",
+      "register": "0x7305"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x16",
+      "profile_a_candidate_labels": [
+        "HumiSvStTemMin"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7306",
+      "register": "0x7306"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x17",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7307",
+      "register": "0x7307"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x18",
+      "profile_a_candidate_labels": [
+        "Heat3DSvStTemMax"
+      ],
+      "profile_b_candidate_labels": [
+        "HumSor"
+      ],
+      "raw_u16le": "0x7308",
+      "register": "0x7308"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x19",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7309",
+      "register": "0x7309"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x1a",
+      "profile_a_candidate_labels": [
+        "Heat2SvStTemMax"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x730a",
+      "register": "0x730a"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x1b",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x730b",
+      "register": "0x730b"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x1c",
+      "profile_a_candidate_labels": [
+        "MasIDUMod"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x1d",
+      "profile_a_candidate_labels": [
+        "GoOut",
+        "OutHome"
+      ],
+      "profile_b_candidate_labels": [
+        "InEffClRes"
+      ],
+      "raw_u16le": "0x6f10",
+      "register": "0x6f10"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x1e",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "InEffReRes"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x1f",
+      "profile_a_candidate_labels": [
+        "AidHeat",
+        "AssHt"
+      ],
+      "profile_b_candidate_labels": [
+        "AirQu"
+      ],
+      "raw_u16le": "0x6f18",
+      "register": "0x6f18"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x20",
+      "profile_a_candidate_labels": [
+        "SetCoolHumi"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7115",
+      "register": "0x7115"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x21",
+      "profile_a_candidate_labels": [
+        "SysSta"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x22",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x23",
+      "profile_a_candidate_labels": [
+        "TemBody"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x24",
+      "profile_a_candidate_labels": [
+        "HumiEnable"
+      ],
+      "profile_b_candidate_labels": [
+        "PM2P5"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x25",
+      "profile_a_candidate_labels": [
+        "SwUpDn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7102",
+      "register": "0x7102"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x26",
+      "profile_a_candidate_labels": [
+        "SwingLfRig"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7103",
+      "register": "0x7103"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x27",
+      "profile_a_candidate_labels": [
+        "Add0.1"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x28",
+      "profile_a_candidate_labels": [
+        "LowDeHumi"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f17",
+      "register": "0x6f17"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x29",
+      "profile_a_candidate_labels": [
+        "CleanTime"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x2a",
+      "profile_a_candidate_labels": [
+        "CleanState"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x2b",
+      "profile_a_candidate_labels": [
+        "AutoClean"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x71b5",
+      "register": "0x71b5"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x2c",
+      "profile_a_candidate_labels": [
+        "Add0.5"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x2d",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x2e",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "VOC"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x2f",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x30",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x31",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x32",
+      "profile_a_candidate_labels": [
+        "ErrType1"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x33",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x34",
+      "profile_a_candidate_labels": [
+        "ErrType2"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x35",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x36",
+      "profile_a_candidate_labels": [
+        "WFConfig"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x37",
+      "profile_a_candidate_labels": [
+        "WPow"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f00",
+      "register": "0x6f00"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x38",
+      "profile_a_candidate_labels": [
+        "Wstate"
+      ],
+      "profile_b_candidate_labels": [
+        "CO2"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x39",
+      "profile_a_candidate_labels": [
+        "Wmod"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7118",
+      "register": "0x7118"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x3a",
+      "profile_a_candidate_labels": [
+        "WtmrMin"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7120",
+      "register": "0x7120"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x3b",
+      "profile_a_candidate_labels": [
+        "WtmrHr"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x7121",
+      "register": "0x7121"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x3c",
+      "profile_a_candidate_labels": [
+        "WSetTemMax"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x3d",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x3e",
+      "profile_a_candidate_labels": [
+        "Watpercent"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x3f",
+      "profile_a_candidate_labels": [
+        "WSunEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f1c",
+      "register": "0x6f1c"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x40",
+      "profile_a_candidate_labels": [
+        "WAutoSetTemEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f1e",
+      "register": "0x6f1e"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x41",
+      "profile_a_candidate_labels": [
+        "WUTHEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f1f",
+      "register": "0x6f1f"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x42",
+      "profile_a_candidate_labels": [
+        "WUTHSetTem"
+      ],
+      "profile_b_candidate_labels": [
+        "PctCle"
+      ],
+      "raw_u16le": "0x7316",
+      "register": "0x7316"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x43",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "PctRe"
+      ],
+      "raw_u16le": "0x7317",
+      "register": "0x7317"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x44",
+      "profile_a_candidate_labels": [
+        "WUTHCycle"
+      ],
+      "profile_b_candidate_labels": [
+        "IFDClRes"
+      ],
+      "raw_u16le": "0x7119",
+      "register": "0x7119"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x45",
+      "profile_a_candidate_labels": [
+        "WUTHTmrMin"
+      ],
+      "profile_b_candidate_labels": [
+        "EffReRes"
+      ],
+      "raw_u16le": "0x711a",
+      "register": "0x711a"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u8",
+      "id": "0x46",
+      "profile_a_candidate_labels": [
+        "WUTHTmrHr"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x711b",
+      "register": "0x711b"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x47",
+      "profile_a_candidate_labels": [
+        "WUTHOngoing"
+      ],
+      "profile_b_candidate_labels": [
+        "GasAvail"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x48",
+      "profile_a_candidate_labels": [
+        "WFastWat"
+      ],
+      "profile_b_candidate_labels": [
+        "GasLED"
+      ],
+      "raw_u16le": "0x6f1d",
+      "register": "0x6f1d"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x49",
+      "profile_a_candidate_labels": [
+        "FPow"
+      ],
+      "profile_b_candidate_labels": [
+        "GasMod"
+      ],
+      "raw_u16le": "0x6f21",
+      "register": "0x6f21"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x4a",
+      "profile_a_candidate_labels": [
+        "Fstate"
+      ],
+      "profile_b_candidate_labels": [
+        "GasMas"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x4b",
+      "profile_a_candidate_labels": [
+        "FSetTem"
+      ],
+      "profile_b_candidate_labels": [
+        "PM2P5Sta"
+      ],
+      "raw_u16le": "0x7326",
+      "register": "0x7326"
+    },
+    {
+      "classification": "supported",
+      "encoding": "u16_le",
+      "id": "0x4c",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [
+        "SorErr"
+      ],
+      "raw_u16le": "0x7327",
+      "register": "0x7327"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x4d",
+      "profile_a_candidate_labels": [
+        "FSetTemMax"
+      ],
+      "profile_b_candidate_labels": [
+        "CommErr"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x4e",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x4f",
+      "profile_a_candidate_labels": [
+        "FAutoSetTemEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f23",
+      "register": "0x6f23"
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x50",
+      "profile_a_candidate_labels": [
+        "FFastHeat"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f2f",
+      "register": "0x6f2f"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x51",
+      "profile_a_candidate_labels": [
+        "FIndoorEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "supported",
+      "encoding": "bool",
+      "id": "0x52",
+      "profile_a_candidate_labels": [
+        "FOutHomeEn"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x6f30",
+      "register": "0x6f30"
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x53",
+      "profile_a_candidate_labels": [
+        "ExtraMod"
+      ],
+      "profile_b_candidate_labels": [
+        "ErrType"
+      ],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x54",
+      "profile_a_candidate_labels": [
+        "WCurTem"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x55",
+      "profile_a_candidate_labels": [
+        "FCurTem"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "reserved_sentinel",
+      "encoding": null,
+      "id": "0x56",
+      "profile_a_candidate_labels": [
+        "WatTemWrap"
+      ],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0xffff",
+      "register": null
+    },
+    {
+      "classification": "unsupported_width",
+      "encoding": "unsupported",
+      "id": "0x57",
+      "profile_a_candidate_labels": [],
+      "profile_b_candidate_labels": [],
+      "raw_u16le": "0x0000",
+      "register": "0x0000"
+    }
+  ],
+  "profile_boundary": {
+    "active_m152": false,
+    "labels": "noncanonical_profile_qualified_candidates",
+    "profile_b_write_mapping": false
+  },
+  "schema": "gree.vrf.uart-to-can-command-map",
+  "schema_version": 1,
+  "status": "documentation_only",
+  "table": {
+    "entry_count": 88,
+    "first_id": "0x00",
+    "last_id": "0x57",
+    "out_of_table_from": "0x58",
+    "summary": {
+      "encodable": 47,
+      "reserved_ffff": 40,
+      "unsupported_width": 1
+    }
+  },
+  "time_payload": {
+    "data": [
+      "packed_decimal_year",
+      "packed_decimal_month",
+      "packed_decimal_day",
+      "packed_decimal_hour",
+      "packed_decimal_minute",
+      "packed_decimal_second",
+      "packed_decimal_weekday",
+      "0x02"
+    ],
+    "delivery_receipt": false,
+    "dlc": 8,
+    "extended_id": "0x04820000",
+    "uart_type": "0x77"
+  },
+  "write_policy": {
+    "acceptance_claim": false,
+    "delivery_claim": false,
+    "enabled": false,
+    "safety": "unsafe"
+  }
+}
