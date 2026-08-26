@@ -1,0 +1,274 @@
+{
+  "header_segments": {
+    "reply_segment_0": "08090a0b0c0d0e",
+    "reply_segment_1": "01020304050607",
+    "request_segment_0": "01020304050607",
+    "request_segment_1": "08090a0b0c0d0e"
+  },
+  "invalid_frames": [
+    {
+      "expected": "no_reply_short_frame",
+      "frame_hex": "7e7e0102",
+      "name": "too_short"
+    },
+    {
+      "expected": "no_reply_bad_sync",
+      "frame_hex": "7e7d0102030405060708090a0b0c0d0e00065100100203043f",
+      "name": "bad_sync"
+    },
+    {
+      "expected": "no_reply_oversized_payload",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e05d25100",
+      "name": "payload_too_long"
+    },
+    {
+      "expected": "no_reply_truncated_frame",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e00065100100203",
+      "name": "truncated"
+    },
+    {
+      "expected": "no_reply_checksum_error",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e00065100100203043e",
+      "name": "checksum_mismatch"
+    },
+    {
+      "expected": "no_reply_payload_structural_error",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000651001003123402",
+      "name": "q_count_truncated"
+    },
+    {
+      "expected": {
+        "no_mutation": true,
+        "reason": "payload_structural_error",
+        "reply": "none"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000551001001aa3e",
+      "name": "q_profile_a_two_byte_item_missing_following_value",
+      "profile": "A"
+    },
+    {
+      "expected": "no_reply_payload_structural_error",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000652000110021250",
+      "name": "r_entry_truncated"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "envelope": "valid",
+        "no_mutation": true,
+        "outcome": "no_reply",
+        "rejection_stage": "profile_a_typed_value",
+        "reason": "payload_structural_error",
+        "reply": "none"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e00065200011001aaf5",
+      "name": "r_profile_a_typed_value_short_data",
+      "payload_hex": "5200011001aa",
+      "profile": "A"
+    },
+    {
+      "expected": "no_reply_payload_structural_error",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e0003550001ad",
+      "name": "u_missing_count"
+    },
+    {
+      "expected": "no_reply_payload_structural_error",
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000377122549",
+      "name": "w_truncated"
+    }
+  ],
+  "payload_only_vectors": [
+    {
+      "direction": "controller_to_peer",
+      "expected": {
+        "reply": "none",
+        "triplets": [
+          {
+            "prefix": "0x00",
+            "state_cell_id": "0x06",
+            "value": "0x01"
+          }
+        ],
+        "type": "p"
+      },
+      "header_segment_0": "ffffffffffffff",
+      "header_segment_1": "01020304050607",
+      "name": "p_single_delta",
+      "payload_hex": "70000601"
+    },
+    {
+      "direction": "controller_to_peer",
+      "expected": {
+        "opaque_status_hex": "0102030405060708090a0b0c0d",
+        "payload_length": 16,
+        "reply": "none",
+        "reserved_hex": "0000",
+        "type": "s"
+      },
+      "name": "s_status_event",
+      "payload_hex": "7300000102030405060708090a0b0c0d"
+    }
+  ],
+  "schema": "gree.vrf.uart.normative-vectors",
+  "schema_version": 1,
+  "segmentation_vectors": [
+    {
+      "expected": "same_segment",
+      "gap_ms": 19.999,
+      "name": "below_nominal_gap"
+    },
+    {
+      "expected": "new_segment",
+      "gap_ms": 20.001,
+      "name": "above_nominal_gap"
+    },
+    {
+      "expected": "runtime_validation_required",
+      "gap_ms": 20.0,
+      "name": "exact_nominal_gap"
+    }
+  ],
+  "valid_frames": [
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "base_id": "0x10",
+        "combined_first_value_be": "0x0304",
+        "count": 2,
+        "reply_payload_hex": "51",
+        "type": "Q"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e00065100100203043f",
+      "name": "q_two_byte_value",
+      "payload_hex": "510010020304",
+      "profile": "A"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "delivery_receipt": false,
+        "entry_count": 8,
+        "reply_payload_hex": "52",
+        "type": "R"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e001d5200080501aa0a026098100212342a01552b0166440177ff01015901051f",
+      "name": "r_nested_entries",
+      "payload_hex": "5200080501aa0a026098100212342a01552b0166440177ff0101590105",
+      "profile": "A"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "envelope": "valid",
+        "no_combine": true,
+        "no_drop": true,
+        "no_mutation": true,
+        "opaque_vector_items": [
+          {
+            "id": "0x10",
+            "value_hex": "aa"
+          },
+          {
+            "id": "0x11",
+            "value_hex": "bb"
+          }
+        ],
+        "outcome": "reply",
+        "preserve_each_item": true,
+        "reply_payload_hex": "51",
+        "semantic_projection": "none",
+        "two_byte_consumption": false,
+        "type": "Q"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000651001002aabb10",
+      "name": "q_profile_b_opaque_no_combine_or_drop",
+      "payload_hex": "51001002aabb",
+      "profile": "B"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "envelope": "valid",
+        "no_drop": true,
+        "no_mutation": true,
+        "opaque_entries": [
+          {
+            "data_hex": "aa",
+            "id": "0x10"
+          }
+        ],
+        "outcome": "reply",
+        "preserve_each_entry": true,
+        "reply_payload_hex": "52",
+        "semantic_projection": "none",
+        "type": "R"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e00065200011001aaf5",
+      "name": "r_profile_b_opaque_short_data_is_not_typed_failure",
+      "payload_hex": "5200011001aa",
+      "profile": "B"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "count": 87,
+        "start": 0,
+        "type": "U"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e0004550000579f",
+      "name": "u_profile_a_request",
+      "payload_hex": "55000057"
+    },
+    {
+      "direction": "controller_to_peer",
+      "expected": {
+        "count": 3,
+        "data_hex": "010203",
+        "field16_be": "0x0000",
+        "type": "U"
+      },
+      "frame_hex": "7e7e08090a0b0c0d0e0102030405060700075503000001020313",
+      "name": "u_state_response",
+      "payload_hex": "55030000010203"
+    },
+    {
+      "direction": "peer_to_controller",
+      "expected": {
+        "decoded": [
+          112,
+          24,
+          12,
+          34,
+          56,
+          59,
+          70
+        ],
+        "reply_payload_hex": "77",
+        "type": "w"
+      },
+      "frame_hex": "7e7e0102030405060708090a0b0c0d0e000877122512345659709c",
+      "name": "w_packed_decimal",
+      "payload_hex": "7712251234565970"
+    },
+    {
+      "direction": "controller_to_peer",
+      "expected": {
+        "reply": true,
+        "type": "Q"
+      },
+      "frame_hex": "7e7e08090a0b0c0d0e01020304050607000151e4",
+      "name": "q_minimal_reply_and_header_swap",
+      "payload_hex": "51"
+    },
+    {
+      "direction": "controller_to_peer",
+      "expected": {
+        "reply": true,
+        "type": "R"
+      },
+      "frame_hex": "7e7e08090a0b0c0d0e0102030405060700015206",
+      "name": "r_minimal_reply_and_header_swap",
+      "payload_hex": "52"
+    }
+  ]
+}

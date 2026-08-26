@@ -11,7 +11,7 @@ implementation-neutral vendor protocol contracts.
 - [Passive SocketCAN diagnostic model](contracts/socketcan-diagnostics.md)
 - [Passive SocketCAN conformance replay guide](contracts/socketcan-replay.md)
 - [Receive-only SocketCAN contract](contracts/socketcan-receive-only.md)
-- [Gree VRF CAN contract](protocols/gree/vrf-canbus.md)
+- [Gree VRF protocol contracts](protocols/gree/)
 - [Growatt low-voltage BMS CAN V1.04 contract](protocols/growatt/low-voltage-bms-can-v104.md)
 
 ## Scope
