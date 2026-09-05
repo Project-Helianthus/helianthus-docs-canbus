@@ -23,6 +23,7 @@ required=(
   'protocols/gree/gree-vrf-property-catalog.md'
   'protocols/gree/gree-vrf-uart-vectors.json'
   'protocols/growatt/low-voltage-bms-can-v104.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md'
 )
 
 for path in "${required[@]}"; do
@@ -53,6 +54,18 @@ grep -Fq 'MUST remain opaque' "$growatt_spec"
 grep -Fq 'raw_evidence' "$growatt_spec"
 grep -Fq 'outbound_allowed' "$growatt_spec"
 grep -Fq 'Payload bytes beyond the effective payload length' "$growatt_spec"
+
+growatt_card='protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md'
+for heading in 'Scope' 'Preconditions' 'Sanitized Replay Input' 'Expected Native Result' 'Required Negative Controls' 'Qualification Status and Handoff'; do
+  grep -Fqx "## $heading" "$growatt_card"
+done
+grep -Fq 'growatt.bms.low_voltage.can.v1_04' "$growatt_card"
+grep -Fq 'Incomplete tuple' "$growatt_card"
+grep -Fq 'Wrong interface' "$growatt_card"
+grep -Fq 'Wrong revision / extended ID' "$growatt_card"
+grep -Fq 'Window expiry' "$growatt_card"
+grep -Fq 'Physical qualification is `false`' "$growatt_card"
+grep -Fq 'live trials are `false`' "$growatt_card"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
@@ -128,11 +141,13 @@ for forbidden in "${forbidden_terms[@]}"; do
     exit 1
   fi
 done
-for forbidden in "${forbidden_terms[@]}"; do
-  if grep -Fiq "$forbidden" "$growatt_spec"; then
-    echo "Growatt protocol contract contains prohibited material: $forbidden" >&2
-    exit 1
-  fi
+for growatt_doc in "$growatt_spec" "$growatt_card"; do
+  for forbidden in "${forbidden_terms[@]}"; do
+    if grep -Fiq "$forbidden" "$growatt_doc"; then
+      echo "Growatt protocol contract contains prohibited material: $forbidden" >&2
+      exit 1
+    fi
+  done
 done
 
 grep -Fq 'sends a CAN frame. There is no transmit API, automatic configuration, probing,' architecture/can-transport.md
