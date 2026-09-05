@@ -609,6 +609,7 @@ EXPECTED_FILES = (
     "README.md",
     "gree-vrf-can-bridge-record-v1.md",
     "gree-vrf-can-opaque-cell-mcp-v1.md",
+    "gree-vrf-can-qualification-card-v1.md",
     "gree-vrf-can-profile.json",
     "gree-vrf-command-map.json",
     "gree-vrf-command-map.md",
@@ -630,6 +631,24 @@ MARKDOWN_REQUIRED_CLAIMS = {
     ),
     "gree-vrf-can-bridge-record-v1.md": (
         ("bounded bridge record", ("exactly `0x23 bytes` long", "19..20", "must remain separate from uart")),
+    ),
+    "gree-vrf-can-qualification-card-v1.md": (
+        (
+            "offline candidate qualification boundary",
+            (
+                "offline readiness",
+                "no gree result",
+                "leaves previously retained state unchanged",
+            ),
+        ),
+        (
+            "physical and write boundary",
+            (
+                "physical qualification is `false`",
+                "listen-only mode",
+                "no path for frame submission",
+            ),
+        ),
     ),
     "gree-vrf-can-opaque-cell-mcp-v1.md": (
         ("opaque-cell boundary", ("native byte value exactly", "remains opaque", "read-only api contract")),

@@ -17,6 +17,7 @@ required=(
   'protocols/gree/gree-vrf-command-map.md'
   'protocols/gree/gree-vrf-command-map.json'
   'protocols/gree/gree-vrf-can-bridge-record-v1.md'
+  'protocols/gree/gree-vrf-can-qualification-card-v1.md'
   'protocols/gree/vrf-uart.md'
   'protocols/gree/gree-vrf-uart.json'
   'protocols/gree/gree-vrf-property-catalog.md'
@@ -101,6 +102,16 @@ grep -Fq 'recipient, transport, direction, timing, or' protocols/gree/gree-vrf-c
 grep -Fq '`57600 8N1`' protocols/gree/vrf-uart.md
 grep -Fq '0x05d1' protocols/gree/vrf-uart.md
 grep -Fq 'Gree VRF Protocol Contracts' protocols/gree/README.md
+qualification_card='protocols/gree/gree-vrf-can-qualification-card-v1.md'
+for heading in 'Scope' 'Preconditions' 'Sanitized Replay Input' 'Expected Native Result' 'Required Negative Controls' 'Qualification Status and Handoff'; do
+  grep -Fqx "## $heading" "$qualification_card"
+done
+grep -Fq 'QUALIFICATION_TEST_READY' "$qualification_card"
+grep -Fq 'Physical qualification is `false`' "$qualification_card"
+grep -Fq 'Wrong identifier' "$qualification_card"
+grep -Fq 'Wrong DLC' "$qualification_card"
+grep -Fq 'Wrong map' "$qualification_card"
+grep -Fq 'no path for frame submission' "$qualification_card"
 
 forbidden_terms=(
   'reverse engineering' decompil disassembl firmware corpus ghidra provenance
