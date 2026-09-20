@@ -76,6 +76,53 @@ copy_fixture "$growatt_version_index_fixture"
 perl -0pi -e 's/Growatt low-voltage BMS CAN version evidence/Growatt CAN evidence/' "$growatt_version_index_fixture/README.md"
 assert_rejected "$growatt_version_index_fixture"
 
+growatt_common_projection_fixture="$tmp_dir/growatt-common-projection"
+copy_fixture "$growatt_common_projection_fixture"
+rm "$growatt_common_projection_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_projection_fixture"
+
+growatt_common_scope_fixture="$tmp_dir/growatt-common-scope"
+copy_fixture "$growatt_common_scope_fixture"
+perl -0pi -e 's/## Revision and Conflict Handling/## Revision Handling/' "$growatt_common_scope_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_scope_fixture"
+
+growatt_common_firmware_fixture="$tmp_dir/growatt-common-firmware"
+copy_fixture "$growatt_common_firmware_fixture"
+perl -0pi -e 's/firmware MUST\s+NOT select a revision/firmware selects a revision/' "$growatt_common_firmware_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_firmware_fixture"
+
+growatt_common_conflict_fixture="$tmp_dir/growatt-common-conflict"
+copy_fixture "$growatt_common_conflict_fixture"
+perl -0pi -e 's/valid shared fields remain available and every divergent field is/valid shared fields are withheld and every divergent field is/' "$growatt_common_conflict_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_conflict_fixture"
+
+growatt_common_source_isolation_fixture="$tmp_dir/growatt-common-source-isolation"
+copy_fixture "$growatt_common_source_isolation_fixture"
+perl -0pi -e 's/no raw frame, field, or/a raw frame, field, or/' "$growatt_common_source_isolation_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_source_isolation_fixture"
+
+growatt_common_unknown_raw_fixture="$tmp_dir/growatt-common-unknown-raw"
+copy_fixture "$growatt_common_unknown_raw_fixture"
+perl -0pi -e 's/identifiers, malformed frames, and fields not listed below remain raw\./identifiers are discarded./' "$growatt_common_unknown_raw_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_unknown_raw_fixture"
+
+growatt_common_family_fixture="$tmp_dir/growatt-common-family-separation"
+copy_fixture "$growatt_common_family_fixture"
+perl -0pi -e 's/Sigineer material is a distinct family/Sigineer material is a compatible family/' "$growatt_common_family_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_family_fixture"
+
+for page in 4 5 6; do
+  growatt_common_page_fixture="$tmp_dir/growatt-common-v104-page-$page"
+  copy_fixture "$growatt_common_page_fixture"
+  perl -0pi -e "s/V1\.04-1\.pdf#page=$page/V1.04-1.pdf#page=999/g" "$growatt_common_page_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+  assert_rejected "$growatt_common_page_fixture"
+done
+
+growatt_firmware_page_fixture="$tmp_dir/growatt-v104-firmware-page"
+copy_fixture "$growatt_firmware_page_fixture"
+perl -0pi -e 's/V1\.04-1\.pdf#page=7/V1.04-1.pdf#page=999/g' "$growatt_firmware_page_fixture/protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md"
+assert_rejected "$growatt_firmware_page_fixture"
+
 for page in 4 16 19; do
   growatt_page_fixture="$tmp_dir/growatt-source-page-$page"
   copy_fixture "$growatt_page_fixture"

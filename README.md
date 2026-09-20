@@ -15,6 +15,7 @@ implementation-neutral vendor protocol contracts.
 - [Growatt low-voltage BMS CAN V1.04 contract](protocols/growatt/low-voltage-bms-can-v104.md)
 - [Growatt low-voltage BMS CAN V1.04 qualification card](protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md)
 - [Growatt low-voltage BMS CAN version evidence](protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md)
+- [Growatt low-voltage BMS CAN common projection](protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md)
 
 ## Scope
 
