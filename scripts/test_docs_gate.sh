@@ -66,6 +66,23 @@ copy_fixture "$gree_json_fixture"
 printf '\nnot-json\n' >> "$gree_json_fixture/protocols/gree/gree-vrf-can-profile.json"
 assert_rejected "$gree_json_fixture"
 
+growatt_version_matrix_fixture="$tmp_dir/growatt-version-matrix"
+copy_fixture "$growatt_version_matrix_fixture"
+perl -0pi -e 's/## Source-Confidence and Version-Feature Matrix/## Version Matrix/' "$growatt_version_matrix_fixture/protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md"
+assert_rejected "$growatt_version_matrix_fixture"
+
+growatt_version_index_fixture="$tmp_dir/growatt-version-index"
+copy_fixture "$growatt_version_index_fixture"
+perl -0pi -e 's/Growatt low-voltage BMS CAN version evidence/Growatt CAN evidence/' "$growatt_version_index_fixture/README.md"
+assert_rejected "$growatt_version_index_fixture"
+
+for page in 4 16 19; do
+  growatt_page_fixture="$tmp_dir/growatt-source-page-$page"
+  copy_fixture "$growatt_page_fixture"
+  perl -0pi -e "s/#page=$page/#page=999/g" "$growatt_page_fixture/protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md"
+  assert_rejected "$growatt_page_fixture"
+done
+
 bridge_boundary_fixture="$tmp_dir/bridge-boundary"
 copy_fixture "$bridge_boundary_fixture"
 perl -0pi -e 's/recipient, transport, direction, timing, or/recipient, transport, direction, timing, target checksum rule, or/' "$bridge_boundary_fixture/protocols/gree/gree-vrf-can-bridge-record-v1.md"

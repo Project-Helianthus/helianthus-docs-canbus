@@ -24,6 +24,7 @@ required=(
   'protocols/gree/gree-vrf-uart-vectors.json'
   'protocols/growatt/low-voltage-bms-can-v104.md'
   'protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md'
 )
 
 for path in "${required[@]}"; do
@@ -67,8 +68,36 @@ grep -Fq 'Window expiry' "$growatt_card"
 grep -Fq 'Physical qualification is `false`' "$growatt_card"
 grep -Fq 'live trials are `false`' "$growatt_card"
 
+growatt_version_evidence='protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md'
+for heading in 'Scope and Safety' 'Evidence Classes' 'Source-Confidence and Version-Feature Matrix' 'Profile Separation' '`0x311` Balance-Flag Ambiguity' 'Sigineer Non-Admission Boundaries' 'Non-Claims and Next Evidence'; do
+  grep -Fqx "## $heading" "$growatt_version_evidence"
+done
+grep -Fq 'V1.04' "$growatt_version_evidence"
+grep -Fq 'V1.05' "$growatt_version_evidence"
+grep -Fq 'V1.07' "$growatt_version_evidence"
+grep -Fq 'V1.08' "$growatt_version_evidence"
+grep -Fq 'scribd.com/document/541900756' "$growatt_version_evidence"
+grep -Fq 'Sigineer-Power-Solar-Inverter-CANBUS-Protocol-20210122.pdf#page=9' "$growatt_version_evidence"
+grep -Fq 'RawStatus' "$growatt_version_evidence"
+grep -Fq 'invert, normalize, or reinterpret V1.04 `RawStatus`' "$growatt_version_evidence"
+grep -Fq 'no V1.05 admission, decoder, or fallback' "$growatt_version_evidence"
+grep -Fq 'no generic `>= V1.07` rule' "$growatt_version_evidence"
+grep -Fq 'MUST NOT admit V1.08' "$growatt_version_evidence"
+grep -Fq 'event-driven handling and adds fault-clear enable' "$growatt_version_evidence"
+grep -Fq 'Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4' "$growatt_version_evidence"
+grep -Fq 'one total-cell-count byte limited to 1--254 plus extension flags' "$growatt_version_evidence"
+grep -Fq 'legacy optional cell reports' "$growatt_version_evidence"
+grep -Fq 'do not contribute a missing-cell failure when absent' "$growatt_version_evidence"
+grep -Fq 'splits its `0x323` count between byte 0 and byte 3' "$growatt_version_evidence"
+grep -Fq 'Sigineer-Power-Solar-Inverter-CANBUS-Protocol-20210122.pdf#page=16' "$growatt_version_evidence"
+grep -Fq 'not complete per-cell telemetry' "$growatt_version_evidence"
+grep -Fq 'Sigineer-Power-Solar-Inverter-CANBUS-Protocol-20210122.pdf#page=19' "$growatt_version_evidence"
+grep -Fq '29-bit identifier while' "$growatt_version_evidence"
+grep -Fq 'No Sigineer profile admission is defined until that contradiction is' "$growatt_version_evidence"
+
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md
+grep -Fq '[Growatt low-voltage BMS CAN version evidence](protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md)' README.md
 grep -Fq 'public domain' protocols/LICENSE
 
 spec='protocols/gree/vrf-canbus.md'
