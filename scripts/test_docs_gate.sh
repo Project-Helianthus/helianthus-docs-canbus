@@ -88,7 +88,7 @@ assert_rejected "$growatt_common_scope_fixture"
 
 growatt_common_firmware_fixture="$tmp_dir/growatt-common-firmware"
 copy_fixture "$growatt_common_firmware_fixture"
-perl -0pi -e 's/firmware MUST NOT select a revision/firmware selects a revision/' "$growatt_common_firmware_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+perl -0pi -e 's/firmware MUST\s+NOT select a revision/firmware selects a revision/' "$growatt_common_firmware_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
 assert_rejected "$growatt_common_firmware_fixture"
 
 growatt_common_conflict_fixture="$tmp_dir/growatt-common-conflict"

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'status=$?; printf "check_docs.sh failed at line %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2; exit "$status"' ERR
 
 required=(
   'README.md'
@@ -97,7 +98,8 @@ grep -Fq '29-bit identifier while' "$growatt_version_evidence"
 grep -Fq 'No Sigineer profile admission is defined until that contradiction is' "$growatt_version_evidence"
 grep -Fq 'byte 3 is the BMS software version; bytes 4--7 are packed date and time' "$growatt_version_evidence"
 grep -Fq 'byte 3 is software-version low and byte 4 is software-version high' "$growatt_version_evidence"
-grep -Fq 'firmware MUST NOT select V1.04, V1.07, or V1.08' "$growatt_version_evidence"
+grep -Fq 'firmware-to-protocol-revision correlation, so firmware MUST NOT select V1.04,' "$growatt_version_evidence"
+grep -Fq 'V1.07, or V1.08. No V1.05, V1.07, or V1.08 evidence may widen V1.04 admission,' "$growatt_version_evidence"
 
 growatt_common_projection='protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md'
 for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Revision and Conflict Handling' 'Non-Claims'; do
@@ -105,7 +107,8 @@ for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Re
 done
 grep -Fq 'caller-selected, receive-only projection' "$growatt_common_projection"
 grep -Fq 'standard 11-bit, non-RTR data frame with DLC 8' "$growatt_common_projection"
-grep -Fq 'firmware MUST NOT select a revision' "$growatt_common_projection"
+grep -Fq 'provide no published firmware-to-protocol-revision correlation; firmware MUST' "$growatt_common_projection"
+grep -Fqx 'NOT select a revision.' "$growatt_common_projection"
 grep -Fq 'valid shared fields remain available and every divergent field is' "$growatt_common_projection"
 grep -Fq 'Status remains raw: V1.04 defines status bits 10--11, while V1.08 reserves those bits.' "$growatt_common_projection"
 grep -Fq 'Raw protection bytes 0--1, raw warning bytes 2--3, and pack count at byte 4.' "$growatt_common_projection"
