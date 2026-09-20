@@ -25,6 +25,7 @@ required=(
   'protocols/growatt/low-voltage-bms-can-v104.md'
   'protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md'
   'protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md'
 )
 
 for path in "${required[@]}"; do
@@ -94,6 +95,24 @@ grep -Fq 'not complete per-cell telemetry' "$growatt_version_evidence"
 grep -Fq 'Sigineer-Power-Solar-Inverter-CANBUS-Protocol-20210122.pdf#page=19' "$growatt_version_evidence"
 grep -Fq '29-bit identifier while' "$growatt_version_evidence"
 grep -Fq 'No Sigineer profile admission is defined until that contradiction is' "$growatt_version_evidence"
+grep -Fq 'byte 3 is the BMS software version; bytes 4--7 are packed date and time' "$growatt_version_evidence"
+grep -Fq 'byte 3 is software-version low and byte 4 is software-version high' "$growatt_version_evidence"
+grep -Fq 'firmware MUST NOT select V1.04, V1.07, or V1.08' "$growatt_version_evidence"
+
+growatt_common_projection='protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md'
+for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Revision and Conflict Handling' 'Non-Claims'; do
+  grep -Fqx "## $heading" "$growatt_common_projection"
+done
+grep -Fq 'caller-selected, receive-only projection' "$growatt_common_projection"
+grep -Fq 'standard 11-bit, non-RTR data frame with DLC 8' "$growatt_common_projection"
+grep -Fq 'firmware MUST NOT select a revision' "$growatt_common_projection"
+grep -Fq 'valid shared fields remain available and every divergent field is' "$growatt_common_projection"
+grep -Fq 'Status remains raw: V1.04 defines status bits 10--11, while V1.08 reserves those bits.' "$growatt_common_projection"
+grep -Fq 'Raw protection bytes 0--1, raw warning bytes 2--3, and pack count at byte 4.' "$growatt_common_projection"
+grep -Fq 'V1.04 defines manufacturer bytes and total-cell count; V1.08 defines a derating reason and reserved bytes.' "$growatt_common_projection"
+grep -Fq 'V1.04 defines maximum-cell temperature; V1.08 defines average temperature.' "$growatt_common_projection"
+grep -Fq 'Sigineer material is a distinct family' "$growatt_common_projection"
+grep -Fq '[Growatt low-voltage BMS CAN common projection](protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md)' README.md
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md

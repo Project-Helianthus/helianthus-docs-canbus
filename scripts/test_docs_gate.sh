@@ -76,6 +76,26 @@ copy_fixture "$growatt_version_index_fixture"
 perl -0pi -e 's/Growatt low-voltage BMS CAN version evidence/Growatt CAN evidence/' "$growatt_version_index_fixture/README.md"
 assert_rejected "$growatt_version_index_fixture"
 
+growatt_common_projection_fixture="$tmp_dir/growatt-common-projection"
+copy_fixture "$growatt_common_projection_fixture"
+rm "$growatt_common_projection_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_projection_fixture"
+
+growatt_common_scope_fixture="$tmp_dir/growatt-common-scope"
+copy_fixture "$growatt_common_scope_fixture"
+perl -0pi -e 's/## Revision and Conflict Handling/## Revision Handling/' "$growatt_common_scope_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_scope_fixture"
+
+growatt_common_firmware_fixture="$tmp_dir/growatt-common-firmware"
+copy_fixture "$growatt_common_firmware_fixture"
+perl -0pi -e 's/firmware MUST NOT select a revision/firmware selects a revision/' "$growatt_common_firmware_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_firmware_fixture"
+
+growatt_common_conflict_fixture="$tmp_dir/growatt-common-conflict"
+copy_fixture "$growatt_common_conflict_fixture"
+perl -0pi -e 's/valid shared fields remain available and every divergent field is/valid shared fields are withheld and every divergent field is/' "$growatt_common_conflict_fixture/protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md"
+assert_rejected "$growatt_common_conflict_fixture"
+
 for page in 4 16 19; do
   growatt_page_fixture="$tmp_dir/growatt-source-page-$page"
   copy_fixture "$growatt_page_fixture"

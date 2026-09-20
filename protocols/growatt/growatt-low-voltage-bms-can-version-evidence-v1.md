@@ -7,10 +7,12 @@ V1.08 for the low-voltage BMS CAN family. It is a documentation boundary, not
 a decoder, admission rule, equipment match, electrical claim, or control
 contract.
 
-`growatt.bms.low_voltage.can.v1_04` remains the only selected profile. Its
-defined status word remains available as `RawStatus`, including reserved bits.
-This record assigns neither a balance polarity nor a health conclusion to that
-raw value.
+`growatt.bms.low_voltage.can.v1_04` remains the only selected revision
+profile. Its defined status word remains available as `RawStatus`, including
+reserved bits. This record assigns neither a balance polarity nor a health
+conclusion to that raw value. The separately opt-in
+[common projection](growatt-low-voltage-bms-can-common-projection-v1.md)
+does not select, infer, or admit a revision profile.
 
 The cited documents are inspected only for revision-scoped facts. This record
 paraphrases them and does not reproduce their prose, frame tables, or example
@@ -30,25 +32,28 @@ qualification card.
 
 | Revision label | Evidence and exact page | Confidence boundary | Feature boundary | Current treatment |
 | --- | --- | --- | --- | --- |
-| V1.04 | [Existing V1.04 contract](low-voltage-bms-can-v104.md) | Selected-contract baseline; this record does not re-qualify its underlying revision evidence. | The V1.04 contract owns its defined frame map and preserves `RawStatus`. | The only selected low-voltage profile. |
+| V1.04 | [Existing V1.04 contract](low-voltage-bms-can-v104.md) | Selected-contract baseline; this record does not re-qualify its underlying revision evidence. | `0x320` byte 3 is the BMS software version; bytes 4--7 are packed date and time. The V1.04 contract owns its frame map and preserves `RawStatus`. | The only selected low-voltage revision profile. |
 | V1.05 | [V1.08 revision history, p. 1](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision note only; no complete V1.05 layout is established here. | The note identifies a frequency-regulation enable associated with `0x211`; it does not establish a V1.08 behavior for V1.05. | Unsupported; no V1.05 admission, decoder, or fallback. |
 | V1.07 | [V1.08 revision history, p. 1](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision note only; no standalone complete V1.07 layout is established here. | The note identifies a software-version high-byte extension in `0x320`. | Unsupported; no generic `>= V1.07` rule. |
-| V1.08 | [V1.08 revision history and frame descriptions, pp. 1, 4, 5, 8, 10, and 11-12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision document available through a third-party host; it is not a V1.04 or V1.07 contract. | It changes `0x211` to event-driven handling and adds fault-clear enable ([p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4)); it differs from V1.04 in `0x320`; `0x323` has one total-cell-count byte limited to 1--254 plus extension flags; `0x315` through `0x318` are legacy optional cell reports. | Candidate only; a separate V1.08 profile needs a rights-safe contract and synthetic vectors. |
+| V1.08 | [V1.08 revision history and frame descriptions, pp. 1, 4, 5, 8, 10, and 11-12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision document available through a third-party host; it is not a V1.04 or V1.07 contract. | It changes `0x211` to event-driven handling and adds fault-clear enable ([p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4)); for `0x320`, byte 3 is software-version low and byte 4 is software-version high ([p. 10](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=10)); `0x323` has one total-cell-count byte limited to 1--254 plus extension flags; `0x315` through `0x318` are legacy optional cell reports. | Candidate only; a separate V1.08 profile needs a rights-safe contract and synthetic vectors. |
 
 The V1.08 links identify every consulted frame-description page: [p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4), [p. 5](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=5), [p. 8](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=8), [p. 10](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=10), [p. 11](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=11), and [p. 12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=12).
 
 ## Profile Separation
 
-A revision label is an explicit profile-selection input; it is not inferred
-from a shared identifier, link setting, or partial frame. No V1.05, V1.07, or
-V1.08 evidence may widen V1.04 admission, alter its frame interpretation, or
-provide an alternate version path. An incomplete, malformed, conflicting, or
-unselected-revision observation remains raw and opaque under the V1.04
-contract.
+A revision label is an explicit input when a caller selects a revision profile;
+it is not inferred from a shared identifier, link setting, partial frame, or
+firmware value. In particular, the published documents establish no
+firmware-to-protocol-revision correlation, so firmware MUST NOT select V1.04,
+V1.07, or V1.08. No V1.05, V1.07, or V1.08 evidence may widen V1.04 admission,
+alter its frame interpretation, or provide an alternate version path. An
+incomplete, malformed, conflicting, or unselected-revision observation remains
+raw and opaque under the V1.04 contract.
 
 A later revision profile, if separately established, must preserve its own
 native observations and state its own geometry, version discriminator, and
-negative vectors. This record does not define any of those artifacts.
+negative vectors. The common projection does not provide a version
+discriminator or substitute for a revision profile.
 
 The V1.08 legacy optional reports `0x315` through `0x318` do not contribute a missing-cell failure when absent. Their absence says only that those optional
 reports were not observed; it does not change V1.04 optional-frame handling.
