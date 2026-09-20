@@ -96,7 +96,8 @@ grep -Fq 'not complete per-cell telemetry' "$growatt_version_evidence"
 grep -Fq 'Sigineer-Power-Solar-Inverter-CANBUS-Protocol-20210122.pdf#page=19' "$growatt_version_evidence"
 grep -Fq '29-bit identifier while' "$growatt_version_evidence"
 grep -Fq 'No Sigineer profile admission is defined until that contradiction is' "$growatt_version_evidence"
-grep -Fq 'byte 3 is the BMS software version; bytes 4--7 are packed date and time' "$growatt_version_evidence"
+grep -Fq 'byte 3 is the BMS software version and bytes 4--7 are packed date and time' "$growatt_version_evidence"
+grep -Fq 'Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=7' "$growatt_version_evidence"
 grep -Fq 'byte 3 is software-version low and byte 4 is software-version high' "$growatt_version_evidence"
 grep -Fq 'firmware-to-protocol-revision correlation, so firmware MUST NOT select V1.04,' "$growatt_version_evidence"
 grep -Fq 'V1.07, or V1.08. No V1.05, V1.07, or V1.08 evidence may widen V1.04 admission,' "$growatt_version_evidence"
@@ -107,6 +108,9 @@ for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Re
 done
 grep -Fq 'caller-selected, receive-only projection' "$growatt_common_projection"
 grep -Fq 'standard 11-bit, non-RTR data frame with DLC 8' "$growatt_common_projection"
+grep -Fq 'no raw frame, field, or' "$growatt_common_projection"
+grep -Fq 'state from one interface or source can complete, replace, or conflict-resolve' "$growatt_common_projection"
+grep -Fq 'identifiers, malformed frames, and fields not listed below remain raw.' "$growatt_common_projection"
 grep -Fq 'provide no published firmware-to-protocol-revision correlation; firmware MUST' "$growatt_common_projection"
 grep -Fqx 'NOT select a revision.' "$growatt_common_projection"
 grep -Fq 'valid shared fields remain available and every divergent field is' "$growatt_common_projection"
@@ -115,6 +119,10 @@ grep -Fq 'Raw protection bytes 0--1, raw warning bytes 2--3, and pack count at b
 grep -Fq 'V1.04 defines manufacturer bytes and total-cell count; V1.08 defines a derating reason and reserved bytes.' "$growatt_common_projection"
 grep -Fq 'V1.04 defines maximum-cell temperature; V1.08 defines average temperature.' "$growatt_common_projection"
 grep -Fq 'Sigineer material is a distinct family' "$growatt_common_projection"
+grep -Fq 'supplies neither Growatt fields nor revision selection.' "$growatt_common_projection"
+for page in 4 5 6; do
+  grep -Fq "Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=$page" "$growatt_common_projection"
+done
 grep -Fq '[Growatt low-voltage BMS CAN common projection](protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md)' README.md
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
