@@ -6,7 +6,7 @@ low-voltage battery management systems on CAN. They are published in the CC0
 none of them authorizes a transmission or any other live bus action, and none
 is qualified by Helianthus against hardware.
 
-The documents form two independent sets. They are selected by different
+The documents form two independent sets and one separate addressed profile. They are selected by different
 inputs and never select each other.
 
 ## Revision-labelled inverter link (V1.04)
@@ -29,6 +29,13 @@ Profiles selected by a project code with a release, such as `QAAA0006`.
 - [LINK protocol](growatt-low-voltage-bms-can-link-protocol-v1.md): the module
   bus behind the coordinator, with module identity, cell and temperature
   reports, coordination, and configuration and maintenance receiver gates.
+
+## Addressed monitor profile
+
+A separate addressed profile that some monitor interfaces advertise, independent of both sets above.
+
+- [Addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md): the `04xx`, `08xx`, `10xx` and `14xx`
+  families, the diagnostic record families and the per-signal field reference.
 
 ## Evidence
 

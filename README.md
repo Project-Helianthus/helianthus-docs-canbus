@@ -19,6 +19,7 @@ implementation-neutral vendor protocol contracts.
 - [Growatt protocol index](protocols/growatt/README.md)
 - [Growatt low-voltage BMS CAN PCS protocol](protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md)
 - [Growatt low-voltage BMS CAN LINK protocol](protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md)
+- [Growatt low-voltage BMS CAN addressed monitor profile](protocols/growatt/growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md)
 
 ## Scope
 
