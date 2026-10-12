@@ -30,6 +30,12 @@ Profiles selected by a project code with a release, such as `QAAA0006`.
   bus behind the coordinator, with module identity, cell and temperature
   reports, coordination, and configuration and maintenance receiver gates.
 
+## Evidence
+
+The V1.04 documents cite published revision documents. The PCS and LINK
+documents are owner-contributed candidate records: they cite no public source,
+and every statement in them is an unverified candidate claim.
+
 ## Relationship
 
 - The same CAN identifier can carry a different layout in each set. An
@@ -38,4 +44,10 @@ Profiles selected by a project code with a release, such as `QAAA0006`.
   established. A project-code selector MUST NOT select a revision label, and a
   revision label MUST NOT select a project code.
 - The project-code documents do not change admission, decoding or raw-evidence
-  rules of the V1.04 contract.
+  rules of the V1.04 contract. PCS traffic uses standard 11-bit frames with
+  `0x311`, `0x312` and `0x313`, which satisfies the frame geometry of the V1.04
+  admission tuple. V1.04 applies only when the caller explicitly selects it for
+  an interface; such traffic is never admitted as V1.04 by identifier match.
+- Conditions described in the PCS and LINK documents are necessary for a device
+  to accept a message and are never sufficient. This repository defines no
+  condition under which Helianthus software transmits.

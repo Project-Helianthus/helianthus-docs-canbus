@@ -285,3 +285,25 @@ growatt_readme_index_fixture="$tmp_dir/growatt-readme-index"
 copy_fixture "$growatt_readme_index_fixture"
 perl -0pi -e 's/Growatt protocol index/Growatt index/' "$growatt_readme_index_fixture/README.md"
 assert_rejected "$growatt_readme_index_fixture"
+
+growatt_dtc_fixture="$tmp_dir/growatt-dtc-drift"
+copy_fixture "$growatt_dtc_fixture"
+perl -0pi -e 's/\| 62 \| Maximum cell voltage at least 3750 mV \|/| 62 | Maximum cell voltage at least 3760 mV |/' "$growatt_dtc_fixture/$growatt_link_file"
+assert_rejected "$growatt_dtc_fixture"
+
+growatt_sufficient_fixture="$tmp_dir/growatt-never-sufficient"
+copy_fixture "$growatt_sufficient_fixture"
+perl -0pi -e 's/are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits\./are sufficient to transmit./' "$growatt_sufficient_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_sufficient_fixture"
+
+growatt_evidence_fixture="$tmp_dir/growatt-evidence"
+copy_fixture "$growatt_evidence_fixture"
+perl -0pi -e 's/No public source is cited, and every statement is an unverified candidate claim\.//' "$growatt_evidence_fixture/$growatt_link_file"
+assert_rejected "$growatt_evidence_fixture"
+
+for growatt_internal in 'payload builder' 'internal timer' 'ADC codes' '/Users/'; do
+  growatt_internal_fixture="$tmp_dir/growatt-internal-${RANDOM}"
+  copy_fixture "$growatt_internal_fixture"
+  printf '\n%s detail.\n' "$growatt_internal" >> "$growatt_internal_fixture/$growatt_pcs_file"
+  assert_rejected "$growatt_internal_fixture"
+done

@@ -140,7 +140,7 @@ grep -Fq 'A project-code selector MUST NOT select a revision label, and a revisi
 grep -Fq '**A numeric version word of 6 does not select `QAAA0006`.**' "$growatt_pcs"
 grep -Fq 'MUST NOT be admitted using a numerically adjacent release' "$growatt_pcs"
 grep -Fq 'There is no universal, side-effect-free CAN command that enumerates application handlers.' "$growatt_pcs"
-grep -Fq 'Before transmission, require `qualified-input`' "$growatt_pcs"
+grep -Fq 'A device accepts an incoming PID when its contract includes that PID' "$growatt_pcs"
 grep -Fq 'as identification probes.' "$growatt_pcs"
 grep -Fq 'It defines 134 indices for `QAAA0011` and 136 for `QAAa9011`.' "$growatt_pcs"
 
@@ -158,15 +158,26 @@ grep -Fq 'are maintenance-only for unknown' "$growatt_link"
 grep -Fq 'Retain service/configuration traffic without automatic replay.' "$growatt_link"
 grep -Fq 'This contract assigns no layout to those families' "$growatt_link"
 
+for growatt_doc in "$growatt_pcs" "$growatt_link"; do
+  grep -Fq 'are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.' "$growatt_doc"
+  grep -Fq 'No public source is cited, and every statement is an unverified candidate claim.' "$growatt_doc"
+done
+grep -Fq 'V1.04 applies only when the caller explicitly selects it for an interface' "$growatt_pcs"
+diff <(sed -n '/^## Diagnostic codes$/,/^## Standard parallel/p' "$growatt_pcs" | sed '$d') \
+     <(sed -n '/^## Diagnostic codes$/,/^## Coordinator and stack traffic$/p' "$growatt_link" | sed '$d') >/dev/null
+
 growatt_index='protocols/growatt/README.md'
 grep -Fqx '# Growatt Low-Voltage BMS CAN Protocol Contracts' "$growatt_index"
 grep -Fq 'A project-code selector MUST NOT select a revision label, and a' "$growatt_index"
 grep -Fq 'none of them authorizes a transmission or any other live bus action' "$growatt_index"
+grep -Fq 'every statement in them is an unverified candidate claim' "$growatt_index"
+grep -Fq 'never sufficient. This repository defines no' "$growatt_index"
 
 protocol_forbidden_terms=(
   'reverse engineering' decompil disassembl corpus ghidra provenance capture
   laboratory trace dump 'mapping source' 'installed field unit' 'obtained from'
-  'source archive' 'vendor manual'
+  'source archive' 'vendor manual' '/Users/' 'payload builder' composer 'internal timer'
+  'ADC codes' producer
 )
 for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
   for forbidden in "${protocol_forbidden_terms[@]}"; do

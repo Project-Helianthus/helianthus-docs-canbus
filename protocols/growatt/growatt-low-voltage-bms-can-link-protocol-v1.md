@@ -15,18 +15,18 @@ includes all LINK version and diagnostic rules it requires.
 
 ## Status and Relationship
 
-This is an implementation-neutral protocol contract. It records wire facts only and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
+This is an implementation-neutral protocol contract. It records candidate protocol claims and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
 
-**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product.
+**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product. No public source is cited, and every statement is an unverified candidate claim. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not repository qualification claims.
 
-**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software.
+**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software. The capability and qualification conditions described here are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.
 
 **Relationship to the existing Growatt documents.** The [V1.04 contract](low-voltage-bms-can-v104.md), its [version evidence](growatt-low-voltage-bms-can-version-evidence-v1.md) and the [common projection](growatt-low-voltage-bms-can-common-projection-v1.md) describe frames from published, revision-labelled documents. This document uses a different selector, a project code with a release such as `QAAA0006`, and a different frame vocabulary. The two sets are independent:
 
 - The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
-- Identifiers below are hexadecimal and are written without the `0x` prefix.
+- PID notation below is hexadecimal and is written without the `0x` prefix.
 
 The companion [PCS protocol](growatt-low-voltage-bms-can-pcs-protocol-v1.md) defines the inverter-facing, stack-facing and parallel-group interfaces. LINK uses extended 29-bit identifiers of the form `18xxDDSS` on an addressed module bus. See the [Growatt protocol index](README.md) for all documents in this family.
 
@@ -198,16 +198,16 @@ stateDiagram-v2
     Ambiguous --> Unknown: new association/session
 ```
 
-### Receive-handler checks before any transmission
+### Receive-handler classes
 
 Each PID section states the applicable receiver class. These classes are part
 of the protocol contract:
 
-| Class | Receive support and pre-transmission condition |
+| Class | Receive support and conditions |
 |---|---|
-| T — module telemetry | Intended receiver is the stack coordinator. Confirm its own identity/profile, coordinator role and exact destination route. Seeing another module transmit this PID proves neither coordinator acceptance nor storage of every field. No telemetry request is implied. |
+| T — module telemetry | Intended receiver is the stack coordinator. Acceptance depends on the coordinator's own identity/profile, role and the exact destination route. Seeing another module transmit this PID proves neither coordinator acceptance nor storage of every field. No telemetry request is implied. |
 | A — aggregate telemetry | Intended receiver is a monitor or higher-level participant. Transmission from `F4` proves aggregate output only. Do not infer a reverse command handler. |
-| C — coordination | Confirm the target profile supports this precise family, source/destination role and current coordination state. Passive traffic can establish a candidate; a defined correlated response or independent capability qualification is needed to claim live acceptance. No automatic discovery transmission follows from this specification. |
+| C — coordination | Acceptance depends on whether the target profile supports this precise family, source/destination role and current coordination state. Passive traffic can establish a candidate; a defined correlated response or independent capability qualification is needed to claim live acceptance. No automatic discovery transmission follows from this specification. |
 | Q — configuration/service | State-changing or insufficiently qualified. Excluded from automatic identification, polling and replay. A service role or an observed response does not make the operation read-only. |
 | U — undefined | Handler support or payload semantics are unknown. Preserve frames; do not transmit a guessed request. |
 
@@ -215,7 +215,7 @@ of the protocol contract:
 are satisfied. A state-changing operation also requires the applicable
 coordination or maintenance session. Where the
 table cannot establish those conditions, receive support remains `unknown`.
-Do not infer symmetric support from a shared PID or a monitor's advertised field.
+Do not infer symmetric support from a shared PID or a monitor's advertised field. These classes describe device behavior; their conditions are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
 
 ### Native receiver capability matrix
 
@@ -279,32 +279,21 @@ a configuration byte and LE16(B4) as a configuration word. It does not add a
 native `18FC` report to the legacy transmit set.
 
 Synchronization input support is present in L1–L8, subject to receiver state
-and route. In the defined legacy branch, B0=`AA` triggers the synchronization
-helper in communication states 3 or 4. Some `QAAA0010` variants and
-`QAAa4010` also mark internal synchronization state on reception before this
-check; that side effect is not a different payload layout or a version probe.
+and route. In the defined legacy branch, B0=`AA` triggers synchronization
+in communication states 3 or 4. Some `QAAA0010` variants and
+`QAAa4010` also react to a received synchronization frame before this
+check; that reaction is not a different payload layout or a version probe.
 L5's `18FC` report is a transmit-only feature; it does not qualify an incoming
 aging command. Aggregate `180D`–`180F` and date report `18F9` have no matching
 native module/coordinator receive contract in these groups; a monitor
 implementation is a separate receiver class.
 
-### Legacy receive-behavior gates
+### Legacy receive behavior
 
-The legacy `QAAa9011` contract shares L4 payload layouts. Its peer freshness
-checks have the following elapsed-time thresholds. These are internal timer
-counts, separate from the registered frame receive timeout and client data age.
-They do not change byte order or justify discarding an otherwise valid frame.
-
-| Module → coordinator PID | `QAAA0010` common legacy contract | `QAAa9011` legacy extended-19 contract |
-|---|---|---|
-| `1800` | 5000 | 1000 |
-| `1850` | 1000 | 5000 |
-| `1862` | 5000 | 10000 |
-
-Apply the checks only with the corresponding coordinator/module roles and
-source association. A release number alone does not select a timer variant.
-Configuration, calibration defaults, fault thresholds and protection behavior
-are not implied equal by a shared CAN payload contract.
+The legacy `QAAa9011` contract shares L4 payload layouts. Peer-timeout behavior,
+configuration, calibration defaults, fault thresholds and protection behavior
+are not implied equal by a shared CAN payload contract, and a release number
+alone does not select a timeout variant.
 
 Service `Y` entries define input support, not read-only behavior: configuration,
 time, identity, calibration, control and update operations remain class Q.
@@ -383,7 +372,7 @@ already present. Generic zero-payload queries are not defined.
 | `1807` | Native profile. | B0–B1 LE16 cell spread in mV; B2/B3 diagnostic category counts in release-11 (each is the sum of two category counters); B4–B5 additional LE16 algorithm field; B6 algorithm/SOC byte; B7 configuration. Remaining semantics raw. |
 | `1808` | Native temperature-extrema layout. | B0 maximum-channel index; B1 maximum temperature code; B2 minimum-channel index; B3 minimum code; B4 additional/average code; B5 temperature spread code; B6/B7 additional channel codes. For the local release-11 count-aware path B4 is the truncated average of the one-byte channel codes and B5 is maximum minus minimum. Qualified native temperature codes use `raw − 40 °C`. |
 | `1809` | Normally `1809F5SS`, module → monitor. Class A; coordinator-side routes require separate receiver qualification. | B0–B1 LE16 full year; B2 month; B3 day; B4 hour; B5 minute; B6 second; B7 clock status. Binary fields, not BCD. Validate calendar values; timezone is not carried. Clock setting uses a separate input contract. |
-| `180A` | Native module report; `180ADFF4` is coordinator wake/coordination, class C. Do not decode a marker as a normal report. | B0 status; B1–B3 LE24 derived quantity; B4–B5 LE16 helper/result; B6–B7 extra LE16 or zero, profile-dependent. Units unspecified. |
+| `180A` | Native module report; `180ADFF4` is coordinator wake/coordination, class C. Do not decode a marker as a normal report. | B0 status; B1–B3 LE24 derived quantity; B4–B5 LE16 result; B6–B7 extra LE16 or zero, profile-dependent. Units unspecified. |
 | `180B` | Exact selector required: C, W or B in the identity table. | Capacity/checkpoint layout below. Same PID does not imply the same first word. |
 | `180C` | Native profile. | B0–B1, B2–B3, B4–B5 three LE16 values; B6 status; B7 zero. Physical meaning and units unspecified. |
 | `1840` | Native profile. | B0–B5 six raw state/configuration bytes; B6–B7 LE16 capacity-related field. Do not assign units without a qualified capacity profile. |
@@ -400,7 +389,7 @@ already present. Generic zero-payload queries are not defined.
 
 For local `QAAA0006` and the common local release-11 measurement contract,
 pack and port voltage codes use 0.1 V/count and current uses
-`(code − 4000) / 10 A`. Do not apply the alternate monitor profile's 30000 offset
+`(code − 4000) / 10 A`. Do not apply a current offset from another profile
 to this field. Other selectors can share the packing without qualifying the same
 physical scale or current direction. Limit codes remain raw unless their units
 and applicability to the module or aggregate are qualified.
@@ -424,7 +413,7 @@ cycles and flags.
 ### Fine temperatures and algorithm fields
 
 The following additional interpretations apply to the **local release-11**
-contract. Counts and current producer validity still apply; forwarding a cached
+contract. Counts and the current validity of the reporting module still apply; forwarding a cached
 frame does not establish a new sensor sample.
 
 | Field | Meaning and conversion |
@@ -436,7 +425,7 @@ frame does not establish a new sensor sample.
 | `1808.B5` | Maximum minus minimum of those one-byte codes, in °C |
 | `1862.B0–B1`, B2–B3 | LE16 maximum and minimum of the fine temperature codes. Convert each as `code / 8 − 40 °C` |
 | `1862.B4–B5`, L8 | LE16 fine average: `floor(sum(fine channel codes) / configured_sensor_count)`. Convert as `code / 8 − 40 °C` only for the count-aware measurement path with count 1–4 |
-| `1862.B4–B5`, `QAAA0009/0010` | LE16 fine average, converted as `code / 8 − 40 °C` on the count-aware path with sensor count 1–4. The internal position differs from L8, but the wire meaning is common |
+| `1862.B4–B5`, `QAAA0009/0010` | LE16 fine average, converted as `code / 8 − 40 °C` on the count-aware path with sensor count 1–4. The wire meaning is common to L8 and `QAAA0009/0010` |
 | `1861.B3` | `min(counter, 255)`; no duration unit is assigned |
 | `1803.B0–B1` | Release-11 BE16 configuration word; `QAAA0006` emits two constant bytes, 1 and 1. The capacity word in both frames is LE16 |
 | W `180B.B4` | Latched gauge/algorithm state code, independent of B5 |
@@ -460,10 +449,8 @@ code 67, or **27 °C**. These fields have different precision.
 The first word of `1804` and the three-byte quantity in `180A` are not assigned
 energy or charge units. In release-11 the three-byte value is an integer
 transform of a 32-bit counter; `180A.B6–B7` is the same biased accumulator
-class exposed by PCS `316`, not a capacity. No Ah/Wh conversion is defined. For local release-11 `180A.B1–B3`,
-let C be its 32-bit counter. The LE24 code is
-`((25 × C + floor(C/2) + floor(C/8)) mod 2^32) >> 8`.
-Cached values must not be transformed a second time.
+class exposed by PCS `316`, not a capacity. No Ah/Wh conversion is defined. Cached values must not be transformed a
+second time.
 
 ## Cell voltages, temperatures and balancing
 
@@ -524,8 +511,8 @@ while the feature is present; absence of a frame cannot be interpreted as no fau
 
 Preserve the byte offset, bit number and raw word for every fault. Symbolic
 fault names, polarity and latching are profile-specific. A current-fault bitmap
-is not a historical fault record. DTC words use the Diagnostic codes section below. Do not import the alternate monitor profile's
-two-bit alarm fields into these native bytes.
+is not a historical fault record. DTC words use the Diagnostic codes section below. Do not import another profile's
+alarm fields into these native bytes.
 
 ## Diagnostic codes
 
@@ -618,7 +605,7 @@ explicit fixed comparison is stated below.
 | 22 | Charge current high — condition 22 | Both release-11 variants |
 | 23 | Charge current high — condition 23 | Both release-11 variants |
 | 30 | Cell-voltage plausibility: minimum at most 2000 mV, spread above 999 mV, or maximum above 3799 mV | Both release-11 variants |
-| 31 | Current zero-offset calibration: a 20-sample channel average outside ADC codes 1945–2150 | `QAAa9011` release-11 only |
+| 31 | Current zero-offset calibration out of range | `QAAa9011` release-11 only |
 | 33 | Cell temperature high — condition 33 | Both release-11 variants |
 | 34 | Cell temperature high — condition 34 | Both release-11 variants |
 | 35 | Measurement acquisition communication failure | `QAAa9011` release-11 only |
@@ -647,27 +634,13 @@ explicit fixed comparison is stated below.
 | 134 | Measurement status flag equals one | `QAAa9011` release-11 only |
 | 135 | Pack/port difference at least 1.0 V with hardware-status bits 7 and 8 both set | `QAAa9011` release-11 only |
 
-### Active selection table
+### Disabled local selections
 
-This table defines local DTC selection, not a filter for received member codes.
-The same first 134 entries apply to both release-11 variants. A received code
-that is disabled in the local selection table remains visible and attributable.
-
-| Enabled indices | First category | Second category |
-|---|:---:|:---:|
-| 19, 24, 30, 35, 56 | 1 | 1 |
-| 5, 13, 17, 25–26, 28–29, 31, 34, 38, 42–45, 47, 50–51, 84, 87, 90, 92, 94–95, 100–103, 128, 130, 133 | 2 | 2 |
-| 3, 9, 15, 21, 32, 53 | 2 | 4 |
-| 52, 61 | 3 | 2 |
-| 4, 12, 16, 18, 33, 46, 57–58, 60, 85, 91, 93, 96, 109–110 | 3 | 3 |
-| 2, 8, 11, 14, 20 | 3 | 4 |
-| 48, 62 | 4 | 1 |
-| 0–1, 6–7, 23, 39–41, 49, 63, 88, 97, 99 | 4 | 2 |
-| 22, 89, 98 | 4 | 3 |
-| 59, 83, 86, 123, 129, 131–132 | 4 | 4 |
-| 134–135 (`QAAa9011` only) | 4 | 4 |
-
-Disabled local selections: 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122, 124–127.
+Indices 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122 and 124–127 are never
+selected into a DTC word by this device. "Disabled" applies to DTC A/B selection
+only; a disabled index can still be the source of a summary bit. A received code
+for such an index remains visible and attributable. The same first 134 entries
+apply to both release-11 variants.
 
 Every applicable index not named in Defined condition names is **opaque-condition**.
 Decode its numeric index and bitmap position, retain the code and present
@@ -679,14 +652,11 @@ qualify the intervening unnamed indices.
 ### Selection, severity and clearing
 
 DTC A and B are priority selections, not a two-entry list of every active
-fault. Internally each enabled active index can contribute to two diagnostic
-category selectors. Later indices replace earlier codes within the same
-category. A selects the first nonempty category among 1 and 2; B selects the
-first nonempty category among 3 and 4. Category numbers are **not severity
-names**. Disabled indices do not contribute a selected code.
+fault. Which active index is reported follows a fixed priority that is **not a
+severity ranking**. Disabled indices never contribute a selected code.
 
-An incoming DTC alone cannot reconstruct all active bits, the two category
-assignments, the configured thresholds or a repair action. Preserve current
+An incoming DTC alone cannot reconstruct all active bits, the selection
+priority, the configured thresholds or a repair action. Preserve current
 fault bits and selected DTCs separately. No DTC value requests automatic fault
 clearing, reboot, contactor operation or balancing. An unknown nonzero code
 must remain visible even if all named faults are absent.
@@ -737,7 +707,7 @@ and conditions 131 and 132 are both inactive; condition 41 still contributes.
 The control bit has no complete physical enum here. Consequently, a clear
 A/12 does not by itself exclude condition 40.
 
-A/8 and B/0, B/5, B/11 are not assigned by the release-11 summary composer
+A/8 and B/0, B/5, B/11 are not assigned by the release-11 summary
 and can retain their previous contents. B/8 has a separate status source.
 Keep those bits visible without assigning a fault name or assuming zero.
 Other unlisted legacy bits likewise have no diagnostic-index mapping here.
@@ -773,7 +743,7 @@ The earlier bytes are separate status/parameter fields. Bits are numbered
 | B7 / 5 | 89 |
 
 In local release-11, `323.B4` bits 0–1, B5 bit 7 and B7 bits 0–1 are cleared.
-B6/B7 bits 6–7 are unassigned by this producer and can retain prior values.
+B6/B7 bits 6–7 are unassigned in this summary and can retain prior values.
 Do not treat the four summary bytes as consecutive native fault bytes.
 
 For example, `323.B4` bit 2 reports **25 OR 83**. It cannot identify one
@@ -806,7 +776,7 @@ do not send LINK discovery through a presumed transparent PCS bridge.
 
 ## Serial number and date announcements
 
-| PID | Detection / direction / feature gate | Payload | Before transmitting |
+| PID | Detection / direction / feature gate | Payload | Receiver class |
 |---|---|---|---|
 | `18FBF4SS` | Module → coordinator; L1–L8 | B0 fragment header; B1–B7 serial bytes/padding. Reassembly below. | Class T; no serial request implied. |
 | `18F9F5SS` | Module → monitor; L1–L8 | Eight date/status bytes. Calendar representation not fully specified; retain raw rather than guessing ASCII or BCD. | Class A; no reverse setter implied. |
@@ -891,10 +861,10 @@ physical enum or unit in this contract:
 | `1803` algorithm estimates and configuration/version bytes | Typed independent fields; only expressly gated capacity conversions apply |
 | `1804` two accumulators | Two LE32 codes; no Ah/Wh conversion |
 | `1807` additional algorithm value outside the local release-11 SOC gate, and configuration byte | LE16 code and U8 code |
-| `180A` status/helper fields | U8 status, LE24 counter-derived code, LE16 helper result, optional LE16 algorithm code |
+| `180A` status fields | U8 status, LE24 counter-derived code, LE16 result, optional LE16 algorithm code |
 | `180C` three words and status; `1840` configuration/state bytes | Three LE16 codes plus U8; six bytes plus the declared capacity-related word |
-| `1861` state bytes and `1869` summary state/words | Independent state codes and LE16 words; no monitor RUNMODE substitution |
-| L4 `1862` third word outside the explicit fine-average gate; L8 fine average without a qualified producer/count | Opaque LE16; no automatic temperature display |
+| `1861` state bytes and `1869` summary state/words | Independent state codes and LE16 words; no RUNMODE/WORKMODE substitution |
+| L4 `1862` third word outside the explicit fine-average gate; L8 fine average without a qualified reporting module and count | Opaque LE16; no automatic temperature display |
 | `180D…180F` unassigned aggregate fields | Aggregate-scoped codes, kept apart from local module measurements |
 | `1870…188C`, `189x`, `18A0`, `18B0/18B1`, `18DF`, `18F0`, `18FC/18FD/18FE` unassigned selectors or control fields | Exact payload bytes with the message's receiver class and route; no synthesized polling request |
 | Unnamed fault positions and DTC conditions | Bit coordinates or code/index; no guessed symbolic name |

@@ -15,18 +15,18 @@ This document includes all PCS version and diagnostic rules it requires.
 
 ## Status and Relationship
 
-This is an implementation-neutral protocol contract. It records wire facts only and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
+This is an implementation-neutral protocol contract. It records candidate protocol claims and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
 
-**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product.
+**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product. No public source is cited, and every statement is an unverified candidate claim. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not repository qualification claims.
 
-**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software.
+**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software. The capability and qualification conditions described here are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.
 
 **Relationship to the existing Growatt documents.** The [V1.04 contract](low-voltage-bms-can-v104.md), its [version evidence](growatt-low-voltage-bms-can-version-evidence-v1.md) and the [common projection](growatt-low-voltage-bms-can-common-projection-v1.md) describe frames from published, revision-labelled documents. This document uses a different selector, a project code with a release such as `QAAA0006`, and a different frame vocabulary. The two sets are independent:
 
-- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document.
+- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document. In particular, the standard-frame traffic in this document carries `0x311`, `0x312` and `0x313`, which satisfies the frame geometry of the V1.04 admission tuple. V1.04 applies only when the caller explicitly selects it for an interface, and such traffic is never admitted as V1.04 by identifier match.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
-- Identifiers below are hexadecimal and are written without the `0x` prefix.
+- PID notation below is hexadecimal and is written without the `0x` prefix.
 
 The companion [LINK protocol](growatt-low-voltage-bms-can-link-protocol-v1.md) defines the module bus behind the coordinator. See the [Growatt protocol index](README.md) for all documents in this family.
 
@@ -142,7 +142,7 @@ these two `QAAa9011` contracts.
 `QAAA0006` has compatible variants with either a raw extra word or a zero tail
 in `321.B6–B7`. A nonzero tail excludes the zero-tail form; zero cannot select
 it. This difference does not change the `316` gauge layout. `QAAA0010`
-variants also differ in an internal synchronization-state side effect; their
+variants also differ in a synchronization side effect on reception; their
 PCS payload definitions are common. Full release identity alone does not
 select these optional behaviors.
 
@@ -166,7 +166,7 @@ PCS transport profiles.
 | Diagnostic words in `333`, `52X` | Packed-decimal code table | Binary-decimal code table; see Diagnostic codes below |
 | `301` heartbeat input B7 | Ignored | Retained as raw heartbeat state; `00` and `58` normalize to zero |
 | `334` output B1 | Zero | Coordinator state code; B2–B7 remain zero in both versions |
-| `51X` output B7 | Local: zero. Aggregate: unspecified; not assigned by this payload builder | Fourth raw state byte in both scopes |
+| `51X` output B7 | Local: zero. Aggregate: unspecified; not assigned in this payload | Fourth raw state byte in both scopes |
 | `51X` input B7 | Ignored | Retained with the reporting slot |
 | `590` input B7 | Ignored | Retained and propagated as additional state. The native `590` output is zero at B7 in both versions |
 | `37F` parallel-count branch, with B0 bit 0 set and local count 1–8 | B7 other than 1 enters count selection, including zero | Only B7 greater than 1 enters count selection; zero does not enter it |
@@ -225,36 +225,36 @@ unresolved. For example, a shared gauge layout can be selected without
 selecting a DTC dictionary. Conflicting positive indications invalidate the
 affected interpretation. Silence and all-zero placeholders never select a release.
 
-### Check receive capability before transmitting
+### Receive capability of an endpoint
 
 There is no universal, side-effect-free CAN command that enumerates application handlers. Track capability per **endpoint, direction, PID, active profile and state**:
 
 | Capability state | Meaning |
 |---|---|
-| `unknown` | Identity, profile or receive semantics are unresolved; not eligible for automatic transmission |
+| `unknown` | Identity, profile or receive semantics are unresolved |
 | `observed-output` | The endpoint emits this PID; establishes its output contract only |
 | `qualified-input` | The identified endpoint contract includes this incoming PID and the required role/state is established |
 | `unsupported` | The identified contract omits the operation or implements only a no-op/placeholder |
 
-Before transmission, require `qualified-input`, compatible addressing, the specified state, and a host request to perform the documented effect. If multiple candidates remain, the incoming operation must have identical semantics and prerequisites in **all** of them. A previous application-level response can corroborate support for that operation in that state; it does not qualify other commands or future roles.
+A device accepts an incoming PID when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previous application-level response can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
 
-A CAN ACK, local loopback, another sender's request, or telemetry from the peer does not prove application acceptance. Periodic `324` does not prove a `212` query handler. Where this specification defines no application acknowledgment, report delivery as unconfirmed rather than inventing one. Do not use profile switching, clock writes, service entry or balancing/configuration commands as identification probes.
+A CAN ACK, local loopback, another sender's request, or telemetry from the peer does not prove application acceptance. Periodic `324` does not prove a `212` query handler. For inputs with no defined application acknowledgment, delivery is unconfirmed. Do not use profile switching, clock writes, service entry or balancing/configuration commands as identification probes.
 
 ## Standard PCS: host input and telemetry
 
 In this section, **host → endpoint** is an input to the PCS controller; **endpoint → host** is published telemetry. A telemetry consumer does not transmit an output PID back to the endpoint to request its value. Typical telemetry recurrence is sub-second to several seconds; serial fragments can be slower. Scheduling and silence are not capability negotiation.
 
-An implementation acting as a battery/gateway publisher must also qualify the receiving host's protocol contract. Receiving the host's `301` heartbeat proves that it sends `301`; it does not prove that it consumes every `311…334` extension. Without an identified receiver contract or an operation-specific application confirmation, support for an optional outgoing PID remains unknown even when this document defines its payload.
+A host's `301` heartbeat shows that the host sends `301`; it does not show that the host consumes every `311…334` extension. Without an identified receiver contract or an operation-specific application confirmation, support for an optional outgoing PID remains unknown even when this document defines its payload.
 
 ### `211`, `212`, `301`: host input
 
 | PID | Detection and input gate | Payload and effect | Confirmation |
 |---|---|---|---|
-| `211` | Identified standard PCS contract with time synchronization | Battery calendar form: B0 unused; B1 year offset from 2000; B2 month; B3 day; B4 hour; B5 minute; B6 second; B7 unused. Binary integers. Mutates the clock and may propagate time to another bus. Gateway accepts/forwards time, but its exact calendar encoding needs a separately qualified time contract | No universal application ACK. Validate calendar fields before sending; passive telemetry does not require clock writes |
+| `211` | Identified standard PCS contract with time synchronization | Battery calendar form: B0 unused; B1 year offset from 2000; B2 month; B3 day; B4 hour; B5 minute; B6 second; B7 unused. Binary integers. Mutates the clock and may propagate time to another bus. Gateway accepts/forwards time, but its exact calendar encoding needs a separately qualified time contract | No universal application ACK. Passive telemetry does not involve clock writes |
 | `212` | Standard input in profiles that define it; no operation in the legacy battery, QAAB and gateway forms; absent from `QAAA0011` and `QAAa9011` | Payload has no defined serial/history-query operation in these profiles | `unsupported` for query purposes, even if CAN acknowledges it. Do not wait for `324` as its response |
-| `301` | Qualified standard heartbeat input on the active profile; never infer the corresponding extended-19 input | Communications heartbeat. B2 is retained/consumed by several battery profiles, including early QAAB; later QAAB and the gateway can ignore payload bytes. Release-11 B7 behavior is defined by the common-contract feature table; other bytes have no common cross-profile meaning | No dedicated response. Continued telemetry is not a unique acknowledgment of a particular heartbeat. Normal host cadence is 1 s only where this heartbeat contract applies |
+| `301` | Qualified standard heartbeat input on the active profile; never infer the corresponding extended-19 input | Communications heartbeat. B2 is retained/consumed by several battery profiles, including early QAAB; later QAAB and the gateway can ignore payload bytes. Release-11 B7 behavior is defined by the common-contract feature table; other bytes have no common cross-profile meaning | No dedicated response. Continued telemetry is not a unique acknowledgment of a particular heartbeat. The normal host heartbeat cadence is 1 s where this heartbeat contract applies |
 
-Do not substitute arbitrary bytes for the heartbeat fields. The host-state encoding must match the identified profile; heartbeat participation changes communications state even when it does not write persistent parameters.
+Heartbeat fields are not arbitrary: the host-state encoding is profile-specific, and heartbeat participation changes the device's communications state even when it writes no persistent parameters.
 
 ### `311…314`: limits, summary and capacity
 
@@ -308,10 +308,10 @@ An unlisted release can share a layout without inheriting these conversions.
 | `314` cell spread / cycles | BE16(B4) mV; BE16(B6) cycles | Whole cycles here; fine cycles are elsewhere |
 | `319`, `327`, `330` cell values | Unsigned word in mV | Preserve the message's own byte order and indices |
 | `322` temperature extrema | signed BE16(B0) / 10 °C; signed BE16(B2) / 10 °C | B4/B5 are positions, not temperatures |
-| Release-11 `326` voltage | BE16(B1) / 100 V | Ten times the cached 0.1 V voltage; 16-bit multiplication wraps rather than saturates |
+| Release-11 `326` voltage | BE16(B1) / 100 V | Ten times the cached 0.1 V voltage; the 16-bit result wraps rather than saturates |
 | Release-11 `326` current | Standard bank: `(BE16(B3)−4000)/10 A`; parallel bank: `(BE16(B3)−10000)/10 A` | Unsigned biased code. Resolve active bank first; the frame has no bank selector |
 | Release-11 `326.B5` | Low byte of the cached SOC-tenths word | Lossy code, not a percentage. Do not reconstruct SOC from this byte |
-| Release-11 `61X` current | (LE16(B2) − 10000) / 10 A | The stored 4000-biased current code is increased by 6000; 6000 is not the wire zero-current code |
+| Release-11 `61X` current | (LE16(B2) − 10000) / 10 A | Zero current is wire code 10000, unlike the 4000-biased standard-bank `326` current code |
 | Release-11 `61X` voltage | (LE16(B0) & 0x7FFF) / 10 V | Keep the multiplexer separately; aggregate states select different voltage summaries |
 | Release-11 `61X` port voltage | LE16(B4) / 10 V | This is a voltage, not a temperature, in the release-11 contract |
 | Release-11 `61X` SOC | LE16(B6) / 10 % | Do not apply the current offset to this word |
@@ -321,7 +321,7 @@ An unlisted release can share a layout without inheriting these conversions.
 
 For example, standard-bank `326 = 02 14 BE 10 9A DA 00 00` reports slot 2,
 **53.10 V**, **25.0 A**, and SOC code **218**. A source SOC of 73.0% is
-represented internally as 730, which becomes `730 mod 256 = 218`. That byte
+expressed in tenths as 730, which becomes `730 mod 256 = 218`. That byte
 cannot uniquely recover the original SOC. Use `313.B6`, native module SOC,
 or qualified `61X.B6–B7` for a percentage. In the parallel bank the same current is
 code 10250 (`28 0A`) instead of 4250 (`10 9A`). The voltage remains code 5310.
@@ -336,7 +336,7 @@ of the SOH number and does not identify one particular defect.
 | Field | Defined meaning | Conversion and limits |
 |---|---|---|
 | `QAAA0006` `315.B6–B7` | Full-charge-capacity estimate | BE16 / 10 Ah |
-| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | Initially 5000 on the zeroed integration path. Includes corrections and resets; do not convert it directly to Ah or SOC |
+| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | Initial value 5000. Includes corrections and resets; do not convert it directly to Ah or SOC |
 | `QAAA0006` `316.B2–B3` | Full-charge-capacity estimate | BE16 / 10 Ah |
 | `QAAA0006` `316.B4–B5` | Fine cycle count | BE16 / 10 cycles |
 | `QAAA0006` `316.B6` | Latched algorithm state code | A previous nonzero code can persist. Code 100 is used on a failed algorithm precheck; no complete physical mode enum is assigned |
@@ -534,7 +534,7 @@ explicit fixed comparison is stated below.
 | 22 | Charge current high — condition 22 | Both release-11 variants |
 | 23 | Charge current high — condition 23 | Both release-11 variants |
 | 30 | Cell-voltage plausibility: minimum at most 2000 mV, spread above 999 mV, or maximum above 3799 mV | Both release-11 variants |
-| 31 | Current zero-offset calibration: a 20-sample channel average outside ADC codes 1945–2150 | `QAAa9011` release-11 only |
+| 31 | Current zero-offset calibration out of range | `QAAa9011` release-11 only |
 | 33 | Cell temperature high — condition 33 | Both release-11 variants |
 | 34 | Cell temperature high — condition 34 | Both release-11 variants |
 | 35 | Measurement acquisition communication failure | `QAAa9011` release-11 only |
@@ -563,27 +563,13 @@ explicit fixed comparison is stated below.
 | 134 | Measurement status flag equals one | `QAAa9011` release-11 only |
 | 135 | Pack/port difference at least 1.0 V with hardware-status bits 7 and 8 both set | `QAAa9011` release-11 only |
 
-### Active selection table
+### Disabled local selections
 
-This table defines local DTC selection, not a filter for received member codes.
-The same first 134 entries apply to both release-11 variants. A received code
-that is disabled in the local selection table remains visible and attributable.
-
-| Enabled indices | First category | Second category |
-|---|:---:|:---:|
-| 19, 24, 30, 35, 56 | 1 | 1 |
-| 5, 13, 17, 25–26, 28–29, 31, 34, 38, 42–45, 47, 50–51, 84, 87, 90, 92, 94–95, 100–103, 128, 130, 133 | 2 | 2 |
-| 3, 9, 15, 21, 32, 53 | 2 | 4 |
-| 52, 61 | 3 | 2 |
-| 4, 12, 16, 18, 33, 46, 57–58, 60, 85, 91, 93, 96, 109–110 | 3 | 3 |
-| 2, 8, 11, 14, 20 | 3 | 4 |
-| 48, 62 | 4 | 1 |
-| 0–1, 6–7, 23, 39–41, 49, 63, 88, 97, 99 | 4 | 2 |
-| 22, 89, 98 | 4 | 3 |
-| 59, 83, 86, 123, 129, 131–132 | 4 | 4 |
-| 134–135 (`QAAa9011` only) | 4 | 4 |
-
-Disabled local selections: 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122, 124–127.
+Indices 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122 and 124–127 are never
+selected into a DTC word by this device. "Disabled" applies to DTC A/B selection
+only; a disabled index can still be the source of a summary bit. A received code
+for such an index remains visible and attributable. The same first 134 entries
+apply to both release-11 variants.
 
 Every applicable index not named in Defined condition names is **opaque-condition**.
 Decode its numeric index and bitmap position, retain the code and present
@@ -595,14 +581,11 @@ qualify the intervening unnamed indices.
 ### Selection, severity and clearing
 
 DTC A and B are priority selections, not a two-entry list of every active
-fault. Internally each enabled active index can contribute to two diagnostic
-category selectors. Later indices replace earlier codes within the same
-category. A selects the first nonempty category among 1 and 2; B selects the
-first nonempty category among 3 and 4. Category numbers are **not severity
-names**. Disabled indices do not contribute a selected code.
+fault. Which active index is reported follows a fixed priority that is **not a
+severity ranking**. Disabled indices never contribute a selected code.
 
-An incoming DTC alone cannot reconstruct all active bits, the two category
-assignments, the configured thresholds or a repair action. Preserve current
+An incoming DTC alone cannot reconstruct all active bits, the selection
+priority, the configured thresholds or a repair action. Preserve current
 fault bits and selected DTCs separately. No DTC value requests automatic fault
 clearing, reboot, contactor operation or balancing. An unknown nonzero code
 must remain visible even if all named faults are absent.
@@ -653,7 +636,7 @@ and conditions 131 and 132 are both inactive; condition 41 still contributes.
 The control bit has no complete physical enum here. Consequently, a clear
 A/12 does not by itself exclude condition 40.
 
-A/8 and B/0, B/5, B/11 are not assigned by the release-11 summary composer
+A/8 and B/0, B/5, B/11 are not assigned by the release-11 summary
 and can retain their previous contents. B/8 has a separate status source.
 Keep those bits visible without assigning a fault name or assuming zero.
 Other unlisted legacy bits likewise have no diagnostic-index mapping here.
@@ -689,7 +672,7 @@ The earlier bytes are separate status/parameter fields. Bits are numbered
 | B7 / 5 | 89 |
 
 In local release-11, `323.B4` bits 0–1, B5 bit 7 and B7 bits 0–1 are cleared.
-B6/B7 bits 6–7 are unassigned by this producer and can retain prior values.
+B6/B7 bits 6–7 are unassigned in this summary and can retain prior values.
 Do not treat the four summary bytes as consecutive native fault bytes.
 
 For example, `323.B4` bit 2 reports **25 OR 83**. It cannot identify one
@@ -712,7 +695,7 @@ Parallel communication shares the PCS bus; it is not a claim that a third CAN co
 
 `70X` is not a defined periodic publication in these contracts. Its absence provides no version clue. A future unknown `70X` frame is raw traffic until a matching contract is established.
 
-**Transmit gate for addressed telemetry:** only a qualified participant/coordinator role is a valid publisher under its assigned group address, and the receiver's active parallel contract must accept that family and source. A listener seeing `60X` has learned about output support; this does not establish a compatible input path for transmitting `62X` or another family. Coordinator-summary inputs apply only to the participant roles that consume them. If role or address assignment is unresolved, receive support remains `unknown`.
+**Publisher roles for addressed telemetry:** only a qualified participant/coordinator role is a valid publisher under its assigned group address, and the receiver's active parallel contract accepts that family and source. A listener seeing `60X` has learned about output support; this does not establish a compatible input path for `62X` or another family. Coordinator-summary inputs apply only to the participant roles that consume them. If role or address assignment is unresolved, receive support remains `unknown`.
 
 ### Addressed families `50X…68X`, `6CX`, `6DX`
 
@@ -757,14 +740,14 @@ Reassemble `6CX` by bus, group `X`, module, identity epoch and fragment order. I
 
 ### `37F`, `3F7`, `6F0`, `6FF`: profile and discovery control
 
-| PID | Direction and pre-transmit qualification | Payload and interpretation |
+| PID | Direction and role/state condition | Payload and interpretation |
 |---|---|---|
 | `37F` | Controller → qualified common release-11 endpoint; explicit profile/role change, not a detection probe | B0 control flags; B1–B6 profile-specific; B7 parallel configuration. Changes active profile, role or transmit state. Count-zero behavior follows the release-11 feature table. No generic encoder for unknown flags is defined |
 | `3F7` | Endpoint → controller status for that profile | Periodic form: B0 protocol state; B1 internal-state flag; B2–B4 zero; B5 alarm flag; B6 additional state; B7 address/state. Direct reply form has only B0/B1 and zeros B2–B7; a zero alarm byte in that form does not clear an alarm |
 | `6F0` | Coordinator → qualified participant in the discovery/control state | B0 phase/control, B1 coordination parameter, B2–B7 zero in the defined form. Mutates discovery/communication state; do not replay to test support |
 | `6FF` | Participant → discovery coordinator, correlated with the current discovery session | B0 reported count; B2–B3 BE16 peer parameter; B1 and B4–B7 unspecified for the common consumed form. It is not a universal presence probe |
 
-Existing discovery traffic may establish a relationship between coordinator and participant. Another node MUST NOT assume that role without completing the applicable role-assignment procedure. Do not reuse `190A` bit meanings in `37F`; do not assume QAAB accepts `37F` because it publishes `60X`.
+Existing discovery traffic may establish a relationship between coordinator and participant. A node takes that role only through the applicable role-assignment procedure. Do not reuse `190A` bit meanings in `37F`; do not assume QAAB accepts `37F` because it publishes `60X`.
 
 ## Extended PCS 19xx
 
@@ -869,7 +852,7 @@ their applicable profile, source and direction gates.
 | `329.B1–B3` | BE24 integer associated with module B0 | Energy, charge, elapsed seconds or remaining lifetime |
 | Release-11 `329.B6–B7` | Low 16 bits of ten times a separate signed state value | A physical unit; the multiplication alone does not supply one |
 | Release-11 `334.B1` | Coordinator state code carried through the additional state path; fixed zero for `QAAA0011` | Heartbeat `301.B7` state, balance mode or a fault severity |
-| `51X` and `1861` state bytes | Slot-attributed state codes | RUNMODE/WORKMODE from the addressed monitor profile |
+| `51X` and `1861` state bytes | Slot-attributed state codes | RUNMODE/WORKMODE from another profile |
 | `590`, `690`, `6A0`, `6B0`, `6E0` summaries | Separate bytes/words exactly as laid out | A measurement unit or complete coordination enum |
 | `60X` version/mux, `63X` extra word, `62X` packed status | Typed metadata/flags | Complete release token or command support |
 | `37F`, `3F7`, `6F0`, `6FF`, opaque maintenance selectors | State-dependent control/status values | A generic writer or harmless discovery sequence |
@@ -881,11 +864,7 @@ Its routing is defined, but its complete numeric enum is not. The retained
 heartbeat byte `301.B7` is a separate state and must not be aliased to it.
 Native `590` transmission still writes B7 zero in both release-11 variants.
 
-For release-11 `329`, the local three-byte quantity uses the low 24 bits of
-`((25 × C + floor(C/2) + floor(C/8)) mod 2^32) >> 8`, for a 32-bit counter C.
-Cached module/parallel paths copy their stored quantity instead. This arithmetic
-defines a code; it does not define Wh. A local formula must not be re-applied
-to an already transformed cached value.
+For release-11 `329`, the three-byte quantity is an integer code derived from a 32-bit counter by a fixed transform. It is not an energy value, cached module and parallel values are copies of the stored code, and a cached code must not be transformed a second time.
 
 ## Maintenance and firmware coordination channels
 
@@ -903,7 +882,7 @@ Service functions cover update progress/result, image metadata, staging preparat
 
 A common service envelope does not make firmware images interchangeable across release identities.
 
-This specification does not assign a portable payload to opaque maintenance function codes. A maintenance implementation needs the exact service contract, transaction correlation, flow control, image compatibility and session state. Unsupported or unresolved operations remain `unknown`; a successful normal PCS exchange does not qualify them.
+This specification does not assign a portable payload to opaque maintenance function codes. Maintenance exchanges depend on the exact service contract, transaction correlation, flow control, image compatibility and session state. Unsupported or unresolved operations remain `unknown`; a successful normal PCS exchange does not qualify them.
 
 ## Data validity and consumer obligations
 
