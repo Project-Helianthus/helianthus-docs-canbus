@@ -140,7 +140,7 @@ grep -Fq 'A project-code selector MUST NOT select a revision label, and a revisi
 grep -Fq '**A numeric version word of 6 does not select `QAAA0006`.**' "$growatt_pcs"
 grep -Fq 'MUST NOT be admitted using a numerically adjacent release' "$growatt_pcs"
 grep -Fq 'There is no universal, side-effect-free CAN command that enumerates application handlers.' "$growatt_pcs"
-grep -Fq 'A device accepts an incoming PID when its contract includes that PID' "$growatt_pcs"
+grep -Fq 'A device accepts an incoming PID only when its contract includes that PID' "$growatt_pcs"
 grep -Fq 'as identification probes.' "$growatt_pcs"
 grep -Fq 'It defines 134 indices for `QAAA0011` and 136 for `QAAa9011`.' "$growatt_pcs"
 
@@ -177,7 +177,8 @@ protocol_forbidden_terms=(
   'reverse engineering' decompil disassembl corpus ghidra provenance capture
   laboratory trace dump 'mapping source' 'installed field unit' 'obtained from'
   'source archive' 'vendor manual' '/Users/' 'payload builder' composer 'internal timer'
-  'ADC codes' producer
+  'ADC codes' producer '/home/' 'pre-transmi' 'before transmi' 'before send' 'host request'
+  'Transmit gate for'
 )
 for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
   for forbidden in "${protocol_forbidden_terms[@]}"; do
@@ -187,6 +188,14 @@ for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
     fi
   done
 done
+
+for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
+  if grep -Fq '```mermaid' "$growatt_doc"; then
+    echo "Growatt protocol document depends on a Mermaid renderer" >&2
+    exit 1
+  fi
+done
+grep -Fq 'the public-URL rule in `AGENTS.md` is waived for them only' "$growatt_index"
 
 python3 scripts/check_markdown_links.py README.md "$growatt_index" "$growatt_pcs" "$growatt_link"
 

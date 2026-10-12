@@ -288,7 +288,7 @@ assert_rejected "$growatt_readme_index_fixture"
 
 growatt_dtc_fixture="$tmp_dir/growatt-dtc-drift"
 copy_fixture "$growatt_dtc_fixture"
-perl -0pi -e 's/\| 62 \| Maximum cell voltage at least 3750 mV \|/| 62 | Maximum cell voltage at least 3760 mV |/' "$growatt_dtc_fixture/$growatt_link_file"
+perl -0pi -e 's/\| 62 \| Maximum cell voltage high \|/| 62 | Maximum cell voltage low |/' "$growatt_dtc_fixture/$growatt_link_file"
 assert_rejected "$growatt_dtc_fixture"
 
 growatt_sufficient_fixture="$tmp_dir/growatt-never-sufficient"
@@ -306,4 +306,21 @@ for growatt_internal in 'payload builder' 'internal timer' 'ADC codes' '/Users/'
   copy_fixture "$growatt_internal_fixture"
   printf '\n%s detail.\n' "$growatt_internal" >> "$growatt_internal_fixture/$growatt_pcs_file"
   assert_rejected "$growatt_internal_fixture"
+done
+
+growatt_mermaid_fixture="$tmp_dir/growatt-mermaid"
+copy_fixture "$growatt_mermaid_fixture"
+printf '\n```mermaid\nstateDiagram-v2\n```\n' >> "$growatt_mermaid_fixture/$growatt_link_file"
+assert_rejected "$growatt_mermaid_fixture"
+
+growatt_waiver_fixture="$tmp_dir/growatt-waiver"
+copy_fixture "$growatt_waiver_fixture"
+perl -0pi -e 's/and the public-URL rule in `AGENTS\.md` is waived for them only\./and nothing else applies./' "$growatt_waiver_fixture/$growatt_index_file"
+assert_rejected "$growatt_waiver_fixture"
+
+for growatt_phrase in 'pre-transmit qualification' 'Before transmitting' 'host request to perform'; do
+  growatt_phrase_fixture="$tmp_dir/growatt-sender-phrase-${RANDOM}"
+  copy_fixture "$growatt_phrase_fixture"
+  printf '\n%s detail.\n' "$growatt_phrase" >> "$growatt_phrase_fixture/$growatt_pcs_file"
+  assert_rejected "$growatt_phrase_fixture"
 done

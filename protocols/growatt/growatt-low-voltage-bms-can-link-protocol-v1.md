@@ -23,7 +23,7 @@ This is an implementation-neutral protocol contract. It records candidate protoc
 
 **Relationship to the existing Growatt documents.** The [V1.04 contract](low-voltage-bms-can-v104.md), its [version evidence](growatt-low-voltage-bms-can-version-evidence-v1.md) and the [common projection](growatt-low-voltage-bms-can-common-projection-v1.md) describe frames from published, revision-labelled documents. This document uses a different selector, a project code with a release such as `QAAA0006`, and a different frame vocabulary. The two sets are independent:
 
-- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document.
+- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame in the PCS document. LINK uses extended 29-bit identifiers, so it has no identifier overlap with the standard 11-bit V1.04 frames. An identifier match never selects a document.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
 - PID notation below is hexadecimal and is written without the `0x` prefix.
@@ -144,7 +144,7 @@ unspecified capability and raw version-dependent fields.
 | `1862F4SS` | Additional-word feature; candidate groups L4/L8 | Does not uniquely identify `QAAA[0009–0010]` or assign physical units |
 | `1853F4SS` with a compatible identity | DTC output feature in L8 | Does not establish a DTC input handler or a complete fault dictionary |
 | `1810…1813` from one source | Native cell-block output candidate | Neither exact release nor configured cell count follows from these IDs alone |
-| `1801F4SS` | Balance/status output candidate | Bit mapping and AFE-readback semantics require their own profile condition |
+| `1801F4SS` | Balance/status output candidate | Bit mapping and balance-readback semantics require their own profile condition |
 
 For example, a compatibility set containing only `QAAA0009` and `QAAA0010`
 selects W for `180B` and the common `1862` word layout without requiring the
@@ -186,17 +186,16 @@ every remaining candidate agrees on its layout, units and scope. For example,
 `1852` establishes an additional fault block but does not alone select the
 `180B` layout. Similar voltages or plausible SOC values are not profile gates.
 
-```mermaid
-stateDiagram-v2
-    [*] --> Unknown
-    Unknown --> Candidate: identity or distinctive traffic
-    Candidate --> Qualified: identity, route and layout agree
-    Candidate --> Ambiguous: contradictory identity or layout
-    Qualified --> Ambiguous: source reuse or conflicting identity
-    Qualified --> Stale: identity or data freshness expires
-    Stale --> Candidate: fresh identity received
-    Ambiguous --> Unknown: new association/session
-```
+| From | To | Condition |
+|---|---|---|
+| Start | Unknown | Initial state |
+| Unknown | Candidate | Identity or distinctive traffic |
+| Candidate | Qualified | Identity, route and layout agree |
+| Candidate | Ambiguous | Contradictory identity or layout |
+| Qualified | Ambiguous | Source reuse or conflicting identity |
+| Qualified | Stale | Identity or data freshness expires |
+| Stale | Candidate | Fresh identity received |
+| Ambiguous | Unknown | New association or session |
 
 ### Receive-handler classes
 
@@ -369,7 +368,7 @@ already present. Generic zero-payload queries are not defined.
 | `1804` | Native profile. | B0–B3 LE32 accumulator A; B4–B7 LE32 accumulator B. Units and accumulation period unspecified. Do not rename as Ah or Wh by similarity to another protocol. |
 | `1805` | Native packed-status profile. Coordinator can send `1805DFF4`, class C. | LE64 packed fields: bits 0–13 pack-voltage code; 14–26 current code; 27–40 port-voltage code; 41–52 discharge-limit code; 53–63 charge-limit code. See scaling below. |
 | `1806` | Native cell-extrema layout. | B0 profile-specific raw byte; B1–B2 LE16 maximum cell voltage; B3 minimum-cell index; B4–B5 LE16 minimum cell voltage; B6–B7 LE16 mean cell voltage in the local release-11 measurement path. In `QAAA0005/0006`, B0 is the low byte of cell-voltage spread, **not maximum-cell index**. Voltage unit is mV in the qualified native measurement profile. |
-| `1807` | Native profile. | B0–B1 LE16 cell spread in mV; B2/B3 diagnostic category counts in release-11 (each is the sum of two category counters); B4–B5 additional LE16 algorithm field; B6 algorithm/SOC byte; B7 configuration. Remaining semantics raw. |
+| `1807` | Native profile. | B0–B1 LE16 cell spread in mV; B2/B3 two byte counts of active diagnostic conditions in release-11, in groups whose membership is not defined here; B4–B5 additional LE16 algorithm field; B6 algorithm/SOC byte; B7 configuration. Remaining semantics raw. |
 | `1808` | Native temperature-extrema layout. | B0 maximum-channel index; B1 maximum temperature code; B2 minimum-channel index; B3 minimum code; B4 additional/average code; B5 temperature spread code; B6/B7 additional channel codes. For the local release-11 count-aware path B4 is the truncated average of the one-byte channel codes and B5 is maximum minus minimum. Qualified native temperature codes use `raw − 40 °C`. |
 | `1809` | Normally `1809F5SS`, module → monitor. Class A; coordinator-side routes require separate receiver qualification. | B0–B1 LE16 full year; B2 month; B3 day; B4 hour; B5 minute; B6 second; B7 clock status. Binary fields, not BCD. Validate calendar values; timezone is not carried. Clock setting uses a separate input contract. |
 | `180A` | Native module report; `180ADFF4` is coordinator wake/coordination, class C. Do not decode a marker as a normal report. | B0 status; B1–B3 LE24 derived quantity; B4–B5 LE16 result; B6–B7 extra LE16 or zero, profile-dependent. Units unspecified. |
@@ -420,16 +419,16 @@ frame does not establish a new sensor sample.
 |---|---|
 | `1806.B6–B7` | LE16 average cell voltage, in mV; distinct from minimum and maximum. Count-aware path requires configured count 1–16; zero count can retain an old mean. The fixed-16 path averages all 16 slots and requires their validity |
 | `1807.B4–B5` | LE16 fine SOC estimate, in 0.1%/count, on the local release-11 algorithm path; B6 is the separate whole-percent estimate. PCS `326.B5` truncates this word to one byte |
-| `1807.B2`, B3 | Sums of diagnostic category counters, narrowed to bytes. These are counts, not fault masks or severity enums |
+| `1807.B2`, B3 | Two byte counts of active diagnostic conditions in groups whose membership is not defined here. These are counts, not fault masks or severity enums |
 | `1808.B4` | Integer average of coded one-byte temperatures. Subtract 40 for °C. Averaging these rounded codes loses precision |
 | `1808.B5` | Maximum minus minimum of those one-byte codes, in °C |
 | `1862.B0–B1`, B2–B3 | LE16 maximum and minimum of the fine temperature codes. Convert each as `code / 8 − 40 °C` |
-| `1862.B4–B5`, L8 | LE16 fine average: `floor(sum(fine channel codes) / configured_sensor_count)`. Convert as `code / 8 − 40 °C` only for the count-aware measurement path with count 1–4 |
+| `1862.B4–B5`, L8 | LE16 fine average of the configured channels' fine codes. Convert as `code / 8 − 40 °C` only for the count-aware measurement path with count 1–4 |
 | `1862.B4–B5`, `QAAA0009/0010` | LE16 fine average, converted as `code / 8 − 40 °C` on the count-aware path with sensor count 1–4. The wire meaning is common to L8 and `QAAA0009/0010` |
-| `1861.B3` | `min(counter, 255)`; no duration unit is assigned |
+| `1861.B3` | Counter byte that saturates at 255; no duration unit is assigned |
 | `1803.B0–B1` | Release-11 BE16 configuration word; `QAAA0006` emits two constant bytes, 1 and 1. The capacity word in both frames is LE16 |
 | W `180B.B4` | Latched gauge/algorithm state code, independent of B5 |
-| W `180B.B5` | Residual algorithm budget byte; not an AFE balance mask |
+| W `180B.B5` | Residual algorithm budget byte; not a balance mask |
 
 The `1862` third-word rule for other L4 selectors is opaque unless the same
 fine-average contract is selected. L4 membership alone does not select that meaning.
@@ -438,7 +437,7 @@ Do not report that average as a valid fresh sample. The fixed-four-channel
 measurement path does not establish the fine-average update used by the
 count-aware path; preserve its third word as an opaque code until qualified.
 The configured count alone does not establish valid sensor inputs. The fine
-average arithmetic does not filter an invalid channel code before summing it.
+average can include an invalid channel code.
 Require valid contributing channels; a numerically plausible average alone
 does not qualify them. Preserve an invalid or stale average as such.
 
@@ -486,8 +485,8 @@ alone do not establish byte order or identify the product.
 
 For the qualified `1801` balance-readback profiles, bit `n` of the first LE16
 word corresponds to channel `n+1`. Report only configured channels. The word is
-an AFE register readback and can remain unchanged after a failed AFE read;
-its CAN arrival timestamp is not an AFE sample timestamp. Keep these concepts
+the balancing-channel enable state as last read by the device and can remain
+unchanged between readings; its CAN arrival time is not the time of that reading. Keep these concepts
 distinct: **requested mask**, **register enable state**, **measured balancing
 current**. `1801` supplies the second, not the third. `18FD` is a state-changing
 requested-mask/control channel and must not be used to discover balancing support.
@@ -578,8 +577,8 @@ A condition name describes what the diagnostic monitors; it is not a repair
 diagnosis. Different indices for the same quantity have independent thresholds,
 hysteresis and state gates. The suffix “condition N” preserves that distinction
 without assigning a warning/protection level that the numeric code does not carry.
-Thresholds are configuration and operating-state properties, except where an
-explicit fixed comparison is stated below.
+Thresholds are configuration and operating-state properties and are not
+specified here.
 
 | Index | Condition | Interpretation gate |
 |---:|---|---|
@@ -604,35 +603,35 @@ explicit fixed comparison is stated below.
 | 21 | Discharge current high — condition 21 | Both release-11 variants |
 | 22 | Charge current high — condition 22 | Both release-11 variants |
 | 23 | Charge current high — condition 23 | Both release-11 variants |
-| 30 | Cell-voltage plausibility: minimum at most 2000 mV, spread above 999 mV, or maximum above 3799 mV | Both release-11 variants |
+| 30 | Cell-voltage plausibility | Both release-11 variants |
 | 31 | Current zero-offset calibration out of range | `QAAa9011` release-11 only |
 | 33 | Cell temperature high — condition 33 | Both release-11 variants |
 | 34 | Cell temperature high — condition 34 | Both release-11 variants |
 | 35 | Measurement acquisition communication failure | `QAAa9011` release-11 only |
 | 38 | Nonvolatile storage access failure | Both release-11 variants |
-| 39 | Charging current at least 3.0 A while low-temperature condition 40 or 41 is active | Both release-11 variants |
+| 39 | Charging current while a low-temperature condition is active | Both release-11 variants |
 | 40 | Cell temperature low — condition 40 | Both release-11 variants |
 | 41 | Cell temperature low — condition 41 | Both release-11 variants |
 | 42 | Pack-voltage consistency difference | Both release-11 variants |
-| 44 | Configuration record read, validation or rewrite failure | Both release-11 variants |
-| 45 | Latched hardware status bit 15 | Both release-11 variants |
+| 44 | Configuration record failure | Both release-11 variants |
+| 45 | Hardware status condition | Both release-11 variants |
 | 52 | Output-port overvoltage | Both release-11 variants |
-| 57 | Charging current at or above an additional configured threshold | Both release-11 variants |
-| 58 | Discharging current at or above an additional configured threshold | Both release-11 variants |
-| 60 | Pack exceeds port voltage by at least 3.0 V, with port at least 40.0 V | Both release-11 variants |
-| 61 | Port exceeds pack voltage by at least 3.0 V | Both release-11 variants |
-| 62 | Maximum cell voltage at least 3750 mV | Both release-11 variants |
+| 57 | Charging current high — additional condition | Both release-11 variants |
+| 58 | Discharging current high — additional condition | Both release-11 variants |
+| 60 | Pack voltage exceeds port voltage | Both release-11 variants |
+| 61 | Port voltage exceeds pack voltage | Both release-11 variants |
+| 62 | Maximum cell voltage high | Both release-11 variants |
 | 91 | Parallel discovery/association timeout | `QAAa9011` release-11 only |
-| 93 | Parallel peer-word spread above 20 counts in 61X.B4–B5; clears below 10 counts | `QAAa9011` release-11 only |
-| 102 | LINK member serial fragment conflicts with the stored serial | `QAAa9011` release-11 only |
-| 103 | Parallel member serial fragment conflicts with the stored serial | `QAAa9011` release-11 only |
+| 93 | Parallel peer-word spread in 61X.B4–B5 | `QAAa9011` release-11 only |
+| 102 | LINK member serial conflict | `QAAa9011` release-11 only |
+| 103 | Parallel member serial conflict | `QAAa9011` release-11 only |
 | 128 | Startup integrity check A failed | `QAAa9011` release-11 only |
-| 129 | Algorithm status code is nonzero | Both release-11 variants |
-| 130 | Algorithm status code greater than six | Both release-11 variants |
-| 131 | Adjacent member-state bit 0 mismatch in enabled coordination state | `QAAa9011` release-11 only |
+| 129 | Algorithm status condition — condition 129 | Both release-11 variants |
+| 130 | Algorithm status condition — condition 130 | Both release-11 variants |
+| 131 | Adjacent member state mismatch | `QAAa9011` release-11 only |
 | 133 | Startup integrity check B failed | `QAAa9011` release-11 only |
-| 134 | Measurement status flag equals one | `QAAa9011` release-11 only |
-| 135 | Pack/port difference at least 1.0 V with hardware-status bits 7 and 8 both set | `QAAa9011` release-11 only |
+| 134 | Measurement status flag set | `QAAa9011` release-11 only |
+| 135 | Pack/port voltage difference with hardware status | `QAAa9011` release-11 only |
 
 ### Disabled local selections
 
@@ -832,7 +831,7 @@ block numbers. Do not transfer a configuration layout across feature groups.
 | `18A0` | L0–L8; calibration/status session | B0 selector; B1–B7 selector-dependent data. TX and RX selector meanings are not universally symmetric. |
 | `18DF` | L0–L4/L6; service → module | Configuration-transfer/session request; B0–B7 session-dependent. Does not establish a read-only transfer. |
 | `18FC` | Reports: L5/L7/L8. Additional input: L4 only for legacy extended-19 `QAAa9011` | Report B0–B1 status; B2–B7 zero. Report emission can depend on an active aging flag. RX semantics are state-changing. The additional legacy L4 input consumes B3 and LE16(B4); no legacy report is implied. L5 TX support must not be promoted to identical RX support. |
-| `18FD` | L0–L8; service/control route | B0 control; B1–B2 LE16 requested mask; B3–B7 further control fields. Requested mask is not AFE readback. L8 clear-side effects follow the release-11 gate above. Excluded from automatic balance discovery and control. |
+| `18FD` | L0–L8; service/control route | B0 control; B1–B2 LE16 requested mask; B3–B7 further control fields. Requested mask is not a readback. L8 clear-side effects follow the release-11 gate above. Excluded from automatic balance discovery and control. |
 | `18B0DFF4` | L0–L8; coordinator → participants, active update session | B0 phase selector; B1–B5 control data; B6–B7 session parameter in L8. Earlier profiles must not inherit the L8 parameter meaning. |
 | `18B0FFF5` | Service-originated update route where separately qualified | Distinct route/session from `18B0DFF4`; keep payload raw without the matching service contract. |
 | `18B1DFF4` | L1–L8; coordinator → eligible participants | B0 propagated session parameter; B1–B7 other data. Acceptance depends on participant role/state; not a generic version query. |
@@ -863,7 +862,7 @@ physical enum or unit in this contract:
 | `1807` additional algorithm value outside the local release-11 SOC gate, and configuration byte | LE16 code and U8 code |
 | `180A` status fields | U8 status, LE24 counter-derived code, LE16 result, optional LE16 algorithm code |
 | `180C` three words and status; `1840` configuration/state bytes | Three LE16 codes plus U8; six bytes plus the declared capacity-related word |
-| `1861` state bytes and `1869` summary state/words | Independent state codes and LE16 words; no RUNMODE/WORKMODE substitution |
+| `1861` state bytes and `1869` summary state/words | Independent state codes and LE16 words; no run or work mode substitution |
 | L4 `1862` third word outside the explicit fine-average gate; L8 fine average without a qualified reporting module and count | Opaque LE16; no automatic temperature display |
 | `180D…180F` unassigned aggregate fields | Aggregate-scoped codes, kept apart from local module measurements |
 | `1870…188C`, `189x`, `18A0`, `18B0/18B1`, `18DF`, `18F0`, `18FC/18FD/18FE` unassigned selectors or control fields | Exact payload bytes with the message's receiver class and route; no synthesized polling request |
