@@ -324,3 +324,62 @@ for growatt_phrase in 'pre-transmit qualification' 'Before transmitting' 'host r
   printf '\n%s detail.\n' "$growatt_phrase" >> "$growatt_phrase_fixture/$growatt_pcs_file"
   assert_rejected "$growatt_phrase_fixture"
 done
+
+growatt_monitor_file='protocols/growatt/growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md'
+
+growatt_monitor_missing_fixture="$tmp_dir/growatt-monitor-missing"
+copy_fixture "$growatt_monitor_missing_fixture"
+rm "$growatt_monitor_missing_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_missing_fixture"
+
+growatt_monitor_heading_fixture="$tmp_dir/growatt-monitor-heading"
+copy_fixture "$growatt_monitor_heading_fixture"
+perl -0pi -e 's/\n## Addressed monitor field reference\n/\n## Field reference\n/' "$growatt_monitor_heading_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_heading_fixture"
+
+growatt_monitor_selection_fixture="$tmp_dir/growatt-monitor-selection"
+copy_fixture "$growatt_monitor_selection_fixture"
+perl -0pi -e 's/it is never a fallback decoder for native `18xx` traffic/it is a fallback decoder for native `18xx` traffic/' "$growatt_monitor_selection_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_selection_fixture"
+
+growatt_monitor_identifier_fixture="$tmp_dir/growatt-monitor-identifier"
+copy_fixture "$growatt_monitor_identifier_fixture"
+perl -0pi -e 's/The signal names are descriptive labels, not stable identifiers/The signal names are stable identifiers/' "$growatt_monitor_identifier_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_identifier_fixture"
+
+for growatt_monitor_term in Banlence Serise Numbwer Detct MAINTANCE ghidra capture; do
+  growatt_monitor_term_fixture="$tmp_dir/growatt-monitor-term-${RANDOM}"
+  copy_fixture "$growatt_monitor_term_fixture"
+  printf '\n%s detail.\n' "$growatt_monitor_term" >> "$growatt_monitor_term_fixture/$growatt_monitor_file"
+  assert_rejected "$growatt_monitor_term_fixture"
+done
+
+growatt_monitor_permission_fixture="$tmp_dir/growatt-monitor-permission"
+copy_fixture "$growatt_monitor_permission_fixture"
+printf '\nAn implementation MAY transmit a monitor frame.\n' >> "$growatt_monitor_permission_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_permission_fixture"
+
+growatt_monitor_link_fixture="$tmp_dir/growatt-monitor-link"
+copy_fixture "$growatt_monitor_link_fixture"
+perl -0pi -e 's/\]\(growatt-low-voltage-bms-can-link-protocol-v1\.md#receive-handler-classes\)/](growatt-low-voltage-bms-can-link-protocol-v1.md#receive-handler-classez)/' "$growatt_monitor_link_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_link_fixture"
+
+growatt_monitor_stub_fixture="$tmp_dir/growatt-monitor-stub"
+copy_fixture "$growatt_monitor_stub_fixture"
+perl -0pi -e 's/The separate \[addressed monitor profile\]\(growatt-low-voltage-bms-can-monitor-addressed-profile-v1\.md\) describes them\./The monitor profile is described elsewhere./' "$growatt_monitor_stub_fixture/$growatt_link_file"
+assert_rejected "$growatt_monitor_stub_fixture"
+
+growatt_monitor_identifier_style_fixture="$tmp_dir/growatt-monitor-identifier-style"
+copy_fixture "$growatt_monitor_identifier_style_fixture"
+printf '\nSee `Some_Vendor_Field` and `SomeVendorField`.\n' >> "$growatt_monitor_identifier_style_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_identifier_style_fixture"
+
+growatt_monitor_request_fixture="$tmp_dir/growatt-monitor-request"
+copy_fixture "$growatt_monitor_request_fixture"
+printf '\nAutomatic requests remain excluded for unknown peers.\n' >> "$growatt_monitor_request_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_request_fixture"
+
+growatt_waiver_scope_fixture="$tmp_dir/growatt-waiver-scope"
+copy_fixture "$growatt_waiver_scope_fixture"
+perl -0pi -e 's/\(issues #37 and #39\)/(issue #37)/' "$growatt_waiver_scope_fixture/$growatt_index_file"
+assert_rejected "$growatt_waiver_scope_fixture"

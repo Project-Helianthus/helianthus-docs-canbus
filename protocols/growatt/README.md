@@ -6,7 +6,7 @@ low-voltage battery management systems on CAN. They are published in the CC0
 none of them authorizes a transmission or any other live bus action, and none
 is qualified by Helianthus against hardware.
 
-The documents form two independent sets. They are selected by different
+The documents form two independent sets and one separate addressed profile. They are selected by different
 inputs and never select each other.
 
 ## Revision-labelled inverter link (V1.04)
@@ -30,11 +30,20 @@ Profiles selected by a project code with a release, such as `QAAA0006`.
   bus behind the coordinator, with module identity, cell and temperature
   reports, coordination, and configuration and maintenance receiver gates.
 
+## Addressed monitor profile
+
+A separate addressed profile that some monitor interfaces advertise, independent of both sets above.
+
+- [Addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md): the `04xx`, `08xx`, `10xx` and `14xx`
+  families, the diagnostic record families and the per-signal field reference.
+
 ## Evidence
 
-The V1.04 documents cite published revision documents. The PCS and LINK
-documents are owner-contributed candidate records: they cite no public source,
-and every statement in them is an unverified candidate claim. They are published at the repository owner's direction (issue #37), and the public-URL rule in `AGENTS.md` is waived for them only.
+The V1.04 documents cite published revision documents. The PCS, LINK and
+addressed monitor profile documents are owner-contributed candidate records:
+they cite no public source, and every statement in them is an unverified
+candidate claim. They are published at the repository owner's direction
+(issues #37 and #39), and the public-URL rule in `AGENTS.md` is waived for them only.
 
 ## Relationship
 
@@ -49,6 +58,6 @@ and every statement in them is an unverified candidate claim. They are published
   admission tuple, so that tuple alone does not distinguish PCS from V1.04
   traffic. V1.04 applies only when the caller explicitly selects it for an
   interface.
-- Conditions described in the PCS and LINK documents are necessary for a device
-  to accept a message and are never sufficient. This repository defines no
-  condition under which Helianthus software transmits.
+- Conditions described in the PCS, LINK and addressed monitor profile documents
+  are necessary for a device to accept a message and are never sufficient. This
+  repository defines no condition under which Helianthus software transmits.

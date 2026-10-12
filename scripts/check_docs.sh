@@ -30,6 +30,7 @@ required=(
   'protocols/growatt/README.md'
   'protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md'
   'protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md'
   'scripts/check_markdown_links.py'
 )
 
@@ -166,21 +167,43 @@ grep -Fq 'V1.04 applies only when the caller explicitly selects it for an interf
 diff <(sed -n '/^## Diagnostic codes$/,/^## Standard parallel/p' "$growatt_pcs" | sed '$d') \
      <(sed -n '/^## Diagnostic codes$/,/^## Coordinator and stack traffic$/p' "$growatt_link" | sed '$d') >/dev/null
 
+growatt_monitor='protocols/growatt/growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md'
+for heading in 'Status and Relationship' 'Addressed monitor profile' 'Addressed monitor field reference'; do
+  grep -Fqx "## $heading" "$growatt_monitor"
+done
+grep -Fqx '# Growatt Low-Voltage BMS CAN Addressed Monitor Profile V1' "$growatt_monitor"
+grep -Fq 'This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action.' "$growatt_monitor"
+grep -Fq 'are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.' "$growatt_monitor"
+grep -Fq 'No public source is cited, and every statement is an unverified candidate claim.' "$growatt_monitor"
+grep -Fq 'it is never a fallback decoder for native `18xx` traffic' "$growatt_monitor"
+if grep -Eq '`[A-Za-z0-9]*[a-z][A-Z][A-Za-z0-9/_]*`|`[A-Za-z0-9]+_[A-Za-z0-9_/]+`' "$growatt_monitor"; then
+  echo "Growatt monitor profile reproduces a vendor-style identifier" >&2
+  exit 1
+fi
+grep -Fq 'this document defines no discovery or query transaction' "$growatt_monitor"
+grep -Fq 'defines no request transaction for this record and authorizes none' "$growatt_monitor"
+grep -Fq 'A project-code selector MUST NOT select this profile' "$growatt_monitor"
+grep -Fq 'The signal names are descriptive labels, not stable identifiers' "$growatt_monitor"
+grep -Fq 'define no monitor request/reply transactions' "$growatt_monitor"
+
 growatt_index='protocols/growatt/README.md'
 grep -Fqx '# Growatt Low-Voltage BMS CAN Protocol Contracts' "$growatt_index"
 grep -Fq 'A project-code selector MUST NOT select a revision label, and a' "$growatt_index"
 grep -Fq 'none of them authorizes a transmission or any other live bus action' "$growatt_index"
-grep -Fq 'every statement in them is an unverified candidate claim' "$growatt_index"
-grep -Fq 'never sufficient. This repository defines no' "$growatt_index"
+grep -Fq 'every statement in them is an unverified' "$growatt_index"
+grep -Fq 'are never sufficient. This' "$growatt_index"
+grep -Fq 'PCS, LINK and' "$growatt_index"
+grep -Fq '(issues #37 and #39)' "$growatt_index"
 
 protocol_forbidden_terms=(
   'reverse engineering' decompil disassembl corpus ghidra provenance capture
   laboratory trace dump 'mapping source' 'installed field unit' 'obtained from'
   'source archive' 'vendor manual' '/Users/' 'payload builder' composer 'internal timer'
   'ADC codes' producer '/home/' 'pre-transmi' 'before transmi' 'before send' 'host request'
-  'Transmit gate for'
+  'Transmit gate for' Banlence Serise Numbwer Detct MAINTANCE PassedCharge
+  'Automatic requests remain excluded' 'safe discovery request'
 )
-for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
+for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_monitor" "$growatt_index"; do
   for forbidden in "${protocol_forbidden_terms[@]}"; do
     if grep -Fiq "$forbidden" "$growatt_doc"; then
       echo "Growatt protocol document contains prohibited material: $forbidden" >&2
@@ -189,7 +212,7 @@ for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
   done
 done
 
-for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
+for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_monitor" "$growatt_index"; do
   if grep -Fq '```mermaid' "$growatt_doc"; then
     echo "Growatt protocol document depends on a Mermaid renderer" >&2
     exit 1
@@ -197,11 +220,13 @@ for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
 done
 grep -Fq 'the public-URL rule in `AGENTS.md` is waived for them only' "$growatt_index"
 
-python3 scripts/check_markdown_links.py README.md "$growatt_index" "$growatt_pcs" "$growatt_link"
+python3 scripts/check_markdown_links.py README.md "$growatt_index" "$growatt_pcs" "$growatt_link" "$growatt_monitor"
 
 grep -Fq '[Growatt protocol index](protocols/growatt/README.md)' README.md
 grep -Fq '[Growatt low-voltage BMS CAN PCS protocol](protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md)' README.md
 grep -Fq '[Growatt low-voltage BMS CAN LINK protocol](protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md)' README.md
+grep -Fq '[Growatt low-voltage BMS CAN addressed monitor profile](protocols/growatt/growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md)' README.md
+grep -Fq 'The separate [addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md) describes them.' "$growatt_link"
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md

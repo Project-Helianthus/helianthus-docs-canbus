@@ -876,7 +876,7 @@ are bytes. Unknown state codes remain visible and never become commands.
 
 ## Addressed monitor profile
 
-Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`, `10xx` and `14xx` families (**Monitor-Addressed**). It is a separate addressed profile. It is selected only by an independently qualified peer or protocol association together with compatible traffic. A QAAB identity or a shared service PID does not establish it, and it is not a fallback decoder for native `18xx`. This contract assigns no layout to those families, and it defines no request or reply for them.
+Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`, `10xx` and `14xx` families (**Monitor-Addressed**). It is a separate addressed profile. It is selected only by an independently qualified peer or protocol association together with compatible traffic. A QAAB identity or a shared service PID does not establish it, and it is not a fallback decoder for native `18xx`. This contract assigns no layout to those families, and it defines no request or reply for them. The separate [addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md) describes them.
 
 ## Interoperability rules
 
