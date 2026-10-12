@@ -164,7 +164,7 @@ PCS transport profiles.
 |---|---|---|
 | `321` family metadata | ASCII `QAAA` | ASCII `QAAa`; same payload layout |
 | Diagnostic words in `333`, `52X` | Packed-decimal code table | Binary-decimal code table; see Diagnostic codes below |
-| `301` heartbeat input B7 | Ignored | Retained as raw heartbeat state; `00` and `58` normalize to zero |
+| `301` heartbeat input B7 | Ignored | Retained as raw heartbeat state |
 | `334` output B1 | Zero | Coordinator state code; B2–B7 remain zero in both versions |
 | `51X` output B7 | Local: zero. Aggregate: unspecified; not assigned in this payload | Fourth raw state byte in both scopes |
 | `51X` input B7 | Ignored | Retained with the reporting slot |
@@ -625,7 +625,7 @@ an index without a condition name remains a visible diagnostic index.
 | B / 13 | 14 | 14 |
 | B / 14 | 33 | 33 |
 | B / 15 | 12 | 12 |
-| A / 0 | Cleared in the local contract | Local state code equals 5; not a fault index |
+| A / 0 | Cleared in the local contract | Local state code; not a fault index |
 | A / 9 | Cleared in the local contract | Unassigned source |
 | B / 9 | Cleared | Unassigned source |
 | B / 10 | Parallel diagnostic/status selector 4; not a local DTC index | 4 |

@@ -696,7 +696,7 @@ an index without a condition name remains a visible diagnostic index.
 | B / 13 | 14 | 14 |
 | B / 14 | 33 | 33 |
 | B / 15 | 12 | 12 |
-| A / 0 | Cleared in the local contract | Local state code equals 5; not a fault index |
+| A / 0 | Cleared in the local contract | Local state code; not a fault index |
 | A / 9 | Cleared in the local contract | Unassigned source |
 | B / 9 | Cleared | Unassigned source |
 | B / 10 | Parallel diagnostic/status selector 4; not a local DTC index | 4 |
