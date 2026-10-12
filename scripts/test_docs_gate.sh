@@ -368,3 +368,18 @@ growatt_monitor_stub_fixture="$tmp_dir/growatt-monitor-stub"
 copy_fixture "$growatt_monitor_stub_fixture"
 perl -0pi -e 's/The separate \[addressed monitor profile\]\(growatt-low-voltage-bms-can-monitor-addressed-profile-v1\.md\) describes them\./The monitor profile is described elsewhere./' "$growatt_monitor_stub_fixture/$growatt_link_file"
 assert_rejected "$growatt_monitor_stub_fixture"
+
+growatt_monitor_identifier_style_fixture="$tmp_dir/growatt-monitor-identifier-style"
+copy_fixture "$growatt_monitor_identifier_style_fixture"
+printf '\nSee `Some_Vendor_Field` and `SomeVendorField`.\n' >> "$growatt_monitor_identifier_style_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_identifier_style_fixture"
+
+growatt_monitor_request_fixture="$tmp_dir/growatt-monitor-request"
+copy_fixture "$growatt_monitor_request_fixture"
+printf '\nAutomatic requests remain excluded for unknown peers.\n' >> "$growatt_monitor_request_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_monitor_request_fixture"
+
+growatt_waiver_scope_fixture="$tmp_dir/growatt-waiver-scope"
+copy_fixture "$growatt_waiver_scope_fixture"
+perl -0pi -e 's/\(issues #37 and #39\)/(issue #37)/' "$growatt_waiver_scope_fixture/$growatt_index_file"
+assert_rejected "$growatt_waiver_scope_fixture"

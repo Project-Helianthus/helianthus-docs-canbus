@@ -18,7 +18,7 @@ This is an implementation-neutral protocol contract. It records candidate protoc
 - The same CAN identifier can carry a different layout in each set. An identifier match never selects a document.
 - No correlation between this profile and project codes or published revision labels is established. A project-code selector MUST NOT select this profile, and this profile MUST NOT select a revision label.
 - Signal names are descriptive labels. They are not stable identifiers, and a name alone does not establish the physical origin of a sensor or the safety meaning of a fault.
-- Identifiers below are hexadecimal; `0x` marks raw words.
+- Identifiers below are hexadecimal.
 
 ## Addressed monitor profile
 
@@ -73,14 +73,14 @@ Monitor-Addressed diagnostic families define `1881/18A1` product information,
 information. These are separate advertised contracts, **not native LINK
 queries**. Diagnostic fields may address a reassembled stream rather than one frame;
 do not use stream offsets as CAN byte offsets. Handler support, framing and
-side effects are separate conditions from decoding. The native
-maintenance-only restriction on `1881`, `1887`, `188B`, `188C` also applies to ambiguous peers.
+side effects are separate conditions from decoding. Native `1881`, `1887`, `188B` and `188C`
+are maintenance-only.
 
 ## Addressed monitor field reference
 
 These tables apply only after the Monitor-Addressed profile and the endpoint's
 scope have been qualified. They do not add receive handlers to native `18xx`
-devices. The signal names are descriptive labels, not stable identifiers; a name alone does not
+devices. Signal names that keep an unexpanded vendor-style abbreviation retain a label whose meaning is not established here. The signal names are descriptive labels, not stable identifiers; a name alone does not
 establish the physical origin of a sensor or the safety meaning of a fault.
 
 ### Position, signedness and overlapping views
@@ -217,7 +217,7 @@ The `042x`/`082x` companion IDs define no monitor request/reply transactions.
 | B1.bits5:4 | Precharge not open | 2-bit code; LSB0 | Code 0–3; severity not assigned |
 | B1.bits7:6 | Precharge not close | 2-bit code; LSB0 | Code 0–3; severity not assigned |
 | B2 | System fault code 2 | Raw byte / signed 8-bit rendering | Unscaled integer |
-| B2.bits1:0 | Precharge charging | 2-bit code; LSB0 | Code 0–3; severity not assigned |
+| B2.bits1:0 | Precharge charge | 2-bit code; LSB0 | Code 0–3; severity not assigned |
 | B2.bits3:2 | Parallel ID fail | 2-bit code; LSB0 | Code 0–3; severity not assigned |
 | B2.bits5:4 | Parallel power fail | 2-bit code; LSB0 | Code 0–3; severity not assigned |
 | B2.bits7:6 | Short circuit | 2-bit code; LSB0 | Code 0–3; severity not assigned |
@@ -364,7 +364,7 @@ The `042x`/`082x` companion IDs define no monitor request/reply transactions.
 | B1 | Sub software version | Raw byte / signed 8-bit rendering | Unscaled integer |
 | B2 | Main hardware version | Raw byte / signed 8-bit rendering | Unscaled integer |
 | B3 | Sub hardware version | Raw byte / signed 8-bit rendering | Unscaled integer |
-| B4–B7 | BMS series number | Four bytes; integer byte order unspecified | After byte-order qualification: Unscaled integer |
+| B4–B7 | BMS numeric serial number | Four bytes; integer byte order unspecified | After byte-order qualification: Unscaled integer |
 
 ### `04130000` — Current thresholds and SOC estimates
 
@@ -483,7 +483,7 @@ The `042x`/`082x` companion IDs define no monitor request/reply transactions.
 
 ### `18810000` — Product information
 
-Request-family label `18810000` / response-family label `18A10000`. The fields below occupy at least **64 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. Automatic requests remain excluded for unknown or native-LINK peers.
+Request-family label `18810000` / response-family label `18A10000`. The fields below occupy at least **64 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. This document defines no request transaction for this record and authorizes none; the request-family label names an identifier family only.
 
 | Position | Signal | Encoding | Conversion / interpretation |
 |---|---|---|---|
@@ -499,7 +499,7 @@ Request-family label `18810000` / response-family label `18A10000`. The fields b
 
 ### `18870000` — Historical record
 
-Request-family label `18870000` / response-family label `18A70000`. The fields below occupy at least **124 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. Automatic requests remain excluded for unknown or native-LINK peers.
+Request-family label `18870000` / response-family label `18A70000`. The fields below occupy at least **124 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. This document defines no request transaction for this record and authorizes none; the request-family label names an identifier family only.
 
 The record has no valid inferred length from a zero stream-count hint; the session must establish framing and completion. Its cell/temperature slots are record capacity, not an assumed physical channel count. Historical timestamps and values remain separate from current telemetry.
 
@@ -569,7 +569,7 @@ The record has no valid inferred length from a zero stream-count hint; the sessi
 
 ### `188B0000` — Controller information
 
-Request-family label `188B0000` / response-family label `18AB0000`. The fields below occupy at least **24 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. Automatic requests remain excluded for unknown or native-LINK peers.
+Request-family label `188B0000` / response-family label `18AB0000`. The fields below occupy at least **24 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. This document defines no request transaction for this record and authorizes none; the request-family label names an identifier family only.
 
 The SOC version field uses the complete two-byte VXXX structure. It must not be truncated to a four-bit scalar.
 
@@ -584,7 +584,7 @@ The SOC version field uses the complete two-byte VXXX structure. It must not be 
 
 ### `188E0000` — Module information
 
-Request-family label `188E0000` / response-family label `18AE0000`. The fields below occupy at least **70 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. Automatic requests remain excluded for unknown or native-LINK peers.
+Request-family label `188E0000` / response-family label `18AE0000`. The fields below occupy at least **70 bytes of a reassembled record**, not one CAN frame. `R0` is the first byte of the record after transport headers are removed. Reception of matching IDs alone does not select this record contract. This document defines no request transaction for this record and authorizes none; the request-family label names an identifier family only.
 
 | Position | Signal | Encoding | Conversion / interpretation |
 |---|---|---|---|
@@ -637,13 +637,13 @@ The LE16 live-wire convention does not automatically select their integer order.
 | DATETIME | A qualified 32-bit code uses bits31:26 year−2000, bits25:22 month, bits21:17 day, bits16:12 hour, bits11:6 minute, bits5:0 second. Timezone is absent; validate calendar values |
 
 History `Cycle` is scaled by **0.1**, while the live cycle count has factor **1**.
-`PassedCharge0/1` here are percentage-labelled quantities, not Ah counters.
+The two passed-charge fields here are percentage-labelled quantities, not Ah counters.
 Do not infer capacity units for a field whose unit is unspecified.
 
 For the addressed diagnostic contract, request addressing places BCU in bits8–15
 and response addressing places it in bits0–7. A compatible record transport
 removes two leading transport bytes from each reply frame and contributes up to
-six bytes to the record. These facts do not define a safe discovery request:
-transaction selection, ordering, termination and accepted input semantics must
-already be qualified. Native `1881`, `1887`, `188B` and `188C` retain their
-maintenance-only restriction; record-field offsets are not arbitrary device-memory addresses.
+six bytes to the record. These facts describe identifier layout and record
+framing only; this document defines no discovery or query transaction. Native
+`1881`, `1887`, `188B` and `188C` are maintenance-only; record-field offsets are
+not arbitrary device-memory addresses.

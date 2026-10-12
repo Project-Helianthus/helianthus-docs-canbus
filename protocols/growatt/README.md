@@ -39,9 +39,11 @@ A separate addressed profile that some monitor interfaces advertise, independent
 
 ## Evidence
 
-The V1.04 documents cite published revision documents. The PCS and LINK
-documents are owner-contributed candidate records: they cite no public source,
-and every statement in them is an unverified candidate claim. They are published at the repository owner's direction (issue #37), and the public-URL rule in `AGENTS.md` is waived for them only.
+The V1.04 documents cite published revision documents. The PCS, LINK and
+addressed monitor profile documents are owner-contributed candidate records:
+they cite no public source, and every statement in them is an unverified
+candidate claim. They are published at the repository owner's direction
+(issues #37 and #39), and the public-URL rule in `AGENTS.md` is waived for them only.
 
 ## Relationship
 
@@ -56,6 +58,6 @@ and every statement in them is an unverified candidate claim. They are published
   admission tuple, so that tuple alone does not distinguish PCS from V1.04
   traffic. V1.04 applies only when the caller explicitly selects it for an
   interface.
-- Conditions described in the PCS and LINK documents are necessary for a device
-  to accept a message and are never sufficient. This repository defines no
-  condition under which Helianthus software transmits.
+- Conditions described in the PCS, LINK and addressed monitor profile documents
+  are necessary for a device to accept a message and are never sufficient. This
+  repository defines no condition under which Helianthus software transmits.
