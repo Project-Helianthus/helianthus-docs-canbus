@@ -27,6 +27,10 @@ required=(
   'protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md'
   'protocols/growatt/growatt-low-voltage-bms-can-version-evidence-v1.md'
   'protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md'
+  'protocols/growatt/README.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md'
+  'protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md'
+  'scripts/check_markdown_links.py'
 )
 
 for path in "${required[@]}"; do
@@ -124,6 +128,80 @@ for page in 4 5 6; do
   grep -Fq "Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=$page" "$growatt_common_projection"
 done
 grep -Fq '[Growatt low-voltage BMS CAN common projection](protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md)' README.md
+
+growatt_pcs='protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md'
+for heading in 'Status and Relationship' 'Reading a field correctly' 'Scope and conventions' 'Identify the profile before decoding version-dependent fields' 'Standard PCS: host input and telemetry' 'Diagnostic codes' 'Standard parallel / clustering profile' 'Extended PCS 19xx' 'Gateway interpretation rules' 'Opaque fields' 'Maintenance and firmware coordination channels' 'Data validity and consumer obligations'; do
+  grep -Fqx "## $heading" "$growatt_pcs"
+done
+grep -Fqx '# Growatt Low-Voltage BMS CAN PCS Protocol V1' "$growatt_pcs"
+grep -Fq 'This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action.' "$growatt_pcs"
+grep -Fq '**Helianthus status: candidate.**' "$growatt_pcs"
+grep -Fq 'A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.' "$growatt_pcs"
+grep -Fq '**A numeric version word of 6 does not select `QAAA0006`.**' "$growatt_pcs"
+grep -Fq 'MUST NOT be admitted using a numerically adjacent release' "$growatt_pcs"
+grep -Fq 'There is no universal, side-effect-free CAN command that enumerates application handlers.' "$growatt_pcs"
+grep -Fq 'A device accepts an incoming PID only when its contract includes that PID' "$growatt_pcs"
+grep -Fq 'as identification probes.' "$growatt_pcs"
+grep -Fq 'It defines 134 indices for `QAAA0011` and 136 for `QAAa9011`.' "$growatt_pcs"
+
+growatt_link='protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md'
+for heading in 'Status and Relationship' 'Reading a field correctly' 'Interface scope' 'Identify the peer before interpreting version-dependent fields' 'Transport, addressing and data validity' 'Identity and ordinary module telemetry' 'Cell voltages, temperatures and balancing' 'Faults and additional status' 'Diagnostic codes' 'Coordinator and stack traffic' 'Serial number and date announcements' 'Configuration and service channels' 'Opaque fields and implementation limits' 'Addressed monitor profile' 'Interoperability rules'; do
+  grep -Fqx "## $heading" "$growatt_link"
+done
+grep -Fqx '# Growatt Low-Voltage BMS CAN LINK Protocol V1' "$growatt_link"
+grep -Fq 'This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action.' "$growatt_link"
+grep -Fq '**Helianthus status: candidate.**' "$growatt_link"
+grep -Fq 'A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.' "$growatt_link"
+grep -Fq 'There is no universal LINK capability bitmap or harmless query that establishes' "$growatt_link"
+grep -Fq 'Preserve `QAaT8252` literally. Do not rewrite it as `QAAA0001`.' "$growatt_link"
+grep -Fq 'are maintenance-only for unknown' "$growatt_link"
+grep -Fq 'Retain service/configuration traffic without automatic replay.' "$growatt_link"
+grep -Fq 'This contract assigns no layout to those families' "$growatt_link"
+
+for growatt_doc in "$growatt_pcs" "$growatt_link"; do
+  grep -Fq 'are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.' "$growatt_doc"
+  grep -Fq 'No public source is cited, and every statement is an unverified candidate claim.' "$growatt_doc"
+done
+grep -Fq 'V1.04 applies only when the caller explicitly selects it for an interface' "$growatt_pcs"
+diff <(sed -n '/^## Diagnostic codes$/,/^## Standard parallel/p' "$growatt_pcs" | sed '$d') \
+     <(sed -n '/^## Diagnostic codes$/,/^## Coordinator and stack traffic$/p' "$growatt_link" | sed '$d') >/dev/null
+
+growatt_index='protocols/growatt/README.md'
+grep -Fqx '# Growatt Low-Voltage BMS CAN Protocol Contracts' "$growatt_index"
+grep -Fq 'A project-code selector MUST NOT select a revision label, and a' "$growatt_index"
+grep -Fq 'none of them authorizes a transmission or any other live bus action' "$growatt_index"
+grep -Fq 'every statement in them is an unverified candidate claim' "$growatt_index"
+grep -Fq 'never sufficient. This repository defines no' "$growatt_index"
+
+protocol_forbidden_terms=(
+  'reverse engineering' decompil disassembl corpus ghidra provenance capture
+  laboratory trace dump 'mapping source' 'installed field unit' 'obtained from'
+  'source archive' 'vendor manual' '/Users/' 'payload builder' composer 'internal timer'
+  'ADC codes' producer '/home/' 'pre-transmi' 'before transmi' 'before send' 'host request'
+  'Transmit gate for'
+)
+for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
+  for forbidden in "${protocol_forbidden_terms[@]}"; do
+    if grep -Fiq "$forbidden" "$growatt_doc"; then
+      echo "Growatt protocol document contains prohibited material: $forbidden" >&2
+      exit 1
+    fi
+  done
+done
+
+for growatt_doc in "$growatt_pcs" "$growatt_link" "$growatt_index"; do
+  if grep -Fq '```mermaid' "$growatt_doc"; then
+    echo "Growatt protocol document depends on a Mermaid renderer" >&2
+    exit 1
+  fi
+done
+grep -Fq 'the public-URL rule in `AGENTS.md` is waived for them only' "$growatt_index"
+
+python3 scripts/check_markdown_links.py README.md "$growatt_index" "$growatt_pcs" "$growatt_link"
+
+grep -Fq '[Growatt protocol index](protocols/growatt/README.md)' README.md
+grep -Fq '[Growatt low-voltage BMS CAN PCS protocol](protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md)' README.md
+grep -Fq '[Growatt low-voltage BMS CAN LINK protocol](protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md)' README.md
 
 grep -Fqx '# Helianthus CAN Bus Documentation' README.md
 grep -Fq 'Everything outside protocols/ is licensed under [AGPL-3.0](LICENSE).' README.md

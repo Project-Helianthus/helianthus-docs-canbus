@@ -215,3 +215,112 @@ for mandate in MUST must SHOULD should shall; do
     assert_rejected "$mandate_fixture"
   done
 done
+
+growatt_pcs_file='protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md'
+growatt_link_file='protocols/growatt/growatt-low-voltage-bms-can-link-protocol-v1.md'
+growatt_index_file='protocols/growatt/README.md'
+
+for missing in "$growatt_pcs_file" "$growatt_link_file" "$growatt_index_file"; do
+  missing_fixture="$tmp_dir/growatt-project-code-missing-${RANDOM}"
+  copy_fixture "$missing_fixture"
+  rm "$missing_fixture/$missing"
+  assert_rejected "$missing_fixture"
+done
+
+growatt_pcs_heading_fixture="$tmp_dir/growatt-pcs-heading"
+copy_fixture "$growatt_pcs_heading_fixture"
+perl -0pi -e 's/\n## Diagnostic codes\n/\n## Fault codes\n/' "$growatt_pcs_heading_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_pcs_heading_fixture"
+
+growatt_link_heading_fixture="$tmp_dir/growatt-link-heading"
+copy_fixture "$growatt_link_heading_fixture"
+perl -0pi -e 's/\n## Interoperability rules\n/\n## Rules\n/' "$growatt_link_heading_fixture/$growatt_link_file"
+assert_rejected "$growatt_link_heading_fixture"
+
+growatt_pcs_relationship_fixture="$tmp_dir/growatt-pcs-relationship"
+copy_fixture "$growatt_pcs_relationship_fixture"
+perl -0pi -e 's/A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code\./A project-code selector selects a revision label./' "$growatt_pcs_relationship_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_pcs_relationship_fixture"
+
+growatt_link_relationship_fixture="$tmp_dir/growatt-link-relationship"
+copy_fixture "$growatt_link_relationship_fixture"
+perl -0pi -e 's/A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code\./A revision label selects a project code./' "$growatt_link_relationship_fixture/$growatt_link_file"
+assert_rejected "$growatt_link_relationship_fixture"
+
+growatt_receive_only_fixture="$tmp_dir/growatt-project-code-receive-only"
+copy_fixture "$growatt_receive_only_fixture"
+perl -0pi -e 's/This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action\.//' "$growatt_receive_only_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_receive_only_fixture"
+
+growatt_adjacent_fixture="$tmp_dir/growatt-pcs-adjacent-release"
+copy_fixture "$growatt_adjacent_fixture"
+perl -0pi -e 's/MUST NOT be admitted using a numerically adjacent release/may be admitted using a numerically adjacent release/' "$growatt_adjacent_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_adjacent_fixture"
+
+for growatt_doc in "$growatt_pcs_file" "$growatt_link_file" "$growatt_index_file"; do
+  growatt_permission_fixture="$tmp_dir/growatt-project-code-permission-${RANDOM}"
+  copy_fixture "$growatt_permission_fixture"
+  printf '\nAn implementation MAY transmit a diagnostic CAN frame.\n' >> "$growatt_permission_fixture/$growatt_doc"
+  assert_rejected "$growatt_permission_fixture"
+done
+
+for growatt_material in 'reverse engineering' decompilation ghidra capture trace dump provenance; do
+  growatt_material_fixture="$tmp_dir/growatt-project-code-material-${RANDOM}"
+  copy_fixture "$growatt_material_fixture"
+  printf '\n%s detail: restricted.\n' "$growatt_material" >> "$growatt_material_fixture/$growatt_link_file"
+  assert_rejected "$growatt_material_fixture"
+done
+
+growatt_anchor_fixture="$tmp_dir/growatt-project-code-anchor"
+copy_fixture "$growatt_anchor_fixture"
+perl -0pi -e 's/\(#diagnostic-codes\)/(#diagnostic-codez)/' "$growatt_anchor_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_anchor_fixture"
+
+growatt_link_target_fixture="$tmp_dir/growatt-project-code-link-target"
+copy_fixture "$growatt_link_target_fixture"
+perl -0pi -e 's/\]\(growatt-low-voltage-bms-can-link-protocol-v1\.md\)/](growatt-low-voltage-bms-can-link-protocol-v9.md)/g' "$growatt_link_target_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_link_target_fixture"
+
+growatt_readme_index_fixture="$tmp_dir/growatt-readme-index"
+copy_fixture "$growatt_readme_index_fixture"
+perl -0pi -e 's/Growatt protocol index/Growatt index/' "$growatt_readme_index_fixture/README.md"
+assert_rejected "$growatt_readme_index_fixture"
+
+growatt_dtc_fixture="$tmp_dir/growatt-dtc-drift"
+copy_fixture "$growatt_dtc_fixture"
+perl -0pi -e 's/\| 62 \| Maximum cell voltage high \|/| 62 | Maximum cell voltage low |/' "$growatt_dtc_fixture/$growatt_link_file"
+assert_rejected "$growatt_dtc_fixture"
+
+growatt_sufficient_fixture="$tmp_dir/growatt-never-sufficient"
+copy_fixture "$growatt_sufficient_fixture"
+perl -0pi -e 's/are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits\./are sufficient to transmit./' "$growatt_sufficient_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_sufficient_fixture"
+
+growatt_evidence_fixture="$tmp_dir/growatt-evidence"
+copy_fixture "$growatt_evidence_fixture"
+perl -0pi -e 's/No public source is cited, and every statement is an unverified candidate claim\.//' "$growatt_evidence_fixture/$growatt_link_file"
+assert_rejected "$growatt_evidence_fixture"
+
+for growatt_internal in 'payload builder' 'internal timer' 'ADC codes' '/Users/'; do
+  growatt_internal_fixture="$tmp_dir/growatt-internal-${RANDOM}"
+  copy_fixture "$growatt_internal_fixture"
+  printf '\n%s detail.\n' "$growatt_internal" >> "$growatt_internal_fixture/$growatt_pcs_file"
+  assert_rejected "$growatt_internal_fixture"
+done
+
+growatt_mermaid_fixture="$tmp_dir/growatt-mermaid"
+copy_fixture "$growatt_mermaid_fixture"
+printf '\n```mermaid\nstateDiagram-v2\n```\n' >> "$growatt_mermaid_fixture/$growatt_link_file"
+assert_rejected "$growatt_mermaid_fixture"
+
+growatt_waiver_fixture="$tmp_dir/growatt-waiver"
+copy_fixture "$growatt_waiver_fixture"
+perl -0pi -e 's/and the public-URL rule in `AGENTS\.md` is waived for them only\./and nothing else applies./' "$growatt_waiver_fixture/$growatt_index_file"
+assert_rejected "$growatt_waiver_fixture"
+
+for growatt_phrase in 'pre-transmit qualification' 'Before transmitting' 'host request to perform'; do
+  growatt_phrase_fixture="$tmp_dir/growatt-sender-phrase-${RANDOM}"
+  copy_fixture "$growatt_phrase_fixture"
+  printf '\n%s detail.\n' "$growatt_phrase" >> "$growatt_phrase_fixture/$growatt_pcs_file"
+  assert_rejected "$growatt_phrase_fixture"
+done
