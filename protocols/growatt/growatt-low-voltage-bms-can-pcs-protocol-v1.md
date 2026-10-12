@@ -26,7 +26,7 @@ This is an implementation-neutral protocol contract. It records candidate protoc
 - The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document. In particular, the standard-frame traffic in this document carries `0x311`, `0x312` and `0x313`, which satisfies the frame geometry of the V1.04 admission tuple, so that tuple alone does not distinguish PCS from V1.04 traffic. V1.04 applies only when the caller explicitly selects it for an interface.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
-- PID notation below is hexadecimal and is written without the `0x` prefix.
+- PID notation below is hexadecimal and is written without the `0x` prefix, except where `0x` marks V1.04 identifiers or raw words.
 
 The companion [LINK protocol](growatt-low-voltage-bms-can-link-protocol-v1.md) defines the module bus behind the coordinator. See the [Growatt protocol index](README.md) for all documents in this family.
 
@@ -235,7 +235,7 @@ There is no universal, side-effect-free CAN command that enumerates application 
 | `qualified-input` | The identified endpoint contract includes this incoming PID and the required role/state is established |
 | `unsupported` | The identified contract omits the operation or implements only a no-op/placeholder |
 
-A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previous application-level response can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
+A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previously observed application-level response (seen passively, in reply to another party) can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
 
 A CAN ACK, local loopback, another sender's request, or telemetry from the peer does not prove application acceptance. Periodic `324` does not prove a `212` query handler. For inputs with no defined application acknowledgment, delivery is unconfirmed. Do not use profile switching, clock writes, service entry or balancing/configuration commands as identification probes.
 
@@ -251,7 +251,7 @@ A host's `301` heartbeat shows that the host sends `301`; it does not show that 
 |---|---|---|---|
 | `211` | Identified standard PCS contract with time synchronization | Battery calendar form: B0 unused; B1 year offset from 2000; B2 month; B3 day; B4 hour; B5 minute; B6 second; B7 unused. Binary integers. Mutates the clock and may propagate time to another bus. Gateway accepts/forwards time, but its exact calendar encoding needs a separately qualified time contract | No universal application ACK. Passive telemetry does not involve clock writes |
 | `212` | Standard input in profiles that define it; no operation in the legacy battery, QAAB and gateway forms; absent from `QAAA0011` and `QAAa9011` | Payload has no defined serial/history-query operation in these profiles | `unsupported` for query purposes, even if CAN acknowledges it. `324` is not a response to it |
-| `301` | Qualified standard heartbeat input on the active profile; never infer the corresponding extended-19 input | Communications heartbeat. B2 is retained/consumed by several battery profiles, including early QAAB; later QAAB and the gateway can ignore payload bytes. Release-11 B7 behavior is defined by the common-contract feature table; other bytes have no common cross-profile meaning | No dedicated response. Continued telemetry is not a unique acknowledgment of a particular heartbeat. The normal host heartbeat cadence is 1 s only where this heartbeat contract applies |
+| `301` | Qualified standard heartbeat input on the active profile; never infer the corresponding extended-19 input | Communications heartbeat. B2 is retained/consumed by several battery profiles, including early QAAB; later QAAB and the gateway can ignore payload bytes. Release-11 B7 behavior is defined by the common-contract feature table; other bytes have no common cross-profile meaning | No dedicated response. Continued telemetry is not a unique acknowledgment of a particular heartbeat. An inverter host is described as sending `301` about every 1 s only where this heartbeat contract applies |
 
 Heartbeat fields are not arbitrary: the host-state encoding is profile-specific, and heartbeat participation changes the device's communications state even when it writes no persistent parameters.
 
@@ -326,8 +326,8 @@ or qualified `61X.B6–B7` for a percentage. In the parallel bank the same curre
 code 10250 (`28 0A`) instead of 4250 (`10 9A`). The voltage remains code 5310.
 Do not select a current offset by testing which result looks plausible.
 
-In release-11, `313.B7` bit 7 is set when the underlying SOH estimate is below
-60.1% or a separate diagnostic aggregate condition is present. It is not part
+In release-11, `313.B7` bit 7 is set for a low SOH estimate
+or when a separate diagnostic aggregate condition is present. It is not part
 of the SOH number and does not identify one particular defect.
 
 ### Gauge and algorithm values
@@ -335,10 +335,10 @@ of the SOH number and does not identify one particular defect.
 | Field | Defined meaning | Conversion and limits |
 |---|---|---|
 | `QAAA0006` `315.B6–B7` | Full-charge-capacity estimate | BE16 / 10 Ah |
-| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | Initial value 5000. Includes corrections and resets; do not convert it directly to Ah or SOC |
+| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | Includes corrections and resets; do not convert it directly to Ah or SOC |
 | `QAAA0006` `316.B2–B3` | Full-charge-capacity estimate | BE16 / 10 Ah |
 | `QAAA0006` `316.B4–B5` | Fine cycle count | BE16 / 10 cycles |
-| `QAAA0006` `316.B6` | Latched algorithm state code | A previous nonzero code can persist; no complete physical mode enum is assigned |
+| `QAAA0006` `316.B6` | Latched algorithm state code | A previous nonzero code can persist. Code 100 is used on a failed algorithm precheck; no complete physical mode enum is assigned |
 | `QAAA0006` `316.B7` | Residual balancing budget | Integer budget with mode-dependent accounting. It is neither a per-cell mask nor proof of balancing current |
 | Release-11 `316.B2–B3` | Biased accumulator | BE16 code; no direct Ah conversion |
 | Release-11 `316.B4–B5`, B6–B7 | Full-charge capacity; fine cycles | BE16 / 10 Ah; BE16 / 10 cycles, for the local gauge path |
@@ -715,7 +715,7 @@ Detection requires the family, `IDE=0`, DLC 8, an attributable group address and
 | `67X` | B0–B7 | Fault bytes 8–15 |
 | `68X` | LE16(B0) limit A; LE16(B2) limit B; LE16(B4) percentage-like quantity; B6/B7 flags | Several profiles zero the limit words outside their applicable state. In release-11 local scope B4–B5 reports SOC ×10 when its permission-state bit is set, but substitutes code 10 for SOC zero. Otherwise it emits zero. B6/B7 copy state bits 2/1 respectively; an aggregate may have different sourcing |
 | `6CX` | B0 low nibble fragment, high nibble module; B1–B7 serial bytes | Fragment 0: bytes 0–6; fragment 1: bytes 7–13; fragment 2: only B1/B2 are bytes 14/15. **B3–B7 of fragment 2 are unspecified**, not guaranteed zero |
-| `6DX` | LE16(B0) measurement quantity; B2 threshold flag; B3 state flag; B4–B7 zero | Release-11 local word is cell-sum voltage in 0.1 V/count. `FFFF` marks the word invalid; the invalidation condition is not specified. B2 is the pack-voltage-code >200 test; B3 reports a nonzero state code, without assigning its physical enum |
+| `6DX` | LE16(B0) measurement quantity; B2 flag; B3 state flag; B4–B7 zero | Release-11 local word is cell-sum voltage in 0.1 V/count. `FFFF` marks the word invalid; the invalidation condition is not specified. B2 is a pack-voltage flag; B3 reports a nonzero state code, without assigning its physical enum |
 
 Reassemble `6CX` by bus, group `X`, module, identity epoch and fragment order. Its 7/7/2 layout differs from the 6/7/3 layout of standard `324`. Serial identity alone does not make other cached fields simultaneous.
 

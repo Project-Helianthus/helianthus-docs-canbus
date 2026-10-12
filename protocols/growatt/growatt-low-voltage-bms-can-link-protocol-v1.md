@@ -26,7 +26,7 @@ This is an implementation-neutral protocol contract. It records candidate protoc
 - The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame in the PCS document. LINK uses extended 29-bit identifiers, so it has no identifier overlap with the standard 11-bit V1.04 frames. An identifier match never selects a document.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
-- PID notation below is hexadecimal and is written without the `0x` prefix.
+- PID notation below is hexadecimal and is written without the `0x` prefix, except where `0x` marks V1.04 identifiers or raw words.
 
 The companion [PCS protocol](growatt-low-voltage-bms-can-pcs-protocol-v1.md) defines the inverter-facing, stack-facing and parallel-group interfaces. LINK uses extended 29-bit identifiers of the form `18xxDDSS` on an addressed module bus. See the [Growatt protocol index](README.md) for all documents in this family.
 
@@ -206,7 +206,7 @@ of the protocol contract:
 |---|---|
 | T — module telemetry | Intended receiver is the stack coordinator. Acceptance depends on the coordinator's own identity/profile, role and the exact destination route. Seeing another module transmit this PID proves neither coordinator acceptance nor storage of every field. No telemetry request is implied. |
 | A — aggregate telemetry | Intended receiver is a monitor or higher-level participant. Transmission from `F4` proves aggregate output only. Do not infer a reverse command handler. |
-| C — coordination | Acceptance depends on whether the target profile supports this precise family, source/destination role and current coordination state. Passive traffic can establish a candidate; a defined correlated response or independent capability qualification is needed to claim live acceptance. No automatic discovery transmission follows from this specification. |
+| C — coordination | Acceptance depends on whether the target profile supports this precise family, source/destination role and current coordination state. Passive traffic can establish a candidate; a defined correlated response seen passively, or independent capability qualification, is needed to claim live acceptance. No automatic discovery transmission follows from this specification. |
 | Q — configuration/service | State-changing or insufficiently qualified. Excluded from automatic identification, polling and replay. A service role or an observed response does not make the operation read-only. |
 | U — undefined | Handler support or payload semantics are unknown. Preserve frames; do not transmit a guessed request. |
 
@@ -278,10 +278,10 @@ a configuration byte and LE16(B4) as a configuration word. It does not add a
 native `18FC` report to the legacy transmit set.
 
 Synchronization input support is present in L1–L8, subject to receiver state
-and route. In the defined legacy branch, B0=`AA` triggers synchronization
-in communication states 3 or 4. Some `QAAA0010` variants and
-`QAAa4010` also react to a received synchronization frame before this
-check; that reaction is not a different payload layout or a version probe.
+and route. In the defined legacy branch, B0=`AA` triggers synchronization,
+subject to receiver state. Some `QAAA0010` variants and
+`QAAa4010` also react to a received synchronization frame; that reaction
+is not a different payload layout or a version probe.
 L5's `18FC` report is a transmit-only feature; it does not qualify an incoming
 aging command. Aggregate `180D`–`180F` and date report `18F9` have no matching
 native module/coordinator receive contract in these groups; a monitor
