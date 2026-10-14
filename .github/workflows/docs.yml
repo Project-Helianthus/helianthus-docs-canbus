@@ -5,11 +5,19 @@ on:
   push:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, synology]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          clean: true
       - run: ./scripts/check_docs.sh
       - run: ./scripts/test_docs_gate.sh
       - run: python3 scripts/validate_gree_protocols.py
