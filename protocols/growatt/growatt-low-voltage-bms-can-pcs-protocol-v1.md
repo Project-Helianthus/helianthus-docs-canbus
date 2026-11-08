@@ -653,7 +653,7 @@ when its condition cannot be interpreted.
 | 130 | Algorithm code >6 | `d130-code`: 6/7; invalid algorithm state with same payload withholds interpretation |
 | 131 | Modern only; adjacent-state bit 0 mismatch in eligible coordination state | `d131-bit`: matching/mismatching bit 0; `d131-state`: eligible/ineligible state, same mismatch. Wrong profile withholds interpretation |
 | 134 | Modern only; status =1 | `d134-status`: 0/1 and 1/2; wrong profile withholds interpretation even at 1 |
-| 135 | Modern only; difference ≥1.0 V AND hardware bit 7 AND hardware bit 8 | `d135-difference`: 0.9/1.0 V with both bits set; `d135-bit7`: bit 7 clear/set with bit 8 set; `d135-bit8`: bit 8 clear/set with bit 7 set. Wrong profile or either clear bit withholds the conjunction |
+| 135 | Modern only; signed pack−port ≥1.0 V (no absolute value) AND hardware bit 7 AND hardware bit 8 | `d135-difference`: 0.9/1.0 V with both bits set; `d135-reversed`: pack 50.0 V, port 52.0 V (pack−port = −2.0 V) with both bits set withholds; `d135-bit7`: bit 7 clear/set with bit 8 set; `d135-bit8`: bit 8 clear/set with bit 7 set. Wrong profile or either clear bit withholds the conjunction |
 
 For these cases hold the diagnostic payload fixed while varying the named native
 state, scope, selector or validity gate; preserve raw data and withhold the
