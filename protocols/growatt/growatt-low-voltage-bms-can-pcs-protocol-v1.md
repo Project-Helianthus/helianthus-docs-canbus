@@ -686,6 +686,16 @@ earlier ones within each category. Selected A chooses category 1 then 2;
 selected B chooses category 3 then 4. Disabled local indices remain visible on
 reception and do not acquire an enabled local selection.
 
+Each pair names the two categories the index belongs to; the order of the two
+numbers carries no meaning, and equal numbers denote a single membership.
+Category 1 and 2 membership makes the index a candidate for selected A (category 1
+outranks category 2); category 3 and 4 membership makes it a candidate for
+selected B (category 3 outranks category 4). Each component applies
+independently, so an index such as `2/4` is a category 2 candidate for A and
+a category 4 candidate for B at the same time: with only that index active,
+both A and B carry it. An index in only one A-side or B-side category (for
+example `1/1` or `3/3`) feeds only that word.
+
 | Category pair | Enabled indices (decimal) |
 |---|---|
 | 1/1 | 19, 24, 30, 35, 56 |
