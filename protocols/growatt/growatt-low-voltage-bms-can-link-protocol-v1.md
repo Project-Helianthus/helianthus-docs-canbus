@@ -63,6 +63,34 @@ profiles](growatt-low-voltage-bms-can-pcs-protocol-v1.md), is a separate protoco
 
 ## Identify the peer before interpreting version-dependent fields
 
+**Candidate Hypothesis — selector context.** The physical interface, native
+profile, exact case-sensitive project code, four release characters and endpoint
+scope are caller-selected context. Received identity can confirm or conflict
+with that context; it never changes it. A conflict withholds dependent
+interpretation rather than selecting another contract.
+
+Synthetic negatives `selector-interface`, `selector-profile`, `selector-case`,
+`selector-project`, `selector-release`, and `selector-scope` each hold the payload
+fixed and vary only the named context field: another interface, legacy versus
+release-11 profile, `QAAA` versus `QAAa`, `QAAB` versus `QAAA`, `0010` versus
+`0011`, or another endpoint respectively. Each retains raw data and withholds
+the affected interpretation. Identity confirmation cannot repair a mismatched
+context; a conflicting identity cannot replace it.
+
+For every refinement and synthetic case here, `physical_qualified=false`.
+**Proven** and **Hypothesis** are candidate protocol grades, not hardware
+qualification; unstated meanings remain **Unknown** raw data. Retain exact raw
+payload, physical interface, IDE, DLC/raw DLC, endpoint/group/slot, identity
+epoch, sequence, monotonic time, field age and grade with every accepted value.
+Zero, absent, invalid, unsupported, stale and conflict remain distinct. Rejected
+fields preserve independent valid siblings and partial last-known-good state
+with its original age; they do not create a new sample. All negative cases below
+are synthetic arithmetic/state cases, with no bus operation: hold message bytes
+fixed while changing the named selector, direction, scope, count, state or
+validity gate. Raw retention and withheld dependent interpretation are required.
+A false antecedent establishes neither a specific fault nor a clean system.
+Nothing here is stable before 1.0.
+
 1. Receive extended CAN frames with their full identifier and eight data bytes.
    Keep the physical bus, source address and session separate.
 2. On `1802F4SS`, read **all eight ASCII bytes**, preserving case. Associate this
@@ -289,6 +317,31 @@ implementation is a separate receiver class.
 
 ### Legacy receive behavior
 
+**Candidate Hypothesis:** legacy `1860` marker `AA` reaches its
+synchronization helper in communication states 3/4. Selected `QAAA0010`
+variants and `QAAa4010` may change that state earlier; identity alone does not
+select the side effect.
+
+| Synthetic negative | State / selector boundary |
+|---|---|
+| `legacy1860-marker` | Marker `A9`/`AA` and `AA`/`AB`; hold `AA` payload fixed with wrong direction: withhold synchronization interpretation |
+| `legacy1860-state` | States 2/3 and 4/5; same `AA` payload outside 3/4 does not establish helper eligibility |
+| `legacy1860-variant` | Selected side-effect variant versus unselected same-token `QAAA0010` variant; zero/common payload cannot discriminate. Wrong-case `QAAA4010` cannot select `QAAa4010` behavior |
+
+**Candidate Hypothesis — freshness counts:** for `1800/1850/1862`, respectively,
+`QAAA0010` uses 5000/1000/5000; legacy `QAAa9011` uses 1000/5000/10 000.
+These native counts imply neither seconds nor client stale-after values.
+
+| Synthetic negative | Count boundary and withheld inference |
+|---|---|
+| `freshness-1800` | 4999/5000 for `QAAA0010`; 999/1000 for legacy `QAAa9011`; same payload under modern profile cannot inherit either legacy rule |
+| `freshness-1850` | 999/1000 for `QAAA0010`; 4999/5000 for legacy `QAAa9011`; wrong endpoint withholds count attribution |
+| `freshness-1862` | 4999/5000 for `QAAA0010`; 9999/10 000 for legacy `QAAa9011`; cached versus fresh contributors cannot be decided by frame arrival |
+
+The pairs test native count boundaries only; no expiry polarity, time unit or
+consumer freshness policy is inferred. All cases retain raw data and withhold
+the affected interpretation when selector/state/age is unresolved.
+
 The legacy `QAAa9011` contract shares L4 payload layouts. Peer-timeout behavior,
 configuration, calibration defaults, fault thresholds and protection behavior
 are not implied equal by a shared CAN payload contract, and a release number
@@ -419,12 +472,12 @@ frame does not establish a new sensor sample.
 |---|---|
 | `1806.B6–B7` | LE16 average cell voltage, in mV; distinct from minimum and maximum. Count-aware path requires configured count 1–16; zero count can retain an old mean. The fixed-16 path averages all 16 slots and requires their validity |
 | `1807.B4–B5` | LE16 fine SOC estimate, in 0.1%/count, on the local release-11 algorithm path; B6 is the separate whole-percent estimate. PCS `326.B5` truncates this word to one byte |
-| `1807.B2`, B3 | Two byte counts of active diagnostic conditions in groups whose membership is not defined here. These are counts, not fault masks or severity enums |
+| `1807.B2`, B3 | **Hypothesis:** B2 and B3 each total two diagnostic category counters modulo 256. These are counts, not severities or bitmaps |
 | `1808.B4` | Integer average of coded one-byte temperatures. Subtract 40 for °C. Averaging these rounded codes loses precision |
 | `1808.B5` | Maximum minus minimum of those one-byte codes, in °C |
 | `1862.B0–B1`, B2–B3 | LE16 maximum and minimum of the fine temperature codes. Convert each as `code / 8 − 40 °C` |
-| `1862.B4–B5`, L8 | LE16 fine average of the configured channels' fine codes. Convert as `code / 8 − 40 °C` only for the count-aware measurement path with count 1–4 |
-| `1862.B4–B5`, `QAAA0009/0010` | LE16 fine average, converted as `code / 8 − 40 °C` on the count-aware path with sensor count 1–4. The wire meaning is common to L8 and `QAAA0009/0010` |
+| `1862.B4–B5`, L8 | **Proven:** `floor(sum fine codes / count)`, count 1–4, then `code / 8 − 40 °C`; only the count-aware measurement path |
+| `1862.B4–B5`, `QAAA0009/0010` | **Proven:** same count-aware `floor(sum fine codes / count)` and `code / 8 − 40 °C`, count 1–4; common to L8 |
 | `1861.B3` | Counter byte that saturates at 255; no duration unit is assigned |
 | `1803.B0–B1` | Release-11 BE16 configuration word; `QAAA0006` emits two constant bytes, 1 and 1. The capacity word in both frames is LE16 |
 | W `180B.B4` | Latched gauge/algorithm state code, independent of B5 |
@@ -436,18 +489,31 @@ With zero configured sensors, the L8 average can retain its previous value.
 Do not report that average as a valid fresh sample. The fixed-four-channel
 measurement path does not establish the fine-average update used by the
 count-aware path; preserve its third word as an opaque code until qualified.
-The configured count alone does not establish valid sensor inputs. The fine
-average can include an invalid channel code.
+The configured count alone does not establish valid sensor inputs.
+**Candidate Hypothesis:** fine-average summation does not filter invalid input
+codes; their numerical inclusion does not qualify a measurement.
 Require valid contributing channels; a numerically plausible average alone
 does not qualify them. Preserve an invalid or stale average as such.
+
+| Synthetic case | Arithmetic / negative gate |
+|---|---|
+| `1807-count-B2` | First counter-pair total 255/256 → 255/0; same payload in wrong profile withholds B2 interpretation |
+| `1807-count-B3` | Second counter-pair total 255/256 → 255/0; wrong endpoint scope withholds B3 interpretation independently |
+| `fine-sum-invalid` | Keep fine codes 520 and 560 fixed, mark either contributor invalid: arithmetic still sums 1080, but withhold a valid average; stale versus fresh contributor likewise withholds freshness |
+| `fine-mean-count` | Counts 0/1 and 4/5: only 1–4 eligible; zero can preserve old output. For 520 and 561 with count 2, floor(1081/2)=540. Fixed-four path or unsupported selector with identical third word cannot qualify the count-aware average |
+
+Each case retains the raw word and contributors with their ages; a rejected
+average does not erase independent valid extrema.
+
 
 For two fine codes 520 and 560, maximum is **30 °C**, minimum **25 °C**,
 and their fine average 540 is **27.5 °C**. The one-byte average can report
 code 67, or **27 °C**. These fields have different precision.
 
 The first word of `1804` and the three-byte quantity in `180A` are not assigned
-energy or charge units. In release-11 the three-byte value is an integer
-transform of a 32-bit counter; `180A.B6–B7` is the same biased accumulator
+energy or charge units. **Proven:** in release-11 the three-byte value is
+`((25*C + floor(C/2) + floor(C/8)) mod 2^32) >> 8`, little-endian,
+the same code as PCS `329`; `180A.B6–B7` is the same biased accumulator
 class exposed by PCS `316`, not a capacity. No Ah/Wh conversion is defined. Cached values must not be transformed a
 second time.
 
@@ -577,8 +643,8 @@ A condition name describes what the diagnostic monitors; it is not a repair
 diagnosis. Different indices for the same quantity have independent thresholds,
 hysteresis and state gates. The suffix “condition N” preserves that distinction
 without assigning a warning/protection level that the numeric code does not carry.
-Thresholds are configuration and operating-state properties and are not
-specified here.
+Thresholds are configuration and operating-state properties. Only the bounded
+conditions below are specified; none is an electrical operating limit.
 
 | Index | Condition | Interpretation gate |
 |---:|---|---|
@@ -633,6 +699,37 @@ specified here.
 | 134 | Measurement status flag set | `QAAa9011` release-11 only |
 | 135 | Pack/port voltage difference with hardware status | `QAAa9011` release-11 only |
 
+**Candidate Hypothesis — bounded native conditions.** Modern below means
+release-11 `QAAa9011` only. These conditions refine the named indices without
+assigning meanings to other indices. A received diagnostic code is still retained
+when its condition cannot be interpreted.
+
+| Index | Native condition | Independently named synthetic negative / boundary |
+|---|---|---|
+| 30 | min ≤2000 mV OR spread >999 mV OR max >3799 mV | `d30-min`: 2000/2001 with other terms false; `d30-spread`: 999/1000 with other terms false; `d30-max`: 3799/3800 with other terms false. Wrong profile with same payload withholds each interpretation |
+| 31 | Modern only; average of 20 channel values outside 1945–2150 converter counts | `d31-low`: 1944/1945; `d31-high`: 2150/2151; `d31-count`: 19/20/21 contributors, only 20 eligible. Invalid contributor or legacy same-token profile withholds interpretation |
+| 39 | Charging ≥3.0 A AND (40 OR 41) | `d39-amps`: 2.9/3.0 A; `d39-condition`: at 3.0 A neither condition versus 40 alone versus 41 alone. Unknown charging direction withholds interpretation |
+| 44 | Configuration access/validation/storage failure | `d44-access`, `d44-validation`, `d44-storage`: failure/success of each independently with other failures absent; missing validity for each, same payload, withholds the corresponding explanation |
+| 45 | Latched hardware bit 15 | `d45-latch`: bit 15 clear/set; a current unlatched read cannot qualify the latched state |
+| 57, 58 | Extra configured charge/discharge threshold respectively; numeric value not supplied | `d57-charge` and `d58-discharge`: opposite direction or missing configured threshold withholds each interpretation; numeric boundary is Unknown and no invented threshold is used |
+| 60 | pack−port ≥3.0 V AND port ≥40.0 V | `d60-difference`: 2.9/3.0 V with port 40.0 V; `d60-port`: 39.9/40.0 V with difference 3.0 V; either false term withholds the conjunction |
+| 61 | port−pack ≥3.0 V | `d61-difference`: 2.9/3.0 V; reversing pack/port direction withholds this interpretation |
+| 93 | Modern only; peer third-word spread >20, clearing <10 | `d93-set`: 20/21; `d93-clear`: 9/10. Values 10–20 do not establish clearing; legacy same-token profile withholds both rules |
+| 102, 103 | Modern only; conflicting LINK/parallel identity fragments respectively | `d102-link` and `d103-parallel`: coherent/conflicting fragments in each separate scope; wrong route or legacy same-token profile withholds the respective explanation |
+| 129 | Algorithm code !=0 | `d129-code`: 0/1; invalid algorithm state with same payload withholds interpretation |
+| 130 | Algorithm code >6 | `d130-code`: 6/7; invalid algorithm state with same payload withholds interpretation |
+| 131 | Modern only; adjacent-state bit 0 mismatch in eligible coordination state | `d131-bit`: matching/mismatching bit 0; `d131-state`: eligible/ineligible state, same mismatch. Wrong profile withholds interpretation |
+| 134 | Modern only; status =1 | `d134-status`: 0/1 and 1/2; wrong profile withholds interpretation even at 1 |
+| 135 | Modern only; signed pack−port ≥1.0 V (no absolute value) AND hardware bit 7 AND hardware bit 8 | `d135-difference`: 0.9/1.0 V with both bits set; `d135-reversed`: pack 50.0 V, port 52.0 V (pack−port = −2.0 V) with both bits set withholds; `d135-bit7`: bit 7 clear/set with bit 8 set; `d135-bit8`: bit 8 clear/set with bit 7 set. Wrong profile or either clear bit withholds the conjunction |
+
+For these cases hold the diagnostic payload fixed while varying the named native
+state, scope, selector or validity gate; preserve raw data and withhold the
+condition explanation when it is not established. Arithmetic boundary pairs
+exercise each comparison independently. A false antecedent cannot establish a
+specific fault or a clean system. **Proven:** index 62 tests maximum cell
+≥3750 mV (3749/3750 separates its boundary); this is not an electrical operating
+limit.
+
 ### Disabled local selections
 
 Indices 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122 and 124–127 are never
@@ -650,6 +747,36 @@ qualify the intervening unnamed indices.
 
 ### Selection, severity and clearing
 
+**Proven — local category pairs.** Enabled entries have the following
+category pairs; these are not severity categories. Later active indices replace
+earlier ones within each category. Selected A chooses category 1 then 2;
+selected B chooses category 3 then 4. Disabled local indices remain visible on
+reception and do not acquire an enabled local selection.
+
+Each pair names the two categories the index belongs to; the order of the two
+numbers carries no meaning, and equal numbers denote a single membership.
+Category 1 and 2 membership makes the index a candidate for selected A (category 1
+outranks category 2); category 3 and 4 membership makes it a candidate for
+selected B (category 3 outranks category 4). Each component applies
+independently, so an index such as `2/4` is a category 2 candidate for A and
+a category 4 candidate for B at the same time: with only that index active,
+both A and B carry it. An index in only one A-side or B-side category (for
+example `1/1` or `3/3`) feeds only that word.
+
+| Category pair | Enabled indices (decimal) |
+|---|---|
+| 1/1 | 19, 24, 30, 35, 56 |
+| 2/2 | 5, 13, 17, 25–26, 28–29, 31, 34, 38, 42–45, 47, 50–51, 84, 87, 90, 92, 94–95, 100–103, 128, 130, 133 |
+| 2/4 | 3, 9, 15, 21, 32, 53 |
+| 3/2 | 52, 61 |
+| 3/3 | 4, 12, 16, 18, 33, 46, 57–58, 60, 85, 91, 93, 96, 109–110 |
+| 3/4 | 2, 8, 11, 14, 20 |
+| 4/1 | 48, 62 |
+| 4/2 | 0–1, 6–7, 23, 39–41, 49, 63, 88, 97, 99 |
+| 4/3 | 22, 89, 98 |
+| 4/4 | 59, 83, 86, 123, 129, 131–132; 134–135 for modern `QAAa9011` only |
+
+
 DTC A and B are priority selections, not a two-entry list of every active
 fault. Which active index is reported follows a fixed priority that is **not a
 severity ranking**. Disabled indices never contribute a selected code.
@@ -666,6 +793,17 @@ The following mappings apply to **local** `QAAA0006` and **local common
 release-11** status. A stack, gateway or parallel aggregate requires its own
 source contract. All indices are decimal. `OR` means that any listed condition
 can set the bit; it does not establish that all of them are active.
+
+**Candidate Hypothesis — local `QAAA0006` summary refinement:** A/4 includes
+99 in addition to 1 and 62; A/11 includes only 87 or 90; A/12 uses 41; A/0
+reflects state 5. This does not change the release-11 mapping.
+
+| Synthetic negative | Boundary / withheld interpretation |
+|---|---|
+| `summary-A4-99` | Only 99 active versus none; same summary with release-11 scope cannot acquire the extra source |
+| `summary-A11-only` | 87 alone or 90 alone versus 128/133 alone; those release-11 sources do not establish this local bit |
+| `summary-A12-41` | 41 alone versus 40 alone; wrong profile cannot substitute the release-11 state gate |
+| `summary-A0-state5` | State 4/5 and 5/6; state 0 is not state 5. Unknown state with the same word withholds interpretation |
 
 In `312`, word A is LE16(B0), word B is LE16(B2). Bits below are numbered
 0–15 within each word. Read the named condition from the version-gated table;
@@ -801,6 +939,13 @@ service-session gates or have insufficiently specified effects. They are not
 identification probes. Receivers may retain the traffic; automatic replay is not
 part of this protocol. The table describes payload envelopes without
 defining an automatic command sequence.
+
+**Proven — retained balance register:** a balance-enable register can survive
+a failed read. Frame arrival does not qualify its hardware age. Retain the
+last-known register with its original age; neither a received control mask nor
+a newly arrived report proves measured balancing current. PCS `QAAA0006`
+`311` bit 3 cannot prove inactive balancing. No service action follows.
+
 
 ### Configuration blocks `1870`–`1889`
 

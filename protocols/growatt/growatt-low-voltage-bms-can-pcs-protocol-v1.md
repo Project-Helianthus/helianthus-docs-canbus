@@ -65,6 +65,34 @@ Do not assume a fixed cell count, module count, temperature-sensor count, chemis
 
 ## Identify the profile before decoding version-dependent fields
 
+**Candidate Hypothesis — selector context.** The physical interface, native
+profile, exact case-sensitive project code, four release characters and endpoint
+scope are caller-selected context. Received identity can confirm or conflict
+with that context; it never changes it. A conflict withholds dependent
+interpretation rather than selecting another contract.
+
+Synthetic negatives `selector-interface`, `selector-profile`, `selector-case`,
+`selector-project`, `selector-release`, and `selector-scope` each hold the payload
+fixed and vary only the named context field: another interface, legacy versus
+release-11 profile, `QAAA` versus `QAAa`, `QAAB` versus `QAAA`, `0010` versus
+`0011`, or another endpoint respectively. Each retains raw data and withholds
+the affected interpretation. Identity confirmation cannot repair a mismatched
+context; a conflicting identity cannot replace it.
+
+For every refinement and synthetic case here, `physical_qualified=false`.
+**Proven** and **Hypothesis** are candidate protocol grades, not hardware
+qualification; unstated meanings remain **Unknown** raw data. Retain exact raw
+payload, physical interface, IDE, DLC/raw DLC, endpoint/group/slot, identity
+epoch, sequence, monotonic time, field age and grade with every accepted value.
+Zero, absent, invalid, unsupported, stale and conflict remain distinct. Rejected
+fields preserve independent valid siblings and partial last-known-good state
+with its original age; they do not create a new sample. All negative cases below
+are synthetic arithmetic/state cases, with no bus operation: hold message bytes
+fixed while changing the named selector, direction, scope, count, state or
+validity gate. Raw retention and withheld dependent interpretation are required.
+A false antecedent establishes neither a specific fault nor a clean system.
+Nothing here is stable before 1.0.
+
 PCS compatibility is selected per message and feature. A LINK identity is
 optional associated metadata, not a prerequisite for decoding PCS or a reason
 to split a shared PCS contract. The standard and parallel release-11 contracts
@@ -164,7 +192,7 @@ PCS transport profiles.
 |---|---|---|
 | `321` family metadata | ASCII `QAAA` | ASCII `QAAa`; same payload layout |
 | Diagnostic words in `333`, `52X` | Packed-decimal code table | Binary-decimal code table; see Diagnostic codes below |
-| `301` heartbeat input B7 | Ignored | Retained as raw heartbeat state |
+| `301` heartbeat input B7 | Ignored | **Proven:** raw `00` and `58` normalize to zero; retain the original byte. Distinct from `334` state |
 | `334` output B1 | Zero | Coordinator state code; B2–B7 remain zero in both versions |
 | `51X` output B7 | Local: zero. Aggregate: unspecified; not assigned in this payload | Fourth raw state byte in both scopes |
 | `51X` input B7 | Ignored | Retained with the reporting slot |
@@ -281,6 +309,27 @@ These outputs describe the selected local or aggregate scope. Gateway ordering i
 
 Other profiles can preserve the wire shape while changing scaling or source scope. Preserve raw values unless their scale is qualified. Reported SOC, SOH and full-charge capacity describe controller estimates; they do not assert physical charge completion. A zero balancing-related status bit does not establish that all bleed paths are inactive.
 
+**Candidate Hypothesis — local `QAAA0006` `311.B6–B7` hints only:** low
+two bits are raw state; masks `0004`, `0010`, `0020`, `0040`, `0400` hint at
+fault-state, sleep, discharge-path enable, charge-path enable and force-charge
+indication respectively. Preserve the whole word. No physical enum,
+interlock-clear conclusion, measured balancing current or permission follows.
+**Proven:** bit 3 cannot prove inactive balancing.
+
+| Synthetic negative | Withheld hint, same word retained |
+|---|---|
+| `311-raw-state` | Low-two-bit codes 0/3 stay raw; wrong aggregate scope cannot select a physical state |
+| `311-fault-hint` | `0004` set with wrong project code cannot establish fault-state |
+| `311-sleep-hint` | `0010` set with wrong case cannot establish sleep |
+| `311-discharge-hint` | `0020` set with wrong native profile cannot establish discharge-path enable |
+| `311-charge-hint` | `0040` set with wrong endpoint cannot establish charge-path enable |
+| `311-force-hint` | `0400` set with wrong release cannot establish force-charge indication |
+
+**Proven — balance age:** a balance-enable register can survive a failed read.
+A newly arrived frame cannot qualify the register's hardware age; retain the
+last-known value and age without treating it as a fresh hardware observation.
+
+
 | `313` field | Width | Byte order |
 |---|---:|---|
 | Voltage | 16 bits | BE16 |
@@ -307,15 +356,15 @@ An unlisted release can share a layout without inheriting these conversions.
 | `314` cell spread / cycles | BE16(B4) mV; BE16(B6) cycles | Whole cycles here; fine cycles are elsewhere |
 | `319`, `327`, `330` cell values | Unsigned word in mV | Preserve the message's own byte order and indices |
 | `322` temperature extrema | signed BE16(B0) / 10 °C; signed BE16(B2) / 10 °C | B4/B5 are positions, not temperatures |
-| Release-11 `326` voltage | BE16(B1) / 100 V | Voltage in 0.01 V steps; the 16-bit value wraps rather than saturates |
+| Release-11 `326` voltage | BE16(B1) / 100 V | **Proven:** `(cached_decivolts × 10) mod 2^16`, then 0.01 V/count; wraps rather than saturates |
 | Release-11 `326` current | Standard bank: `(BE16(B3)−4000)/10 A`; parallel bank: `(BE16(B3)−10000)/10 A` | Unsigned biased code. Resolve active bank first; the frame has no bank selector |
 | Release-11 `326.B5` | Low byte of the cached SOC-tenths word | Lossy code, not a percentage. Do not reconstruct SOC from this byte |
-| Release-11 `61X` current | (LE16(B2) − 10000) / 10 A | Zero current is wire code 10000, unlike the 4000-biased standard-bank `326` current code |
+| Release-11 `61X` current | (LE16(B2) − 10 000) / 10 A | **Proven:** already-4000-biased quantity plus 6000; wire zero is 10 000, never 6000 |
 | Release-11 `61X` voltage | (LE16(B0) & 0x7FFF) / 10 V | Keep the multiplexer separately; aggregate states select different voltage summaries |
 | Release-11 `61X` port voltage | LE16(B4) / 10 V | This is a voltage, not a temperature, in the release-11 contract |
 | Release-11 `61X` SOC | LE16(B6) / 10 % | Do not apply the current offset to this word |
 | Release-11 `65X` temperatures | B2 − 40 °C; B5 − 40 °C; B6 − 40 °C | B6 is the coded average on the local temperature path |
-| Release-11 local `323` parameter | BE16(B1), in mV | A cell-voltage parameter in mV; its relation to device configuration is not specified |
+| Release-11 local `323` parameter | BE16(B1), in mV | **Hypothesis:** configured threshold minus 50 mV, except configured 0–50 mV yields 3600 mV; an eligible state may supply a different threshold |
 | Release-11 local `6DX` first word | LE16(B0) / 10 V, except `FFFF` | Voltage derived from the sum of local cells; it is not one cell voltage |
 
 For example, standard-bank `326 = 02 14 BE 10 9A DA 00 00` reports slot 2,
@@ -326,16 +375,24 @@ or qualified `61X.B6–B7` for a percentage. In the parallel bank the same curre
 code 10250 (`28 0A`) instead of 4250 (`10 9A`). The voltage remains code 5310.
 Do not select a current offset by testing which result looks plausible.
 
-In release-11, `313.B7` bit 7 is set for a low SOH estimate
-or when a separate diagnostic aggregate condition is present. It is not part
-of the SOH number and does not identify one particular defect.
+**Candidate Hypothesis:** release-11 `313.B7` bit 7 covers SOH below
+60.1% OR an independent diagnostic aggregate. It is separate from the SOH
+number and cannot identify a single named fault.
+
+| Synthetic case | Arithmetic / negative gate |
+|---|---|
+| `soh-high-bit` | SOH 600/601 tenths, aggregate false: below-boundary/at-boundary; aggregate true at 601 is independent. Same payload with legacy profile withholds this rule |
+| `local323-threshold` | Configured threshold 0 and 50 → 3600 mV; 51 → 1 mV. For threshold 100, result 50, not 100. An ineligible state cannot select an alternate threshold; an eligible alternate cannot be inferred from the default formula |
+
+Each case retains raw data; a missing configuration or state gate withholds
+interpretation rather than supplying a default threshold.
 
 ### Gauge and algorithm values
 
 | Field | Defined meaning | Conversion and limits |
 |---|---|---|
 | `QAAA0006` `315.B6–B7` | Full-charge-capacity estimate | BE16 / 10 Ah |
-| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | Includes corrections and resets; do not convert it directly to Ah or SOC |
+| `QAAA0006` `316.B0–B1` | Biased current-derived accumulator | **Hypothesis:** zero-integration initial code 5000; includes corrections and resets, with no Ah/SOC conversion |
 | `QAAA0006` `316.B2–B3` | Full-charge-capacity estimate | BE16 / 10 Ah |
 | `QAAA0006` `316.B4–B5` | Fine cycle count | BE16 / 10 cycles |
 | `QAAA0006` `316.B6` | Latched algorithm state code | A previous nonzero code can persist. Code 100 is used on a failed algorithm precheck; no complete physical mode enum is assigned |
@@ -347,6 +404,13 @@ of the SOH number and does not identify one particular defect.
 `313` rounds SOH upward; `317` truncates it. An underlying 99.6% can therefore
 produce 100 in `313` and 99 in `317`. This is not a disagreement between sensors.
 A nonzero residual budget does not prove that any balance switch is conducting.
+
+Synthetic negative `gauge316-initial`: at zero integration the candidate initial
+code is 5000, not 0; code 4999/5000 does not define a charge boundary. With the
+same word and a nonzero or unknown integration state, withhold the initial-state
+interpretation. An aggregate scope or a project code other than `QAAA0006`
+cannot select this rule; retain the word without Ah/SOC units.
+
 
 ### `315…318`: cells, gauge fields and retained faults
 
@@ -422,6 +486,12 @@ The serial field is 16 bytes; this length is unrelated to cell count. Only fragm
 `325` contains an all-zero placeholder in the supported contracts. It does not mean that a device has no historical faults and must not be used as a fault-history query/response.
 
 ### `326`, `327`, `329`, `333`, `334`: optional slot extensions
+
+**Proven — counter arithmetic:** in release-11, for the counter field, code =
+`((25*C + floor(C/2) + floor(C/8)) mod 2^32) >> 8`.
+PCS `329` carries the code as BE24; LINK `180A` carries the same code
+little-endian. Cached codes are not transformed a second time. This assigns no
+Ah/Wh unit.
 
 | Feature | Version gate | Scope / additional condition |
 |---|---|---|
@@ -506,8 +576,8 @@ A condition name describes what the diagnostic monitors; it is not a repair
 diagnosis. Different indices for the same quantity have independent thresholds,
 hysteresis and state gates. The suffix “condition N” preserves that distinction
 without assigning a warning/protection level that the numeric code does not carry.
-Thresholds are configuration and operating-state properties and are not
-specified here.
+Thresholds are configuration and operating-state properties. Only the bounded
+conditions below are specified; none is an electrical operating limit.
 
 | Index | Condition | Interpretation gate |
 |---:|---|---|
@@ -562,6 +632,37 @@ specified here.
 | 134 | Measurement status flag set | `QAAa9011` release-11 only |
 | 135 | Pack/port voltage difference with hardware status | `QAAa9011` release-11 only |
 
+**Candidate Hypothesis — bounded native conditions.** Modern below means
+release-11 `QAAa9011` only. These conditions refine the named indices without
+assigning meanings to other indices. A received diagnostic code is still retained
+when its condition cannot be interpreted.
+
+| Index | Native condition | Independently named synthetic negative / boundary |
+|---|---|---|
+| 30 | min ≤2000 mV OR spread >999 mV OR max >3799 mV | `d30-min`: 2000/2001 with other terms false; `d30-spread`: 999/1000 with other terms false; `d30-max`: 3799/3800 with other terms false. Wrong profile with same payload withholds each interpretation |
+| 31 | Modern only; average of 20 channel values outside 1945–2150 converter counts | `d31-low`: 1944/1945; `d31-high`: 2150/2151; `d31-count`: 19/20/21 contributors, only 20 eligible. Invalid contributor or legacy same-token profile withholds interpretation |
+| 39 | Charging ≥3.0 A AND (40 OR 41) | `d39-amps`: 2.9/3.0 A; `d39-condition`: at 3.0 A neither condition versus 40 alone versus 41 alone. Unknown charging direction withholds interpretation |
+| 44 | Configuration access/validation/storage failure | `d44-access`, `d44-validation`, `d44-storage`: failure/success of each independently with other failures absent; missing validity for each, same payload, withholds the corresponding explanation |
+| 45 | Latched hardware bit 15 | `d45-latch`: bit 15 clear/set; a current unlatched read cannot qualify the latched state |
+| 57, 58 | Extra configured charge/discharge threshold respectively; numeric value not supplied | `d57-charge` and `d58-discharge`: opposite direction or missing configured threshold withholds each interpretation; numeric boundary is Unknown and no invented threshold is used |
+| 60 | pack−port ≥3.0 V AND port ≥40.0 V | `d60-difference`: 2.9/3.0 V with port 40.0 V; `d60-port`: 39.9/40.0 V with difference 3.0 V; either false term withholds the conjunction |
+| 61 | port−pack ≥3.0 V | `d61-difference`: 2.9/3.0 V; reversing pack/port direction withholds this interpretation |
+| 93 | Modern only; peer third-word spread >20, clearing <10 | `d93-set`: 20/21; `d93-clear`: 9/10. Values 10–20 do not establish clearing; legacy same-token profile withholds both rules |
+| 102, 103 | Modern only; conflicting LINK/parallel identity fragments respectively | `d102-link` and `d103-parallel`: coherent/conflicting fragments in each separate scope; wrong route or legacy same-token profile withholds the respective explanation |
+| 129 | Algorithm code !=0 | `d129-code`: 0/1; invalid algorithm state with same payload withholds interpretation |
+| 130 | Algorithm code >6 | `d130-code`: 6/7; invalid algorithm state with same payload withholds interpretation |
+| 131 | Modern only; adjacent-state bit 0 mismatch in eligible coordination state | `d131-bit`: matching/mismatching bit 0; `d131-state`: eligible/ineligible state, same mismatch. Wrong profile withholds interpretation |
+| 134 | Modern only; status =1 | `d134-status`: 0/1 and 1/2; wrong profile withholds interpretation even at 1 |
+| 135 | Modern only; signed pack−port ≥1.0 V (no absolute value) AND hardware bit 7 AND hardware bit 8 | `d135-difference`: 0.9/1.0 V with both bits set; `d135-reversed`: pack 50.0 V, port 52.0 V (pack−port = −2.0 V) with both bits set withholds; `d135-bit7`: bit 7 clear/set with bit 8 set; `d135-bit8`: bit 8 clear/set with bit 7 set. Wrong profile or either clear bit withholds the conjunction |
+
+For these cases hold the diagnostic payload fixed while varying the named native
+state, scope, selector or validity gate; preserve raw data and withhold the
+condition explanation when it is not established. Arithmetic boundary pairs
+exercise each comparison independently. A false antecedent cannot establish a
+specific fault or a clean system. **Proven:** index 62 tests maximum cell
+≥3750 mV (3749/3750 separates its boundary); this is not an electrical operating
+limit.
+
 ### Disabled local selections
 
 Indices 10, 27, 36–37, 54–55, 64–82, 104–108, 111–122 and 124–127 are never
@@ -579,6 +680,36 @@ qualify the intervening unnamed indices.
 
 ### Selection, severity and clearing
 
+**Proven — local category pairs.** Enabled entries have the following
+category pairs; these are not severity categories. Later active indices replace
+earlier ones within each category. Selected A chooses category 1 then 2;
+selected B chooses category 3 then 4. Disabled local indices remain visible on
+reception and do not acquire an enabled local selection.
+
+Each pair names the two categories the index belongs to; the order of the two
+numbers carries no meaning, and equal numbers denote a single membership.
+Category 1 and 2 membership makes the index a candidate for selected A (category 1
+outranks category 2); category 3 and 4 membership makes it a candidate for
+selected B (category 3 outranks category 4). Each component applies
+independently, so an index such as `2/4` is a category 2 candidate for A and
+a category 4 candidate for B at the same time: with only that index active,
+both A and B carry it. An index in only one A-side or B-side category (for
+example `1/1` or `3/3`) feeds only that word.
+
+| Category pair | Enabled indices (decimal) |
+|---|---|
+| 1/1 | 19, 24, 30, 35, 56 |
+| 2/2 | 5, 13, 17, 25–26, 28–29, 31, 34, 38, 42–45, 47, 50–51, 84, 87, 90, 92, 94–95, 100–103, 128, 130, 133 |
+| 2/4 | 3, 9, 15, 21, 32, 53 |
+| 3/2 | 52, 61 |
+| 3/3 | 4, 12, 16, 18, 33, 46, 57–58, 60, 85, 91, 93, 96, 109–110 |
+| 3/4 | 2, 8, 11, 14, 20 |
+| 4/1 | 48, 62 |
+| 4/2 | 0–1, 6–7, 23, 39–41, 49, 63, 88, 97, 99 |
+| 4/3 | 22, 89, 98 |
+| 4/4 | 59, 83, 86, 123, 129, 131–132; 134–135 for modern `QAAa9011` only |
+
+
 DTC A and B are priority selections, not a two-entry list of every active
 fault. Which active index is reported follows a fixed priority that is **not a
 severity ranking**. Disabled indices never contribute a selected code.
@@ -595,6 +726,17 @@ The following mappings apply to **local** `QAAA0006` and **local common
 release-11** status. A stack, gateway or parallel aggregate requires its own
 source contract. All indices are decimal. `OR` means that any listed condition
 can set the bit; it does not establish that all of them are active.
+
+**Candidate Hypothesis — local `QAAA0006` summary refinement:** A/4 includes
+99 in addition to 1 and 62; A/11 includes only 87 or 90; A/12 uses 41; A/0
+reflects state 5. This does not change the release-11 mapping.
+
+| Synthetic negative | Boundary / withheld interpretation |
+|---|---|
+| `summary-A4-99` | Only 99 active versus none; same summary with release-11 scope cannot acquire the extra source |
+| `summary-A11-only` | 87 alone or 90 alone versus 128/133 alone; those release-11 sources do not establish this local bit |
+| `summary-A12-41` | 41 alone versus 40 alone; wrong profile cannot substitute the release-11 state gate |
+| `summary-A0-state5` | State 4/5 and 5/6; state 0 is not state 5. Unknown state with the same word withholds interpretation |
 
 In `312`, word A is LE16(B0), word B is LE16(B2). Bits below are numbered
 0–15 within each word. Read the named condition from the version-gated table;
@@ -710,14 +852,25 @@ Detection requires the family, `IDE=0`, DLC 8, an attributable group address and
 | `62X` | LE16(B0) limit A; LE16(B2) limit B; B4/B5 permission flags; B6 state; B7 packed flags | Permission is reported state, not an actuator command. Invalid aggregate limits can appear as zero; retain validity separately |
 | `63X` | LE16(B0) full-charge capacity; LE16(B2) remaining capacity; LE16(B4) cycles; LE16(B6) extra configuration | Same field widths across these parallel profiles; units require the selected measurement contract |
 | `64X` | B0 maximum index; B1 zero; LE16(B2) maximum cell; B4 minimum index; B5 zero; LE16(B6) minimum cell | Extrema. Zero high bytes do not impose a universal maximum cell count; do not manufacture a complete cell array |
-| `65X` | B0 maximum-temperature index; B1 zero; B2 maximum temperature; B3 minimum index; B4 zero; B5 minimum temperature; B6 extra temperature raw; B7 derived SOH | Release-11 local B6 is the coded temperature average. Local B7 is a derived SOH byte on a percent scale; aggregate B7 is a cached byte. Other selectors require their own conversion |
+| `65X` | B0 maximum-temperature index; B1 zero; B2 maximum temperature; B3 minimum index; B4 zero; B5 minimum temperature; B6 extra temperature raw; B7 derived SOH | Release-11 local B6 is the coded temperature average. **Hypothesis:** local B7 is `floor(820*SOH_tenths/8192) mod 256`; aggregate B7 is already cached. Other selectors require their own conversion |
 | `66X` | B0–B7 | Fault bytes 0–7 |
 | `67X` | B0–B7 | Fault bytes 8–15 |
 | `68X` | LE16(B0) limit A; LE16(B2) limit B; LE16(B4) percentage-like quantity; B6/B7 flags | Several profiles zero the limit words outside their applicable state. In release-11 local scope B4–B5 reports SOC ×10 when its permission-state bit is set, but substitutes code 10 for SOC zero. Otherwise it emits zero. B6/B7 copy state bits 2/1 respectively; an aggregate may have different sourcing |
 | `6CX` | B0 low nibble fragment, high nibble module; B1–B7 serial bytes | Fragment 0: bytes 0–6; fragment 1: bytes 7–13; fragment 2: only B1/B2 are bytes 14/15. **B3–B7 of fragment 2 are unspecified**, not guaranteed zero |
-| `6DX` | LE16(B0) measurement quantity; B2 flag; B3 state flag; B4–B7 zero | Release-11 local word is cell-sum voltage in 0.1 V/count. `FFFF` marks the word invalid; the invalidation condition is not specified. B2 is a pack-voltage flag; B3 reports a nonzero state code, without assigning its physical enum |
+| `6DX` | LE16(B0) measurement quantity; B2 flag; B3 state flag; B4–B7 zero | Release-11 local word is cell-sum voltage in 0.1 V/count. **Hypothesis:** first word becomes `FFFF` if either of the first two diagnostic category counters is nonzero. B2 tests pack code >200; B3 tests nonzero state, without a physical enum |
 
 Reassemble `6CX` by bus, group `X`, module, identity epoch and fragment order. Its 7/7/2 layout differs from the 6/7/3 layout of standard `324`. Serial identity alone does not make other cached fields simultaneous.
+| Candidate Hypothesis synthetic case | Arithmetic / negative gate |
+|---|---|
+| `65X-local-soh` | SOH_tenths 9/10 → 0/1; 2557/2558 → 255/0 after modulo. Hold B7 fixed but select aggregate scope: cached code stays unchanged, not scaled again |
+| `6DX-category-first` | First two counters (0,0)/(1,0) distinguish no forced sentinel/`FFFF`; wrong local scope withholds the rule |
+| `6DX-category-second` | Counters (0,0)/(0,1) distinguish no forced sentinel/`FFFF`; an unknown counter cannot prove a valid word |
+| `6DX-pack-flag` | Pack code 200/201 is false/true for B2; wrong profile withholds this interpretation |
+| `6DX-state-flag` | State 0/1 is false/true for B3; wrong endpoint scope withholds this interpretation |
+
+Raw words, flags and independent valid siblings remain available in every case;
+(0,0) alone does not prove voltage validity.
+
 
 | `6CX` part | Width | Meaning |
 |---|---:|---|
