@@ -1,0 +1,42 @@
+name: Python readability
+
+on:
+  pull_request:
+    paths:
+      - '**/*.py'
+      - '**/pyproject.toml'
+      - '**/ruff.toml'
+      - '**/.ruff.toml'
+      - 'scripts/readability-baseline.json'
+      - 'tests/**'
+      - '.github/workflows/readability.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.py'
+      - '**/pyproject.toml'
+      - '**/ruff.toml'
+      - '**/.ruff.toml'
+      - 'scripts/readability-baseline.json'
+      - 'tests/**'
+      - '.github/workflows/readability.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  readability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned readability tool
+        run: python -m pip install ruff==0.15.10
+      - run: python3 scripts/check_readability.py --self-test
+      - run: python3 -m unittest discover -s tests -p 'test_readability_gate.py' -v
+      - run: python3 scripts/check_readability.py --check

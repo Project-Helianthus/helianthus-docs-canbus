@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "generated_by": "ruff 0.15.10",
+  "entries": [
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_can",
+      "rule": "C901",
+      "count": 43
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_can",
+      "rule": "PLR0915",
+      "count": 96
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_map_structure",
+      "rule": "C901",
+      "count": 14
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_markdown_contracts",
+      "rule": "C901",
+      "count": 12
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_profile_a_short_r",
+      "rule": "C901",
+      "count": 13
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_profile_b_q",
+      "rule": "C901",
+      "count": 11
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_uart",
+      "rule": "C901",
+      "count": 24
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_uart",
+      "rule": "F841",
+      "count": 1
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "check_uart",
+      "rule": "PLR0915",
+      "count": 58
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "execute_pipeline",
+      "rule": "C901",
+      "count": 14
+    },
+    {
+      "path": "scripts/validate_gree_protocols.py",
+      "symbol": "run_operations",
+      "rule": "C901",
+      "count": 12
+    }
+  ],
+  "generation": "ruff check --no-cache --output-format=json --config ruff.toml scripts; resolve qualified AST symbols, retain reported metric values, aggregate other diagnostics per path/symbol/rule"
+}
