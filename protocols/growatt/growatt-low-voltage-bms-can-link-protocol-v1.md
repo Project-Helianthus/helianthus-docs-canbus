@@ -1037,3 +1037,10 @@ Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`, `10
   A device can accept a write while the requested read feature is unsupported.
 - When the source changes identity or address association, invalidate dependent
   reassembly and freshness state before attributing further data.
+
+## Implementation name correspondence
+
+The [CAN name contract](../../architecture/naming-contract.md) specifies the
+LINK and PCS library field spellings and their consumer correspondence. It
+changes no protocol claim, native identity, family gate or qualification. Raw
+codes remain available and unresolved values remain provisional.
