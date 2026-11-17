@@ -64,6 +64,34 @@ under the [V1.04 contract](low-voltage-bms-can-v104.md). This common projection
 does not alter that contract's admission, decoded fields, raw evidence, or
 `RawStatus` behavior.
 
+## Topology Context Values
+
+The project-code [PCS protocol](growatt-low-voltage-bms-can-pcs-protocol-v1.md)
+and [LINK protocol](growatt-low-voltage-bms-can-link-protocol-v1.md) bind each
+decoded value to a caller-selected topology context. The following table lists
+every allowed value of each context member and states whether the member is
+asserted by configuration or observed on the wire. It does not change this
+projection's admission, its shared fields, or any frame layout.
+
+| Member | Allowed values | Asserted or observed | Rule |
+| --- | --- | --- | --- |
+| `bank` | `ordinary`, `parallel` | Asserted by configuration | `ordinary` is the documented standard bank; `parallel` is the documented parallel bank. The frame carries no bank selector, so traffic and decoded plausibility never select the bank. |
+| `scope` | `local`, `aggregate` | Asserted by configuration | `local` is the reporting controller's own measurement scope. `aggregate` is a stack, gateway, or parallel-group summary. No frame carries a scope selector. |
+| `endpoint` | PCS: `coordinator`, `participant`, `gateway`. LINK: the runtime source address `SS` as two uppercase hexadecimal digits, except `FF` | PCS: asserted by configuration. LINK: observed on the wire | Standard PCS identifiers carry no sender address. A LINK frame whose source address differs from the asserted endpoint does not bind to it. |
+| `group` | `0` to `7`, or absent | Observed on the wire | Parallel addressed families carry the group address as the identifier low nibble `X`; `333` carries a group in B0. The member is absent when the selected frame family carries no group. |
+| `slot` | `0` to `255`, or absent | Observed on the wire | The frame's own slot byte, such as `326.B0`, `327.B0`, `333.B1`, `51X.B0` or `52X.B0`. The member is absent when the selected frame family carries no slot. |
+
+A value outside this table is not admitted: the frame remains raw evidence and
+every context-dependent interpretation is withheld. An observed member confirms
+or conflicts with the caller's selection; it never changes it, and a conflict
+withholds the dependent interpretation.
+
+The PCS flavor and the bank are asserted together. Standard PCS pairs with the
+`ordinary` bank and parallel PCS pairs with the `parallel` bank; any other
+pairing is a context conflict that withholds every bank-dependent field, such
+as the `326` current offset. Release-11 slot reports `326`, `327` and `333`
+exist for the standard PCS and for the selected parallel profile.
+
 ## Non-Claims
 
 V1.07 has only revision-note evidence in the linked version record and does

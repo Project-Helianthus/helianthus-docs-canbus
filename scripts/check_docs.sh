@@ -108,10 +108,15 @@ grep -Fq 'firmware-to-protocol-revision correlation, so firmware MUST NOT select
 grep -Fq 'V1.07, or V1.08. No V1.05, V1.07, or V1.08 evidence may widen V1.04 admission,' "$growatt_version_evidence"
 
 growatt_common_projection='protocols/growatt/growatt-low-voltage-bms-can-common-projection-v1.md'
-for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Revision and Conflict Handling' 'Non-Claims'; do
+for heading in 'Scope and Safety' 'Input Boundary' 'Common Field Projection' 'Revision and Conflict Handling' 'Topology Context Values' 'Non-Claims'; do
   grep -Fqx "## $heading" "$growatt_common_projection"
 done
 grep -Fq 'caller-selected, receive-only projection' "$growatt_common_projection"
+grep -Fqx '| Member | Allowed values | Asserted or observed | Rule |' "$growatt_common_projection"
+grep -Fq '| `bank` | `ordinary`, `parallel` | Asserted by configuration | `ordinary` is the documented standard bank;' "$growatt_common_projection"
+grep -Fq 'Standard PCS pairs with the' "$growatt_common_projection"
+grep -Fq '`ordinary` bank and parallel PCS pairs with the `parallel` bank;' "$growatt_common_projection"
+grep -Fq 'exist for the standard PCS and for the selected parallel profile.' "$growatt_common_projection"
 grep -Fq 'standard 11-bit, non-RTR data frame with DLC 8' "$growatt_common_projection"
 grep -Fq 'no raw frame, field, or' "$growatt_common_projection"
 grep -Fq 'state from one interface or source can complete, replace, or conflict-resolve' "$growatt_common_projection"
@@ -164,6 +169,9 @@ for growatt_doc in "$growatt_pcs" "$growatt_link"; do
   grep -Fq 'No public source is cited, and every statement is an unverified candidate claim.' "$growatt_doc"
 done
 grep -Fq 'V1.04 applies only when the caller explicitly selects it for an interface' "$growatt_pcs"
+for growatt_doc in "$growatt_pcs" "$growatt_link"; do
+  grep -Fq '(growatt-low-voltage-bms-can-common-projection-v1.md#topology-context-values)' "$growatt_doc"
+done
 diff <(sed -n '/^## Diagnostic codes$/,/^## Standard parallel/p' "$growatt_pcs" | sed '$d') \
      <(sed -n '/^## Diagnostic codes$/,/^## Coordinator and stack traffic$/p' "$growatt_link" | sed '$d') >/dev/null
 

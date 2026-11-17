@@ -77,6 +77,10 @@ release-11 profile, `QAAA` versus `QAAa`, `QAAB` versus `QAAA`, `0010` versus
 the affected interpretation. Identity confirmation cannot repair a mismatched
 context; a conflicting identity cannot replace it.
 
+The allowed values of each topology context member, whether each is asserted
+or observed, and the flavor and bank pairing are listed in the common
+projection's [topology context values](growatt-low-voltage-bms-can-common-projection-v1.md#topology-context-values).
+
 For every refinement and synthetic case here, `physical_qualified=false`.
 **Proven** and **Hypothesis** are candidate protocol grades, not hardware
 qualification; unstated meanings remain **Unknown** raw data. Retain exact raw
