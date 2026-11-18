@@ -207,10 +207,16 @@ One candidate CAN interface does not by itself establish system membership or
 a unit role. No field on this surface is a canonical resource identity or a
 zone. The unit field `unit7` is a coordinate and never an identity anchor.
 [Extended Identifier Layout](#extended-identifier-layout) does not establish
-source/destination polarity. A consumer therefore uses `unit7` at most as a
-destination coordinate and never as a sender identity. No partition,
-including the retained `opaque7`, is established as a sender identity, so this
-surface has no sender identity. A display number is presentation; this
+source/destination polarity. On a received frame, whether `unit7` names a
+destination or a sender is therefore unknown.
+[Candidate Command Identifier](gree-vrf-command-map.md#candidate-command-identifier)
+inserts `unit7` as the unit field of a constructed command. That construction
+does not establish the polarity of a received identifier. Whether the
+identifier carries a sender field is also unknown. No partition, including the
+retained `opaque7`, is established as a sender identity, and the absence of a
+sender field is not established either. A consumer must not interpret any
+partition of a received identifier as a destination or as a sender. A display
+number is presentation; this
 surface does not define one, and a display number is not an identity anchor.
 An index in `all_slot_flags` is an ordered collection position. Slot order is
 not membership and is not a relation.
