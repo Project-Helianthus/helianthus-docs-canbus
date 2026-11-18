@@ -68,7 +68,7 @@ The unit7 comparison is independent:
 ~~~
 
 The masked comparison alone is insufficient because it does not include
-unit7. `opaque7` is part of the source identity and MUST NOT be normalized,
+unit7. `opaque7` is part of the received identifier and MUST NOT be normalized,
 discarded, or assigned a device or property meaning.
 
 ## Receive Layout
@@ -205,8 +205,12 @@ a physical bus. An unqualified observation remains opaque by default.
 
 One candidate CAN interface does not by itself establish system membership or
 a unit role. No field on this surface is a canonical resource identity or a
-zone. The unit field `unit7` is a destination coordinate and never an identity
-anchor. The layout has no sender field. A display number is presentation; this
+zone. The unit field `unit7` is a coordinate and never an identity anchor.
+[Extended Identifier Layout](#extended-identifier-layout) does not establish
+source/destination polarity. A consumer therefore uses `unit7` at most as a
+destination coordinate and never as a sender identity. No partition,
+including the retained `opaque7`, is established as a sender identity, so this
+surface has no sender identity. A display number is presentation; this
 surface does not define one, and a display number is not an identity anchor.
 An index in `all_slot_flags` is an ordered collection position. Slot order is
 not membership and is not a relation.
