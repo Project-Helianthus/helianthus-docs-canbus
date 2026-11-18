@@ -8,6 +8,7 @@ other.
 ## CAN
 
 - [Gree VRF CAN bus contract](vrf-canbus.md)
+- [What one interface establishes](vrf-canbus.md#what-one-interface-establishes) about system membership and unit roles
 - [Machine-readable CAN profile](gree-vrf-can-profile.json)
 - [UART-to-CAN command map](gree-vrf-command-map.md)
 - [Machine-readable command map](gree-vrf-command-map.json)

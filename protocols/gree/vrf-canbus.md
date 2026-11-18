@@ -68,7 +68,7 @@ The unit7 comparison is independent:
 ~~~
 
 The masked comparison alone is insufficient because it does not include
-unit7. `opaque7` is part of the source identity and MUST NOT be normalized,
+unit7. `opaque7` is part of the received identifier and MUST NOT be normalized,
 discarded, or assigned a device or property meaning.
 
 ## Receive Layout
@@ -200,3 +200,57 @@ transport contract remains receive-only.
 This is a candidate profile. It does not establish electrical compatibility,
 installed-unit support, timing behavior, arbitration behavior, or delivery to
 a physical bus. An unqualified observation remains opaque by default.
+
+## What one interface establishes
+
+One candidate CAN interface does not by itself establish system membership or
+a unit role. No field on this surface is a canonical resource identity or a
+zone. The unit field `unit7` is a coordinate and never an identity anchor.
+[Extended Identifier Layout](#extended-identifier-layout) does not establish
+source/destination polarity. On a received frame, whether `unit7` names a
+destination or a sender is therefore unknown.
+[Candidate Command Identifier](gree-vrf-command-map.md#candidate-command-identifier)
+inserts `unit7` as the unit field of a constructed command. That construction
+does not establish the polarity of a received identifier. Whether the
+identifier carries a sender field is also unknown. No partition, including the
+retained `opaque7`, is established as a sender identity, and the absence of a
+sender field is not established either. A consumer must not interpret any
+partition of a received identifier as a destination or as a sender. A display
+number is presentation; this
+surface does not define one, and a display number is not an identity anchor.
+An index in `all_slot_flags` is an ordered collection position. Slot order is
+not membership and is not a relation.
+
+Resource and relation rules are those of the common contract. The common
+contract asks the native owner whether a relation is observable and for which
+scope, and which token identifies a unit stably, in which canonical form.
+Until those answers are stated for this family, the default is two resources,
+no relation, and the relation unknown.
+
+`unit7` equal to 8 is the candidate identifier gate. It admits frames. It
+does not count systems, and it does not name a unit that holds system values.
+`opaque7` stays part of the identifier and must not be assigned a device or
+property meaning. That partition is not a stable unit token and not a
+canonical resource identity. The projection latch `aggregate_error_latch` is
+a state-cell rule. It is not a system aggregate, and it names no supplying
+unit. The bounded pair `cell` and `value` has no equipment identity. The UART
+seven-byte unit value is a field of the other protocol surface and is not a
+token of this interface.
+
+Each row has one grade: Proven, Hypothesis, or Unknown. The grade is Proven
+or Hypothesis only when a protocol page of this repository, or a public
+installation or service document, states the row. Otherwise the grade is
+Unknown and the row names the missing fact. Slot order and display numbers
+are not a basis. No row defers to a later site result.
+
+| Question | What one interface establishes | Grade | Evidence |
+| --- | --- | --- | --- |
+| One system per bus, or not | Not established. | Unknown | Missing fact: whether one interface carries one system, more than one system, or no system. No protocol page under `protocols/gree/` states it, and this repository cites no public installation or service document that states it. |
+| Which unit supplies the system aggregates | Not established. | Unknown | Missing fact: which unit, if any, supplies system aggregate values. [State-Cell Update Rules](#state-cell-update-rules) defines `aggregate_error_latch` only as a projection rule. No protocol page under `protocols/gree/` names a supplying unit, and this repository cites no public installation or service document that states it. |
+| Whether outdoor-module values belong to that system | Not established. | Unknown | Missing fact: whether a value of an outdoor module belongs to a system on this interface, and how an outdoor module relates to a refrigerant circuit. No protocol page under `protocols/gree/` defines an outdoor module, and this repository cites no public installation or service document that states it. |
+| How indoor, hot-water and tank units relate to the system and to the refrigerant circuit | Not established. | Unknown | Missing fact: how an indoor unit relates to a system, how an indoor unit relates to a refrigerant circuit, and the same two relations for a hot-water unit and for a tank unit. No protocol page under `protocols/gree/` defines those roles, and this repository cites no public installation or service document that states it. |
+| Whether any field is a stable unit token | Not established. | Unknown | Missing fact: a token that identifies a unit stably, and the canonical form of that token. [Extended Identifier Layout](#extended-identifier-layout) states that the partitions do not establish final unit semantics. [Candidate Command Identifier](gree-vrf-command-map.md#candidate-command-identifier) places `unit7` in the identifier as the unit field. [Bounded Opaque Cell Projection](#bounded-opaque-cell-projection) assigns the cell pair no equipment identity. None of those pages names a stable unit token. |
+
+None of these grades admits a relation. A relation stays unknown until native
+documentation of this family states that the relation is observable for a
+stated scope.
