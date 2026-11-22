@@ -4,7 +4,7 @@ The PCS interface carries battery limits, state of charge, electrical values,
 cell extrema and diagnostics to an inverter or system controller. Standard,
 extended and parallel operation use different message layouts.
 
-For a receive-only implementation, start with **Scope and conventions**, select
+For an implementation, start with **Scope and conventions**, select
 one compatible profile, then use the telemetry tables. **Diagnostic codes**
 contains the complete numeric DTC contract and the defined condition names.
 **Opaque fields** lists values that may be retained but have no assigned
@@ -267,7 +267,7 @@ There is no universal, side-effect-free CAN command that enumerates application 
 | `qualified-input` | The identified endpoint contract includes this incoming PID and the required role/state is established |
 | `unsupported` | The identified contract omits the operation or implements only a no-op/placeholder |
 
-A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previously observed application-level response (seen passively, in reply to another party) can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
+A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previously observed application-level response (seen passively, in reply to another party) can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient. Frames the specification documents as commands have a transmit path, the transport offers the publication API and canbusreg decides what is sent.
 
 A CAN ACK, local loopback, another sender's request, or telemetry from the peer does not prove application acceptance. Periodic `324` does not prove a `212` query handler. For inputs with no defined application acknowledgment, delivery is unconfirmed. Do not use profile switching, clock writes, service entry or balancing/configuration commands as identification probes.
 

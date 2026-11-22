@@ -198,3 +198,41 @@ text += (
 open(path, "w", encoding="utf-8").write(text)
 PY
 expect_fail "named external repository" "$named_source/protocols/gree" "names an external repository as a protocol source"
+
+private_source="$work/private-source"
+copy_gree "$private_source"
+python3 - "$private_source/protocols/gree/README.md" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+text += "\nFacts are taken from vendor documentation that is not public.\n"
+open(path, "w", encoding="utf-8").write(text)
+PY
+expect_fail "named private documentation" "$private_source/protocols/gree" "names an external repository as a protocol source"
+
+frame_source="$work/frame-source"
+copy_gree "$frame_source"
+python3 - "$frame_source/protocols/gree/README.md" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+text += "\nPublic frames corroborate frame layouts and raw values.\n"
+open(path, "w", encoding="utf-8").write(text)
+PY
+expect_fail "named frame source" "$frame_source/protocols/gree" "names an external repository as a protocol source"
+
+oil_return="$work/oil-return"
+copy_gree "$oil_return"
+python3 - "$oil_return/protocols/gree/dictionary/status-bits.json" <<'PY'
+import json
+import sys
+path = sys.argv[1]
+value = json.load(open(path, encoding="utf-8"))
+for entry in value["entries"]:
+    for bit in entry.get("bits", []):
+        if bit.get("label") == "BackOil1LineBackupError":
+            bit["description"] = "Reported meaning: BackOil1LineBackupError termen neclar."
+json.dump(value, open(path, "w", encoding="utf-8"), indent=2, ensure_ascii=True)
+open(path, "a", encoding="utf-8").write("\n")
+PY
+expect_fail "oil-return description" "$oil_return/protocols/gree" "oil-return line description changed"

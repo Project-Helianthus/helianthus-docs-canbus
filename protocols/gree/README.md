@@ -44,11 +44,12 @@ profile-qualified and noncanonical. Unknown fields remain opaque.
 
 The register documents are the register model, the value types, the
 parameter dictionary with its slices, the device classes and the
-presentation converters. They state facts (identifiers, types, scaling,
-units, frames) taken from vendor documentation that is not public; no text
-of that documentation is reproduced. They are published at the repository
-owner's direction (issue #50), and the public-URL rule in `AGENTS.md` is waived for them only. Public frames corroborate frame layouts and raw values. Interpretations of those frames are not adopted. Native labels appear as identifiers. English renderings are in
-our words.
+presentation converters.
+They state facts (identifiers, types, scaling, units, frames).
+Their status is candidate.
+They are published at the repository owner's direction (issue #50), and
+the public-URL rule in `AGENTS.md` is waived for them only. Native labels
+appear as identifiers. English renderings are in our words.
 
 ## Safety Boundary
 

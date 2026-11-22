@@ -797,6 +797,9 @@ def check_publication_sources(root: Path) -> None:
         or "gree-gmv-esp32" in lowered
         or "jbasila" in lowered
         or "of that repository" in lowered
+        or "taken from vendor documentation" in lowered
+        or "documentation that is not public" in lowered
+        or "public frames corroborate" in lowered
     )
     if named_source:
         fail("README.md names an external repository as a protocol source")
@@ -1841,6 +1844,36 @@ def reject_overlapping_values(intervals: list[tuple[str, int, int]]) -> None:
                 fail("overlapping value")
 
 
+OIL_RETURN_LINE_DESCRIPTIONS = {
+    "BackOil1LineBackupError": (
+        "Reported meaning: Oil-return line 1 fault. The fault-kind word is not established."
+    ),
+    "BackOil2LineBackupError": (
+        "Reported meaning: Oil-return line 2 fault. The fault-kind word is not established."
+    ),
+    "BackOil3LineBackupError": (
+        "Reported meaning: Oil-return line 3 fault. The fault-kind word is not established."
+    ),
+    "BackOil4LineBackupError": (
+        "Reported meaning: Oil-return line 4 fault. The fault-kind word is not established."
+    ),
+}
+
+
+def check_oil_return_descriptions(entries: list[dict[str, object]]) -> None:
+    found: set[str] = set()
+    for entry in entries:
+        for bit in entry.get("bits", []):
+            label = bit.get("label")
+            if label not in OIL_RETURN_LINE_DESCRIPTIONS:
+                continue
+            found.add(label)
+            if bit.get("description") != OIL_RETURN_LINE_DESCRIPTIONS[label]:
+                fail(f"{label}: oil-return line description changed")
+    if found != set(OIL_RETURN_LINE_DESCRIPTIONS):
+        fail("oil-return line description changed")
+
+
 def check_dictionary(documents: dict[str, object], value_types: dict[str, object]) -> tuple[dict[int, list[tuple[int, int, str]]], dict[tuple[int, int], str]]:
     known_types: set[str] = set()
     for rule in value_types["rules"]:
@@ -1863,6 +1896,8 @@ def check_dictionary(documents: dict[str, object], value_types: dict[str, object
             fail(f"{slice_name}: per-slice counts changed: {counts}")
         for key, value in counts.items():
             total[key] += value
+        if slice_name == "status-bits":
+            check_oil_return_descriptions(entries)
     if total != {"positions": 779, "named_values": 645, "bit_containers": 134, "named_bits": 760, "label_only": 48}:
         fail(f"dictionary totals changed: {total}")
     if usage != value_types["usage_counts"]:

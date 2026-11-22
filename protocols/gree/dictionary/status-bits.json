@@ -1161,7 +1161,7 @@
           "label": "BackOil1LineBackupError",
           "set_label": "Error",
           "clear_label": "Normal",
-          "description": "Reported meaning: BackOil1LineBackupError termen neclar: \u8d4c)]."
+          "description": "Reported meaning: Oil-return line 1 fault. The fault-kind word is not established."
         }
       ]
     },
@@ -1177,7 +1177,7 @@
           "label": "BackOil2LineBackupError",
           "set_label": "Error",
           "clear_label": "Normal",
-          "description": "Reported meaning: BackOil2LineBackupError termen neclar: \u8d4c)]."
+          "description": "Reported meaning: Oil-return line 2 fault. The fault-kind word is not established."
         },
         {
           "bit": 1,
@@ -1185,7 +1185,7 @@
           "label": "BackOil3LineBackupError",
           "set_label": "Error",
           "clear_label": "Normal",
-          "description": "Reported meaning: BackOil3LineBackupError termen neclar: \u8d4c)]."
+          "description": "Reported meaning: Oil-return line 3 fault. The fault-kind word is not established."
         },
         {
           "bit": 2,
@@ -1193,7 +1193,7 @@
           "label": "BackOil4LineBackupError",
           "set_label": "Error",
           "clear_label": "Normal",
-          "description": "Reported meaning: BackOil4LineBackupError termen neclar: \u8d4c)]."
+          "description": "Reported meaning: Oil-return line 4 fault. The fault-kind word is not established."
         },
         {
           "bit": 3,

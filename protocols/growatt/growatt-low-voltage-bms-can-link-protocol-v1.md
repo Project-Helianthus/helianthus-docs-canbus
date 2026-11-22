@@ -246,7 +246,7 @@ of the protocol contract:
 are satisfied. A state-changing operation also requires the applicable
 coordination or maintenance session. Where the
 table cannot establish those conditions, receive support remains `unknown`.
-Do not infer symmetric support from a shared PID or a monitor's advertised field. These classes describe device behavior; their conditions are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
+Do not infer symmetric support from a shared PID or a monitor's advertised field. These classes describe device behavior; their conditions are necessary and never sufficient. Frames the specification documents as commands have a transmit path, the transport offers the publication API and canbusreg decides what is sent.
 
 ### Native receiver capability matrix
 

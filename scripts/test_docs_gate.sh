@@ -230,6 +230,26 @@ copy_fixture "$growatt_sufficient_fixture"
 printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_sufficient_fixture/$growatt_index_file"
 assert_rejected "$growatt_sufficient_fixture"
 
+growatt_pcs_denial_fixture="$tmp_dir/growatt-pcs-denial"
+copy_fixture "$growatt_pcs_denial_fixture"
+printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_pcs_denial_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_pcs_denial_fixture"
+
+growatt_link_denial_fixture="$tmp_dir/growatt-link-denial"
+copy_fixture "$growatt_link_denial_fixture"
+printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_link_denial_fixture/$growatt_link_file"
+assert_rejected "$growatt_link_denial_fixture"
+
+growatt_reading_guide_fixture="$tmp_dir/growatt-reading-guide"
+copy_fixture "$growatt_reading_guide_fixture"
+printf '\nFor a receive-only implementation, start with the telemetry tables.\n' >> "$growatt_reading_guide_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_reading_guide_fixture"
+
+growatt_level_fixture="$tmp_dir/growatt-hardware-level"
+copy_fixture "$growatt_level_fixture"
+perl -0pi -e 's/physical qualification is false and live trials are false//' "$growatt_level_fixture/$growatt_index_file"
+assert_rejected "$growatt_level_fixture"
+
 growatt_evidence_fixture="$tmp_dir/growatt-evidence"
 copy_fixture "$growatt_evidence_fixture"
 perl -0pi -e 's/They cite no public source\.//' "$growatt_evidence_fixture/$growatt_link_file"
@@ -377,6 +397,26 @@ gree_waiver_fixture="$tmp_dir/gree-waiver"
 copy_fixture "$gree_waiver_fixture"
 perl -0pi -e 's/the public-URL rule in `AGENTS\.md` is waived for them only//' "$gree_waiver_fixture/protocols/gree/README.md"
 assert_rejected "$gree_waiver_fixture"
+
+gree_candidate_fixture="$tmp_dir/gree-candidate"
+copy_fixture "$gree_candidate_fixture"
+perl -0pi -e 's/Their status is candidate\.//' "$gree_candidate_fixture/protocols/gree/README.md"
+assert_rejected "$gree_candidate_fixture"
+
+gree_private_source_fixture="$tmp_dir/gree-private-source"
+copy_fixture "$gree_private_source_fixture"
+printf '\ntaken from vendor documentation that is not public\n' >> "$gree_private_source_fixture/protocols/gree/README.md"
+assert_rejected "$gree_private_source_fixture"
+
+gree_frame_source_fixture="$tmp_dir/gree-frame-source"
+copy_fixture "$gree_frame_source_fixture"
+printf '\nPublic frames corroborate frame layouts and raw values.\n' >> "$gree_frame_source_fixture/protocols/gree/README.md"
+assert_rejected "$gree_frame_source_fixture"
+
+send_boundary_fixture="$tmp_dir/send-boundary"
+copy_fixture "$send_boundary_fixture"
+perl -0pi -e 's/## Send Boundary/## Receive-Only Boundary/' "$send_boundary_fixture/contracts/socketcan-diagnostics.md"
+assert_rejected "$send_boundary_fixture"
 
 gree_prerequisite_fixture="$tmp_dir/gree-prerequisite"
 copy_fixture "$gree_prerequisite_fixture"

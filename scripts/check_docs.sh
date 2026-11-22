@@ -232,10 +232,15 @@ growatt_index='protocols/growatt/README.md'
 grep -Fqx '# Growatt Low-Voltage BMS CAN Protocol Contracts' "$growatt_index"
 grep -Fq 'A project-code selector MUST NOT select a revision label, and a' "$growatt_index"
 grep -Fq 'are the decode contract when an endpoint is configured with them' "$growatt_index"
+grep -Fq 'physical qualification is false and live trials are false' "$growatt_index"
 grep -Fq 'low-voltage-bms-can-v108.md' "$growatt_index"
 grep -Fq 'acceptance. The documented configured inverter-side transmission scope is' "$growatt_index"
-if grep -Fq 'defines no condition under which Helianthus software transmits' "$growatt_index"; then
+if grep -Fq 'defines no condition under which Helianthus software transmits' "$growatt_index" "$growatt_pcs" "$growatt_link"; then
   echo 'blanket transmission denial restored' >&2
+  exit 1
+fi
+if grep -Fq 'receive-only implementation' "$growatt_pcs"; then
+  echo 'receive-only reading guide restored' >&2
   exit 1
 fi
 grep -Fq 'PCS, LINK and' "$growatt_index"
@@ -331,8 +336,17 @@ grep -Fq 'recipient, transport, direction, timing, or' protocols/gree/gree-vrf-c
 grep -Fq '`57600 8N1`' protocols/gree/vrf-uart.md
 grep -Fq '0x05d1' protocols/gree/vrf-uart.md
 grep -Fq 'Gree VRF Protocol Contracts' protocols/gree/README.md
-grep -Fq 'taken from vendor documentation that is not public' protocols/gree/README.md
+grep -Fq 'They state facts (identifiers, types, scaling, units, frames).' protocols/gree/README.md
+grep -Fq 'Their status is candidate.' protocols/gree/README.md
 grep -Fq 'the public-URL rule in `AGENTS.md` is waived for them only' protocols/gree/README.md
+if grep -Fq 'taken from vendor documentation that is not public' protocols/gree/README.md; then
+  echo 'publication basis names a protocol source' >&2
+  exit 1
+fi
+if grep -Fq 'Public frames corroborate' protocols/gree/README.md; then
+  echo 'publication basis names a protocol source' >&2
+  exit 1
+fi
 register_model='protocols/gree/gree-vrf-can-register-model.md'
 for heading in 'Status and Relationship' 'Notation' 'Identifier Families and Addressing' 'Register Coordinates and Frame Rules' 'Value Types' 'Addressed Write Frames' 'Clock Frame' 'Timing' 'Not Established'; do
   grep -Fqx "## $heading" "$register_model"
@@ -409,11 +423,12 @@ done
 
 grep -Fq 'The transport sends the frames a driver submits through its send API and offers' architecture/can-transport.md
 grep -Fq 'The caller configures listen-only for an interface that only receives' architecture/can-transport.md
+grep -Fqx '## Send Boundary' architecture/can-transport.md
 grep -Fq 'The transport sends the frames a driver submits through its send API and' contracts/socketcan-receive-only.md
 grep -Fq 'The caller configures listen-only for an interface that only receives' contracts/socketcan-receive-only.md
 
 diagnostics='contracts/socketcan-diagnostics.md'
-for heading in 'Scope' 'Observation Record' 'Record Classification and Outcome' 'Queue and Loss Reporting' 'Receive Lifecycle' 'Adapter Boundary' 'Receive-Only Boundary'; do
+for heading in 'Scope' 'Observation Record' 'Record Classification and Outcome' 'Queue and Loss Reporting' 'Receive Lifecycle' 'Adapter Boundary' 'Send Boundary'; do
   grep -Fqx "## $heading" "$diagnostics"
 done
 

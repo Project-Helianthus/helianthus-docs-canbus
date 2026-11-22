@@ -41,7 +41,7 @@ A separate addressed profile that some monitor interfaces advertise, independent
 
 ## Evidence
 
-The V1.04 documents cite published revision documents. The PCS, LINK and addressed monitor profile layouts are declared from those owner-contributed documents and are the decode contract when an endpoint is configured with them. The hardware test level is recorded. They cite no public source. They
+The V1.04 documents cite published revision documents. The PCS, LINK and addressed monitor profile layouts are declared from those owner-contributed documents and are the decode contract when an endpoint is configured with them. The hardware test level is recorded: physical qualification is false and live trials are false. They cite no public source. They
 are published at the repository owner's direction (issues #37 and #39), and
 the public-URL rule in `AGENTS.md` is waived for them only.
 

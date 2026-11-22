@@ -108,7 +108,7 @@ material. Such a projection requires an independently defined profile and its
 complete admission gate. Unsupported and malformed records remain diagnostic
 outcomes, not semantic observations.
 
-## Receive-Only Boundary
+## Send Boundary
 
 The transport sends the frames a driver submits through its send API and
 offers periodic publication. The driver decides what is sent and how often.
