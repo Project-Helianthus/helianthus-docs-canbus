@@ -16,3 +16,6 @@
   The unit field is a coordinate and never an identity anchor. Its
   source/destination polarity and any sender field stay unknown. See
   [What one interface establishes](protocols/gree/vrf-canbus.md#what-one-interface-establishes).
+- The naming contract links the gateway repository `helianthus-gateway` and
+  the Matter driver repository `helianthus-matterreg`. See the
+  [name contract](architecture/naming-contract.md).

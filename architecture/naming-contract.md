@@ -39,13 +39,13 @@ they do not imply HVAC meanings. CX and O08 Go exports remain unchanged.
 
 ## Consumer correspondence
 
-Coordinate the library change with [gateway consumers](https://github.com/Project-Helianthus/helianthus-ebusgateway/tree/main/cmd/gateway),
+Coordinate the library change with [gateway consumers](https://github.com/Project-Helianthus/helianthus-gateway/tree/main/cmd/gateway),
 including LINK and PCS runtimes, project configuration, composition, provider,
 CLI and their tests, managed sidecar composition and semantic metrics coverage.
 [Home Assistant integration](https://github.com/Project-Helianthus/helianthus-ha-integration)
 and [virtual device](https://github.com/Project-Helianthus/helianthus-ebus-vdev)
 have no direct matching field in the inspected source; generic passthrough and
-schema consumers still require coordination. The [Matter coverage](https://github.com/Project-Helianthus/helianthus-matter-binding/blob/main/docs/target-profile/can-driver-coverage.md)
+schema consumers still require coordination. The [Matter coverage](https://github.com/Project-Helianthus/helianthus-matterreg/blob/main/docs/target-profile/can-driver-coverage.md)
 and [explorer register map](https://github.com/Project-Helianthus/helianthus-vrc-explorer/blob/main/src/helianthus_vrc_explorer/data/myvaillant_register_map.csv)
 are correspondence surfaces, not proof that similarly named fields share native
 identity. MCP method compatibility and GraphQL value-field parity are retained.
