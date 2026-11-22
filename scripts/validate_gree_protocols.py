@@ -789,6 +789,19 @@ def check_markdown_contracts(root: Path) -> None:
                 fail(f"{relative}: forbidden human-readable {claim} write claim")
 
 
+def check_publication_sources(root: Path) -> None:
+    text = (root / "README.md").read_text(encoding="utf-8")
+    lowered = text.lower()
+    named_source = (
+        "://" in text
+        or "gree-gmv-esp32" in lowered
+        or "jbasila" in lowered
+        or "of that repository" in lowered
+    )
+    if named_source:
+        fail("README.md names an external repository as a protocol source")
+
+
 def check_links(paths: list[Path], root: Path) -> None:
     link_pattern = re.compile(r"\[[^]]+\]\(([^)#]+)(?:#[^)]+)?\)")
     for path in paths:
@@ -1965,6 +1978,7 @@ def validate(root: Path) -> None:
     check_license(root)
     check_text(paths, root)
     check_markdown_contracts(root)
+    check_publication_sources(root)
     check_links(paths, root)
     documents = {
         path.relative_to(root).as_posix(): load_json(path, root)

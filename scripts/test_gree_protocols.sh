@@ -182,3 +182,19 @@ text += "\nOnly separately qualified facts can be promoted by a later owner.\n"
 open(path, "w", encoding="utf-8").write(text)
 PY
 expect_fail "obsolete qualification prerequisite" "$prerequisite/protocols/gree" "obsolete qualification prerequisite"
+
+named_source="$work/named-source"
+copy_gree "$named_source"
+python3 - "$named_source/protocols/gree/README.md" <<'PY'
+import sys
+path = sys.argv[1]
+text = open(path, encoding="utf-8").read()
+text += (
+    "\nPart of the material is corroborated by publicly recorded frames"
+    " (https://github.com/jbasila/gree-gmv-esp32). Only frame layouts and"
+    " raw values of that repository are used; its interpretations are not"
+    " adopted.\n"
+)
+open(path, "w", encoding="utf-8").write(text)
+PY
+expect_fail "named external repository" "$named_source/protocols/gree" "names an external repository as a protocol source"
