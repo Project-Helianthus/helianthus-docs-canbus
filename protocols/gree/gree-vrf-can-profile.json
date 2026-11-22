@@ -2,7 +2,7 @@
   "claims": {
     "electrical": false,
     "live": false,
-    "writes_enabled": false,
+    "writes_enabled": true,
     "writes_safe": false
   },
   "collections": {

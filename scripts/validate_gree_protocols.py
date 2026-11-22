@@ -9,6 +9,7 @@ import json
 import os
 import re
 import sys
+from decimal import Decimal, ROUND_DOWN, ROUND_HALF_EVEN, ROUND_HALF_UP
 from pathlib import Path
 
 
@@ -367,13 +368,7 @@ MARKDOWN_FORBIDDEN_CLAIMS = (
 )
 
 POSITIVE_WRITE_CLAIMS = (
-    ("permitted", r"permit"),
-    ("authorized", r"authoriz"),
-    ("allowed", r"allow"),
-    ("enabled", r"enabl"),
     ("safe", r"safe"),
-    ("supported", r"support"),
-    ("valid", r"valid"),
 )
 
 
@@ -607,10 +602,24 @@ PROFILE_A_SHORT_R_EXPECTED_FIELDS = {"envelope", "no_mutation", "outcome", "reas
 DEFAULT_ROOT = Path(__file__).resolve().parents[1] / "protocols" / "gree"
 EXPECTED_FILES = (
     "README.md",
+    "dictionary/electrical-system.json",
+    "dictionary/identity.json",
+    "dictionary/remaining.json",
+    "dictionary/settings.json",
+    "dictionary/status-bits.json",
+    "dictionary/temperatures-operating-state.json",
     "gree-vrf-can-bridge-record-v1.md",
+    "gree-vrf-can-command-contract.md",
+    "gree-vrf-can-device-classes.json",
+    "gree-vrf-can-device-classes.md",
+    "gree-vrf-can-dictionary.md",
     "gree-vrf-can-opaque-cell-mcp-v1.md",
+    "gree-vrf-can-presentation-converters.json",
+    "gree-vrf-can-presentation-converters.md",
     "gree-vrf-can-qualification-card-v1.md",
     "gree-vrf-can-profile.json",
+    "gree-vrf-can-register-model.md",
+    "gree-vrf-can-value-types.json",
     "gree-vrf-command-map.json",
     "gree-vrf-command-map.md",
     "gree-vrf-property-catalog.md",
@@ -627,7 +636,7 @@ MARKDOWN_REQUIRED_CLAIMS = {
     "vrf-canbus.md": (
         ("candidate link boundary", ("can 2.0b", "29-bit extended", "20 kbit/s", "can+ is only a hypothesis")),
         ("candidate admission", ("class8 = 0xf7", "unit7 = 8", "0x1ee00010", "0x1ee00058")),
-        ("offline boundary", ("offline command encoding boundary", "transport contract remains receive-only")),
+        ("offline boundary", ("offline command encoding boundary", "a send uses the")),
     ),
     "gree-vrf-can-bridge-record-v1.md": (
         ("bounded bridge record", ("exactly `0x23 bytes` long", "19..20", "must remain separate from uart")),
@@ -645,8 +654,8 @@ MARKDOWN_REQUIRED_CLAIMS = {
             "physical and write boundary",
             (
                 "physical qualification is `false`",
-                "listen-only mode",
-                "no path for frame submission",
+                "documented meanings are declared from the specification",
+                "opaque native state",
             ),
         ),
     ),
@@ -778,6 +787,22 @@ def check_markdown_contracts(root: Path) -> None:
         for claim, stem in POSITIVE_WRITE_CLAIMS:
             if has_positive_write_claim(text, stem):
                 fail(f"{relative}: forbidden human-readable {claim} write claim")
+
+
+def check_publication_sources(root: Path) -> None:
+    text = (root / "README.md").read_text(encoding="utf-8")
+    lowered = text.lower()
+    named_source = (
+        "://" in text
+        or "gree-gmv-esp32" in lowered
+        or "jbasila" in lowered
+        or "of that repository" in lowered
+        or "taken from vendor documentation" in lowered
+        or "documentation that is not public" in lowered
+        or "public frames corroborate" in lowered
+    )
+    if named_source:
+        fail("README.md names an external repository as a protocol source")
 
 
 def check_links(paths: list[Path], root: Path) -> None:
@@ -1072,6 +1097,22 @@ def check_map_structure(profile: dict[str, object]) -> dict[str, dict[str, objec
     return maps
 
 
+def check_can_command_metadata(profile: dict[str, object], command_map: dict[str, object]) -> None:
+    if profile.get("claims") != {
+        "electrical": False,
+        "live": False,
+        "writes_enabled": True,
+        "writes_safe": False,
+    }:
+        fail("CAN command metadata changed")
+    if command_map.get("write_policy") != {
+        "acceptance_claim": False,
+        "delivery_claim": False,
+        "enabled": True,
+    }:
+        fail("CAN command metadata changed")
+
+
 def check_can(profile: dict[str, object], command_map: dict[str, object], uart: dict[str, object]) -> None:
     if profile.get("schema") != "gree.vrf.can-profile":
         fail("CAN profile schema identifier changed")
@@ -1088,13 +1129,7 @@ def check_can(profile: dict[str, object], command_map: dict[str, object], uart: 
         fail("CAN+ must remain explicitly non-equivalent to CAN")
     if link.get("electrically_confirmed") is not False:
         fail("CAN physical layer must remain unconfirmed")
-    if profile.get("claims") != {
-        "electrical": False,
-        "live": False,
-        "writes_enabled": False,
-        "writes_safe": False,
-    }:
-        fail("CAN candidate metadata must not make live, electrical, or write claims")
+    check_can_command_metadata(profile, command_map)
     if profile.get("profile_selection") != {
         "default": "A",
         "labels": "noncanonical",
@@ -1227,17 +1262,12 @@ def check_can(profile: dict[str, object], command_map: dict[str, object], uart: 
         "summary": {"encodable": 47, "reserved_ffff": 40, "unsupported_width": 1},
     }:
         fail("CAN command table metadata must pin 0x00..0x57 and exclude 0x58+")
-    if command_map.get("write_policy") != {
-        "acceptance_claim": False,
-        "delivery_claim": False,
-        "enabled": False,
-        "safety": "unsafe",
-    } or command_map.get("profile_boundary") != {
+    if command_map.get("profile_boundary") != {
         "active_m152": False,
         "labels": "noncanonical_profile_qualified_candidates",
         "profile_b_write_mapping": False,
     }:
-        fail("CAN write denial changed")
+        fail("CAN profile boundary changed")
 
 
 def parse_envelope(frame_hex: str, table: list[int], name: str) -> bytes:
@@ -1408,13 +1438,8 @@ def check_uart(uart: dict[str, object], vectors: dict[str, object]) -> None:
         "unknown_fields": "opaque",
     } or uart.get("parser_gates", {}).get("no_mutation_on_reject") is not True:
         fail("UART unknown-field policy must remain opaque and fail-closed")
-    if uart["write_policy"] != {
-        "enabled": False,
-        "encodings": "documentation_only",
-        "profile_b_mapping": False,
-        "safety": "unsafe",
-    }:
-        fail("UART write denial changed")
+    if uart.get("write_policy") != {"profile_b_mapping": False}:
+        fail("UART profile_b_mapping changed")
     q = uart["payload_types"]["Q"]
     r = uart["payload_types"]["R"]
     u = uart["payload_types"]["U"]
@@ -1474,6 +1499,512 @@ def check_uart(uart: dict[str, object], vectors: dict[str, object]) -> None:
     check_profile_a_short_r(short_r, parse_envelope(short_r["frame_hex"], table, short_r["name"]))
 
 
+SLICE_COUNTS = {
+    "identity": {"positions": 64, "named_values": 63, "bit_containers": 1, "named_bits": 6, "label_only": 0},
+    "temperatures-operating-state": {"positions": 179, "named_values": 179, "bit_containers": 0, "named_bits": 0, "label_only": 5},
+    "status-bits": {"positions": 93, "named_values": 0, "bit_containers": 93, "named_bits": 538, "label_only": 2},
+    "electrical-system": {"positions": 198, "named_values": 198, "bit_containers": 0, "named_bits": 0, "label_only": 0},
+    "settings": {"positions": 110, "named_values": 93, "bit_containers": 17, "named_bits": 89, "label_only": 25},
+    "remaining": {"positions": 135, "named_values": 112, "bit_containers": 23, "named_bits": 127, "label_only": 16},
+}
+GATE_TYPES = {0x10, 0x11, 0x52, 0x58}
+FLAGGED_R410A = {60: "557", 69: "799", 80: "1096", 110: "2439", 141: "4893"}
+
+
+def parse_vector_bytes(text: str) -> list[int]:
+    try:
+        return [int(part, 16) for part in text.split()]
+    except ValueError as error:
+        fail(f"value-type vector bytes are invalid: {error}")
+
+
+def trunc_toward_zero(value: Decimal) -> Decimal:
+    return value.to_integral_value(ROUND_DOWN)
+
+
+def round_half_away(value: Decimal) -> Decimal:
+    sign = Decimal(1) if value >= 0 else Decimal(-1)
+    return sign * abs(value).quantize(Decimal(1), rounding=ROUND_HALF_UP)
+
+
+def signed_remainder(left: Decimal, right: Decimal) -> Decimal:
+    quotient = (left / right).to_integral_value(ROUND_DOWN)
+    return left - quotient * right
+
+
+def decode_rule(formula: str, width: int, raw: list[int], defined_bits: list[int] | None = None) -> dict[str, object]:
+    if len(raw) < width:
+        return {"status": "incomplete", "raw": list(raw), "number": None, "value": None}
+    used = list(raw[:width])
+    if formula == "six raw bytes in the order b0 to b5; never a number":
+        text = " ".join(f"{byte:02x}" for byte in used)
+        return {"status": "raw", "raw": used, "number": None, "value": text}
+    if formula == "one boolean per defined bit; bit 0 is the least significant":
+        if not defined_bits:
+            fail("bits vector has no defined bits")
+        byte = used[0]
+        value = {str(bit): bool(byte & (1 << bit)) for bit in defined_bits}
+        return {"status": "decoded", "raw": used, "number": None, "value": value}
+    b0 = Decimal(used[0])
+    b1 = Decimal(used[1]) if len(used) > 1 else Decimal(0)
+    b2 = Decimal(used[2]) if len(used) > 2 else Decimal(0)
+    b3 = Decimal(used[3]) if len(used) > 3 else Decimal(0)
+    u = b0 + Decimal(256) * b1
+    if formula == "b1+f(b0); f(b0)=b0/10000 for b0 0..9, b0/100 for 10..99, b0/1000 for 100..255":
+        raw_b0 = used[0]
+        if raw_b0 <= 9:
+            fraction = Decimal(raw_b0) / Decimal(10000)
+        elif raw_b0 <= 99:
+            fraction = Decimal(raw_b0) / Decimal(100)
+        else:
+            fraction = Decimal(raw_b0) / Decimal(1000)
+        number = b1 + fraction
+    elif formula == "b1+b0/256, rounded to two decimals, half to even":
+        number = (b1 + b0 / Decimal(256)).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    else:
+        formulas = {
+            "b0": b0,
+            "2*b0": Decimal(2) * b0,
+            "b0/2": b0 / Decimal(2),
+            "b0-100": b0 - Decimal(100),
+            "b0/10": b0 / Decimal(10),
+            "u": u,
+            "u/10": u / Decimal(10),
+            "u/100": u / Decimal(100),
+            "u/3600": u / Decimal(3600),
+            "(u-1000)/10": (u - Decimal(1000)) / Decimal(10),
+            "(u-32768)/100": (u - Decimal(32768)) / Decimal(100),
+            "(u-32768)/3600": (u - Decimal(32768)) / Decimal(3600),
+            "b1+b0/256": b1 + b0 / Decimal(256),
+            "b1+b0/10": b1 + b0 / Decimal(10),
+            "b0+256*b1+65536*b2+16777216*b3": b0 + Decimal(256) * b1 + Decimal(65536) * b2 + Decimal(16777216) * b3,
+        }
+        if formula not in formulas:
+            fail(f"unknown value-type result rule: {formula}")
+        number = formulas[formula]
+    return {"status": "decoded", "raw": used, "number": number, "value": number}
+
+
+def assert_decimal(actual: object, expected: str, label: str) -> None:
+    if not isinstance(actual, Decimal) or actual != Decimal(expected):
+        fail(f"{label}: decode result {actual!r} != {expected}")
+
+
+def assert_vector_result(formula: str, decoded: dict[str, object], expected: object) -> None:
+    if isinstance(expected, dict):
+        if decoded["value"] != expected or decoded["number"] is not None:
+            fail(f"{formula}: bits decode result changed")
+        return
+    if formula.startswith("six raw"):
+        if decoded["value"] != expected or decoded["number"] is not None:
+            fail(f"{formula}: raw-only decode changed")
+        return
+    assert_decimal(decoded["number"], expected, formula)
+
+
+def assert_decoded_vector(formula: str, width: int, vector: dict[str, object]) -> None:
+    raw = parse_vector_bytes(vector["bytes"])
+    defined = vector.get("defined_bits")
+    decoded = decode_rule(formula, width, raw, defined)
+    if decoded["raw"] != raw:
+        fail(f"{formula}: raw bytes were not kept beside the decoded value")
+    assert_vector_result(formula, decoded, vector["result"])
+    short = decode_rule(formula, width, raw[: width - 1], defined)
+    if short["status"] != "incomplete" or short["number"] is not None or short["value"] is not None:
+        fail(f"{formula}: short input must be incomplete")
+    if short["raw"] != raw[: width - 1]:
+        fail(f"{formula}: short input dropped its raw bytes")
+
+
+def check_without_rule(value_types: dict[str, object], seen: set[str]) -> None:
+    without = []
+    for item in value_types["without_rule"]:
+        name = item["name"]
+        if name in seen:
+            fail(f"value type {name} both has and lacks a decode rule")
+        seen.add(name)
+        without.append(name)
+        if "result" in item or "vectors" in item:
+            fail(f"{name}: a value type without a decode rule must stay raw-only")
+    if without != ["uint8Multi2", "uint8Devide10", "uint8Minus100Devide10"]:
+        fail("value types without a decode rule changed")
+
+
+def check_register_model_examples() -> None:
+    humidity = decode_rule("b0-100", 1, [0x91])
+    assert_decimal(humidity["number"], "45", "uint8Minus100 register-model example")
+    if humidity["raw"] != [0x91]:
+        fail("uint8Minus100 register-model example dropped its raw byte")
+    setpoint = decode_rule("u/10", 2, [0xE6, 0x00])
+    assert_decimal(setpoint["number"], "23", "uint16Devide10 register-model example")
+    if setpoint["raw"] != [0xE6, 0x00]:
+        fail("uint16Devide10 register-model example dropped its raw bytes")
+    short_word = decode_rule("u", 2, [0xE6])
+    if short_word["status"] != "incomplete" or short_word["number"] is not None:
+        fail("short uint16 register-model example must be incomplete")
+
+
+def check_value_type_vectors(value_types: dict[str, object]) -> None:
+    seen: set[str] = set()
+    for rule in value_types["rules"]:
+        for name in rule["names"]:
+            if name in seen:
+                fail(f"duplicated value type {name}")
+            seen.add(name)
+        for vector in rule["vectors"]:
+            assert_decoded_vector(rule["result"], rule["bytes"], vector)
+    check_without_rule(value_types, seen)
+    check_register_model_examples()
+
+
+def converter_forward(name: str, converter: dict[str, object], state: str, native: Decimal) -> tuple[Decimal, str]:
+    if name == "CeVsFa":
+        if state == "active":
+            return round_half_away(native * Decimal(9) / Decimal(5) + Decimal(32)), converter["active"]["unit"]
+        if state == "inactive":
+            return round_half_away(native), converter["inactive"]["unit"]
+    elif name == "kWVskBtuh":
+        if state == "active":
+            display = (native * Decimal("3.412")).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+            return display, converter["active"]["unit"]
+    elif name == "kPaVsinWG":
+        if state == "active":
+            return Decimal(4) * native, converter["active"]["unit"]
+    elif name == "Blur":
+        if state == "masked":
+            whole = trunc_toward_zero(native)
+            return whole - signed_remainder(whole, Decimal(10)), converter["unit"]
+    fail(f"{name}: unexpected converter vector state {state}")
+
+
+def converter_inverse(name: str, state: str, display: Decimal) -> Decimal:
+    if name == "CeVsFa" and state == "active_inverse":
+        return trunc_toward_zero((display - Decimal(32)) * Decimal(5) / Decimal(9))
+    if name == "kWVskBtuh" and state == "active_inverse":
+        return trunc_toward_zero(display * Decimal("0.2931"))
+    if name == "kPaVsinWG" and state == "active_inverse_real":
+        return display / Decimal(4)
+    fail(f"{name}: unexpected inverse state {state}")
+
+
+def check_saturation_vector(converters: dict[str, object], converter: dict[str, object], vector: dict[str, object]) -> None:
+    native = Decimal(vector["x"])
+    native_unit = converter["native_unit"]
+    table = converters["tables"][vector["refrigerant"]]
+    index = vector["index"]
+    if not 0 <= index < table["entries"]:
+        pressure = None
+    else:
+        pressure = table["values"][index]
+    if pressure != vector["pressure_kpa"]:
+        fail(f"CeVskPa {vector['refrigerant']} index {index}: table value changed")
+    if native != Decimal(vector["x"]) or converter["native_unit"] != native_unit:
+        fail("CeVskPa changed the native value")
+
+
+def check_display_unit(name: str, converter: dict[str, object], state: str, unit: str) -> None:
+    if state == "active" and unit != converter["active"]["unit"]:
+        fail(f"{name}: display unit changed")
+    if state == "inactive" and unit != converter["inactive"]["unit"]:
+        fail(f"{name}: display unit changed")
+    if name == "Blur" and unit != converter["unit"]:
+        fail("Blur display unit changed")
+
+
+def check_display_vector(converter: dict[str, object], vector: dict[str, object]) -> None:
+    name = converter["name"]
+    state = vector["state"]
+    if "inverse" in state:
+        recovered = converter_inverse(name, state, Decimal(vector["y"]))
+        assert_decimal(recovered, vector["x"], f"{name} {state}")
+        return
+    native = Decimal(vector["x"])
+    native_unit = converter.get("native_unit")
+    display, unit = converter_forward(name, converter, state, native)
+    if native != Decimal(vector["x"]) or converter.get("native_unit") != native_unit:
+        fail(f"{name}: converter changed the native value")
+    assert_decimal(display, vector["y"], f"{name} {state}")
+    check_display_unit(name, converter, state, unit)
+
+
+def check_flagged_refrigerant(root: Path, converters: dict[str, object]) -> None:
+    page = (root / "gree-vrf-can-presentation-converters.md").read_text(encoding="utf-8")
+    for index, value in FLAGGED_R410A.items():
+        if converters["tables"]["R410A"]["values"][index] != value:
+            fail(f"flagged R410A index {index} was corrected")
+        if f"`{value}`" not in page:
+            fail("flagged R410A entries are not kept on the converter page")
+
+
+def check_converters(root: Path, converters: dict[str, object]) -> None:
+    for converter in converters["converters"]:
+        for vector in converter["vectors"]:
+            if converter["name"] == "CeVskPa":
+                check_saturation_vector(converters, converter, vector)
+            else:
+                check_display_vector(converter, vector)
+    check_flagged_refrigerant(root, converters)
+
+
+def dictionary_counts(entries: list[dict[str, object]]) -> dict[str, int]:
+    named_values = 0
+    bit_containers = 0
+    named_bits = 0
+    label_only = 0
+    for entry in entries:
+        kind = entry["kind"]
+        if kind == "value":
+            named_values += 1
+        elif kind == "bits":
+            bit_containers += 1
+            named_bits += sum(1 for bit in entry["bits"] if "label" in bit or "label_en" in bit or "description" in bit)
+        elif kind in {"label_only_bit", "label_only_value"}:
+            label_only += 1
+        else:
+            fail(f"unknown dictionary kind {kind}")
+    return {
+        "positions": named_values + bit_containers,
+        "named_values": named_values,
+        "bit_containers": bit_containers,
+        "named_bits": named_bits,
+        "label_only": label_only,
+    }
+
+
+def claim_key(keys: set[tuple[str, str, str]], key: tuple[str, str, str]) -> None:
+    if key in keys:
+        fail("duplicated dictionary key")
+    keys.add(key)
+
+
+def note_value_type(entry: dict[str, object], known_types: set[str], usage: dict[str, int]) -> None:
+    if "value_type" not in entry:
+        return
+    value_type = entry["value_type"]
+    if value_type not in known_types:
+        fail("unknown value type")
+    usage[value_type] = usage.get(value_type, 0) + 1
+
+
+def index_value_entry(entry: dict[str, object], keys: set[tuple[str, str, str]], intervals: list[tuple[str, int, int]], value_ranges: dict[int, list[tuple[int, int, str]]]) -> None:
+    type_name = entry["type"]
+    claim_key(keys, (type_name, "byte", entry["coordinate"]))
+    start = int(entry["coordinate"], 16)
+    end = start + int(entry["width"])
+    intervals.append((type_name, start, end))
+    value_ranges.setdefault(int(type_name, 16), []).append((start, end, entry["kind"]))
+
+
+def index_bits_entry(entry: dict[str, object], keys: set[tuple[str, str, str]], intervals: list[tuple[str, int, int]], bit_index: dict[tuple[int, int], str]) -> None:
+    type_name = entry["type"]
+    claim_key(keys, (type_name, "container", entry["container"]))
+    start = int(entry["container"], 16)
+    intervals.append((type_name, start, start + 1))
+    type_id = int(type_name, 16)
+    for bit in entry["bits"]:
+        claim_key(keys, (type_name, "bit", bit["coordinate"]))
+        bit_index[(type_id, int(bit["coordinate"], 16))] = entry["kind"]
+
+
+def index_label_bit(entry: dict[str, object], keys: set[tuple[str, str, str]], bit_index: dict[tuple[int, int], str]) -> None:
+    type_name = entry["type"]
+    claim_key(keys, (type_name, "bit", entry["coordinate"]))
+    bit_index[(int(type_name, 16), int(entry["coordinate"], 16))] = entry["kind"]
+
+
+def index_one_entry(entry: dict[str, object], slice_name: str, allowed_types: list[str], keys: set[tuple[str, str, str]], intervals: list[tuple[str, int, int]], value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str], known_types: set[str], usage: dict[str, int]) -> None:
+    if entry["type"] not in allowed_types:
+        fail(f"{slice_name}: entry type {entry['type']} is outside the slice")
+    kind = entry["kind"]
+    if kind in {"value", "label_only_value"}:
+        index_value_entry(entry, keys, intervals, value_ranges)
+    elif kind == "bits":
+        index_bits_entry(entry, keys, intervals, bit_index)
+    elif kind == "label_only_bit":
+        index_label_bit(entry, keys, bit_index)
+    else:
+        fail(f"unknown dictionary kind {kind}")
+    note_value_type(entry, known_types, usage)
+
+
+def index_slice_entries(slice_name: str, document: dict[str, object], entries: list[dict[str, object]], known_types: set[str], usage: dict[str, int], value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str]) -> list[tuple[str, int, int]]:
+    keys: set[tuple[str, str, str]] = set()
+    intervals: list[tuple[str, int, int]] = []
+    for entry in entries:
+        index_one_entry(entry, slice_name, document["types"], keys, intervals, value_ranges, bit_index, known_types, usage)
+    return intervals
+
+
+def reject_overlapping_values(intervals: list[tuple[str, int, int]]) -> None:
+    for left in range(len(intervals)):
+        for right in range(left + 1, len(intervals)):
+            a_type, a_start, a_end = intervals[left]
+            b_type, b_start, b_end = intervals[right]
+            if a_type == b_type and a_start < b_end and b_start < a_end:
+                fail("overlapping value")
+
+
+OIL_RETURN_LINE_DESCRIPTIONS = {
+    "BackOil1LineBackupError": (
+        "Reported meaning: Oil-return line 1 fault. The fault-kind word is not established."
+    ),
+    "BackOil2LineBackupError": (
+        "Reported meaning: Oil-return line 2 fault. The fault-kind word is not established."
+    ),
+    "BackOil3LineBackupError": (
+        "Reported meaning: Oil-return line 3 fault. The fault-kind word is not established."
+    ),
+    "BackOil4LineBackupError": (
+        "Reported meaning: Oil-return line 4 fault. The fault-kind word is not established."
+    ),
+}
+
+
+def check_oil_return_descriptions(entries: list[dict[str, object]]) -> None:
+    found: set[str] = set()
+    for entry in entries:
+        for bit in entry.get("bits", []):
+            label = bit.get("label")
+            if label not in OIL_RETURN_LINE_DESCRIPTIONS:
+                continue
+            found.add(label)
+            if bit.get("description") != OIL_RETURN_LINE_DESCRIPTIONS[label]:
+                fail(f"{label}: oil-return line description changed")
+    if found != set(OIL_RETURN_LINE_DESCRIPTIONS):
+        fail("oil-return line description changed")
+
+
+def check_dictionary(documents: dict[str, object], value_types: dict[str, object]) -> tuple[dict[int, list[tuple[int, int, str]]], dict[tuple[int, int], str]]:
+    known_types: set[str] = set()
+    for rule in value_types["rules"]:
+        known_types.update(rule["names"])
+    for item in value_types["without_rule"]:
+        known_types.add(item["name"])
+    value_ranges: dict[int, list[tuple[int, int, str]]] = {}
+    bit_index: dict[tuple[int, int], str] = {}
+    usage: dict[str, int] = {name: 0 for name in value_types["usage_counts"]}
+    total = {key: 0 for key in ("positions", "named_values", "bit_containers", "named_bits", "label_only")}
+    for slice_name, expected in SLICE_COUNTS.items():
+        document = documents[f"dictionary/{slice_name}.json"]
+        if document.get("slice") != slice_name:
+            fail(f"{slice_name}: slice name changed")
+        entries = document["entries"]
+        intervals = index_slice_entries(slice_name, document, entries, known_types, usage, value_ranges, bit_index)
+        reject_overlapping_values(intervals)
+        counts = dictionary_counts(entries)
+        if counts != expected or document.get("counts") != expected:
+            fail(f"{slice_name}: per-slice counts changed: {counts}")
+        for key, value in counts.items():
+            total[key] += value
+        if slice_name == "status-bits":
+            check_oil_return_descriptions(entries)
+    if total != {"positions": 779, "named_values": 645, "bit_containers": 134, "named_bits": 760, "label_only": 48}:
+        fail(f"dictionary totals changed: {total}")
+    if usage != value_types["usage_counts"]:
+        fail(f"per-type counts changed: {usage}")
+    return value_ranges, bit_index
+
+
+def resolve_map_row(source_key: str, source_kind: str, value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str]) -> str:
+    key = int(source_key, 16)
+    type_id, coordinate = key >> 8, key & 0xFF
+    kind = None
+    if source_kind == "bit":
+        kind = bit_index.get((type_id, coordinate))
+    elif source_kind in {"u8", "u16_le_byte_stream"}:
+        for start, end, entry_kind in value_ranges.get(type_id, []):
+            if start <= coordinate < end:
+                kind = entry_kind
+                break
+    if kind is None:
+        fail(f"unresolved map row {source_key}")
+    return kind
+
+
+def note_gate_coverage(source_key: str, source_kind: str, coverage: dict[str, bool]) -> None:
+    source_type = int(source_key, 16) >> 8
+    if source_type in GATE_TYPES:
+        coverage["inside"] = True
+    else:
+        coverage["outside"] = True
+    if source_key == "0x1e13" and (source_kind != "bit" or source_type in GATE_TYPES):
+        fail("map key 0x1e13 is not the documented outside-gate row")
+
+
+def check_profile_maps(profile: dict[str, object], value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str]) -> None:
+    coverage = {"inside": False, "outside": False}
+    for item in profile["maps"]:
+        if item.get("name") not in {"M94", "M115"}:
+            continue
+        for entry in item["entries"]:
+            resolve_map_row(entry["source_key"], entry["source_kind"], value_ranges, bit_index)
+            note_gate_coverage(entry["source_key"], entry["source_kind"], coverage)
+    if not coverage["outside"] or not coverage["inside"]:
+        fail("map rows do not cover both gate and outside-gate source-key types")
+
+
+def command_source_kind(encoding: str, register: str) -> str:
+    if encoding == "bool":
+        return "bit"
+    if encoding == "u8":
+        return "u8"
+    if encoding == "u16_le":
+        return "u16_le_byte_stream"
+    fail(f"unresolved map row {register}")
+
+
+def check_command_rows(command_map: dict[str, object], value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str]) -> None:
+    counts = {"supported": 0, "reserved_sentinel": 0, "unsupported_width": 0}
+    for entry in command_map["entries"]:
+        classification = entry["classification"]
+        if classification == "reserved_sentinel":
+            if entry["register"] is not None:
+                fail("reserved_sentinel row has a register")
+            counts[classification] += 1
+            continue
+        if classification == "unsupported_width":
+            if entry["id"] != "0x57" or entry["register"] != "0x0000":
+                fail("unsupported_width row changed")
+            counts[classification] += 1
+            continue
+        if classification != "supported":
+            fail(f"unexpected command classification {classification}")
+        resolve_map_row(entry["register"], command_source_kind(entry["encoding"], entry["register"]), value_ranges, bit_index)
+        counts[classification] += 1
+    if (counts["supported"], counts["reserved_sentinel"], counts["unsupported_width"]) != (47, 40, 1):
+        fail("encodable command row count changed")
+
+
+def check_map_resolution(profile: dict[str, object], command_map: dict[str, object], value_ranges: dict[int, list[tuple[int, int, str]]], bit_index: dict[tuple[int, int], str]) -> None:
+    check_profile_maps(profile, value_ranges, bit_index)
+    check_command_rows(command_map, value_ranges, bit_index)
+
+
+def check_register_documents(root: Path, documents: dict[str, object]) -> None:
+    value_types = documents["gree-vrf-can-value-types.json"]
+    check_value_type_vectors(value_types)
+    check_converters(root, documents["gree-vrf-can-presentation-converters.json"])
+    value_ranges, bit_index = check_dictionary(documents, value_types)
+    check_map_resolution(documents["gree-vrf-can-profile.json"], documents["gree-vrf-command-map.json"], value_ranges, bit_index)
+    spec = (root / "vrf-canbus.md").read_text(encoding="utf-8")
+    if "a documented map row of any source-key type reaches lookup after structural frame gates" not in spec:
+        fail("lookup order changed")
+    if "not kept opaque for lack of a qualification" not in spec or "An unqualified observation remains opaque by default" in spec:
+        fail("compatibility wording changed")
+    if "The pair remains opaque" not in spec:
+        fail("projection behaviour changed")
+    contract = (root / "gree-vrf-can-command-contract.md").read_text(encoding="utf-8")
+    if "exact configured CAN interface" not in contract or "active lifecycle generation" not in contract:
+        fail("command contract passive deadline matching")
+    card = (root / "gree-vrf-can-qualification-card-v1.md").read_text(encoding="utf-8")
+    if "Only separately qualified facts can be promoted" in card:
+        fail("obsolete qualification prerequisite")
+    register_model = (root / "gree-vrf-can-register-model.md").read_text(encoding="utf-8")
+    for page in (register_model, contract):
+        if "may also change the functions of bits 1..7" not in page or "is not established" not in page:
+            fail("on/off neighbouring-bit statement changed")
+
+
 def validate(root: Path) -> None:
     if not root.is_dir():
         fail(f"root does not exist: {root}")
@@ -1482,6 +2013,7 @@ def validate(root: Path) -> None:
     check_license(root)
     check_text(paths, root)
     check_markdown_contracts(root)
+    check_publication_sources(root)
     check_links(paths, root)
     documents = {
         path.relative_to(root).as_posix(): load_json(path, root)
@@ -1491,6 +2023,7 @@ def validate(root: Path) -> None:
     uart = documents["gree-vrf-uart.json"]
     check_can(documents["gree-vrf-can-profile.json"], documents["gree-vrf-command-map.json"], uart)
     check_uart(uart, documents["gree-vrf-uart-vectors.json"])
+    check_register_documents(root, documents)
 
 
 def main() -> int:

@@ -7,8 +7,11 @@ V1.08 for the low-voltage BMS CAN family. It is a documentation boundary, not
 a decoder, admission rule, equipment match, electrical claim, or control
 contract.
 
-`growatt.bms.low_voltage.can.v1_04` remains the only selected revision
-profile. Its defined status word remains available as `RawStatus`, including
+V1.04 and V1.08 each have a complete revision contract. V1.04 uses the
+[existing contract](low-voltage-bms-can-v104.md). V1.08 uses the
+[V1.08 contract](low-voltage-bms-can-v108.md). Each is used when an endpoint
+is configured with that revision. V1.05 and V1.07 stay note-only and unknown.
+The defined V1.04 status word remains available as `RawStatus`, including
 reserved bits. This record assigns neither a balance polarity nor a health
 conclusion to that raw value. The separately opt-in
 [common projection](growatt-low-voltage-bms-can-common-projection-v1.md)
@@ -23,19 +26,19 @@ qualification card.
 
 | Class | Meaning | Profile consequence |
 | --- | --- | --- |
-| Selected contract | A Helianthus contract currently limits one named profile. | It is not evidence for a different revision. |
-| Revision note | A later revision document names an earlier revision change. | Candidate evidence only; it supplies no complete earlier-revision layout. |
-| Revision document | A revision document describes fields for its own revision. | It requires a separate rights-safe contract and synthetic vectors before any profile work. |
+| Selected contract | V1.04 and V1.08 each have a complete revision contract, used when an endpoint is configured with that revision. | A contract is not evidence for a different revision. |
+| Revision note | A later revision document names an earlier revision change. | Note only; it supplies no complete earlier-revision layout. |
+| Revision document | A revision document describes fields for its own revision. | V1.04 and V1.08 are those contracts. A revision without a document stays unknown. |
 | Complementary family | A document from another named family reports a similar identifier or flag. | It never changes a Growatt profile. |
 
 ## Source-Confidence and Version-Feature Matrix
 
 | Revision label | Evidence and exact page | Confidence boundary | Feature boundary | Current treatment |
 | --- | --- | --- | --- | --- |
-| V1.04 | [Rev_04 pp. 4--7](https://www.amosplanet.org/wp-content/uploads/2022/04/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=4) and the [existing V1.04 contract](low-voltage-bms-can-v104.md) | Public revision document and selected-contract baseline. | `0x320` byte 3 is the BMS software version and bytes 4--7 are packed date and time ([Rev_04 p. 7](https://www.amosplanet.org/wp-content/uploads/2022/04/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=7)). The V1.04 contract owns its frame map and preserves `RawStatus`. | The only selected low-voltage revision profile. |
-| V1.05 | [V1.08 revision history, p. 1](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision note only; no complete V1.05 layout is established here. | The note identifies a frequency-regulation enable associated with `0x211`; it does not establish a V1.08 behavior for V1.05. | Unsupported; no V1.05 admission, decoder, or fallback. |
+| V1.04 | [Rev_04 pp. 4--7](https://www.amosplanet.org/wp-content/uploads/2022/04/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=4) and the [existing V1.04 contract](low-voltage-bms-can-v104.md) | Public revision document and selected-contract baseline. | `0x320` byte 3 is the BMS software version and bytes 4--7 are packed date and time ([Rev_04 p. 7](https://www.amosplanet.org/wp-content/uploads/2022/04/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1.04-1.pdf#page=7)). The V1.04 contract owns its frame map and preserves `RawStatus`. | Complete revision contract: the existing V1.04 page, used when an endpoint is configured with V1.04. |
+| V1.05 | [V1.08 revision history, p. 1](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision note only; no complete V1.05 layout is established here. | The note identifies a frequency-regulation enable associated with `0x211`; it does not establish a V1.08 behavior for V1.05. | Note only. A complete V1.05 layout is unknown until its revision specification exists. |
 | V1.07 | [V1.08 revision history, p. 1](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision note only; no standalone complete V1.07 layout is established here. | The note identifies a software-version high-byte extension in `0x320`. | Unsupported; no generic `>= V1.07` rule. |
-| V1.08 | [V1.08 revision history and frame descriptions, pp. 1, 4, 5, 8, 10, and 11-12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision document available through a third-party host; it is not a V1.04 or V1.07 contract. | It changes `0x211` to event-driven handling and adds fault-clear enable ([p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4)); for `0x320`, byte 3 is software-version low and byte 4 is software-version high ([p. 10](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=10)); `0x323` has one total-cell-count byte limited to 1--254 plus extension flags; `0x315` through `0x318` are legacy optional cell reports. | Candidate only; a separate V1.08 profile needs a rights-safe contract and synthetic vectors. |
+| V1.08 | [V1.08 revision history and frame descriptions, pp. 1, 4, 5, 8, 10, and 11-12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=1) | Revision document available through a third-party host; it is not a V1.04 or V1.07 contract. | It changes `0x211` to event-driven handling and adds fault-clear enable ([p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4)); for `0x320`, byte 3 is software-version low and byte 4 is software-version high ([p. 10](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=10)); `0x323` has one total-cell-count byte limited to 1--254 plus extension flags; `0x315` through `0x318` are legacy optional cell reports. | Complete revision contract: the [V1.08 page](low-voltage-bms-can-v108.md), used when an endpoint is configured with V1.08. |
 
 The V1.08 links identify every consulted frame-description page: [p. 4](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=4), [p. 5](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=5), [p. 8](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=8), [p. 10](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=10), [p. 11](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=11), and [p. 12](https://www.scribd.com/document/541900756/Growatt-BMS-CAN-Bus-protocol-low-voltage-V1-08#page=12).
 
@@ -69,12 +72,13 @@ document describes its named byte-seven bit 3 with the opposite polarity:
 
 The Sigineer document is complementary-family evidence, not a Growatt revision.
 The disagreement therefore remains unresolved and profile-local: it MUST NOT
-invert, normalize, or reinterpret V1.04 `RawStatus` as a polarity correction;
-it MUST NOT admit V1.08;
+invert, normalize, or reinterpret V1.04 `RawStatus` as a polarity correction,
 and it MUST NOT establish active-balancer behavior, equipment behavior, or a
-control capability. A future selected revision contract must state the exact
-bit position, byte order, and polarity from its revision-bound evidence, while
-retaining the raw status word.
+control capability. V1.08 has its own contract and is used when an endpoint is
+configured with that revision. The ambiguity stays unresolved, with no
+cross-family inference. A revision without a contract must state the exact
+bit position, byte order, and polarity from its own revision-bound evidence,
+while retaining the raw status word.
 
 ## Sigineer Non-Admission Boundaries
 
@@ -95,10 +99,9 @@ complete per-cell telemetry.
 
 This record establishes no installed-product compatibility, hardware identity,
 connector or electrical property, live-bus result, or state-changing operation.
-It does not authorize transmission, acknowledgement, probing, configuration, or
-admission of an unselected profile.
-
-Before a V1.05, V1.07, or V1.08 profile can be considered, its owner needs a
-complete revision-bound, rights-safe contract and synthetic positive and
-negative vectors. Until then, the V1.04 contract is unchanged and all other
-revision-labelled observations remain unsupported and opaque.
+Complete V1.04 and V1.08 support remains. Complete V1.05 and V1.07 layouts
+remain unknown until their actual revision specifications exist. A version
+with no document stays unknown. Sigineer evidence still does not define a
+Growatt layout. Support is declared from the protocol documents. Frames the
+specification documents as commands have a transmit path. The transport
+offers the publication API and canbusreg decides what is sent.

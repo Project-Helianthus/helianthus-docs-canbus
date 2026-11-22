@@ -108,10 +108,13 @@ material. Such a projection requires an independently defined profile and its
 complete admission gate. Unsupported and malformed records remain diagnostic
 outcomes, not semantic observations.
 
-## Receive-Only Boundary
+## Send Boundary
 
-This contract provides no frame-submission surface. It does not configure,
-verify, or alter controller listen-only mode, bit rate, interface state,
-termination, or physical layer. The system owner MUST establish physical
-listen-only mode before opening the endpoint; a receive-only API alone is not
-proof of electrical silence.
+The transport sends the frames a driver submits through its send API and
+offers periodic publication. The driver decides what is sent and how often.
+The caller configures listen-only for an interface that only receives and
+normal mode for one on which a driver sends. The transport does not probe,
+configure or bring up an interface on its own. This contract does not verify
+controller mode, bit rate, interface state, termination, or physical layer.
+The caller configures listen-only before opening an endpoint that only
+receives; that configuration is not proof of electrical silence.

@@ -16,16 +16,9 @@ bytes. A valid raw wire DLC extension remains metadata, not payload length.
 Unknown frames are transport-valid observations. The transport retains raw data
 and must not infer a vendor, unit, capability, or property.
 
-## Receive-Only Boundary
+## Send Boundary
 
-The transport accepts observations from a SocketCAN file descriptor. It never
-sends a CAN frame. There is no transmit API, automatic configuration, probing,
-or interface mutation.
-
-The caller MUST supply a descriptor backed by a controller already in physical
-listen-only mode. This is an admission precondition, not a capability the
-library can set or verify. Library receive-only behavior is not evidence of
-electrical listen-only mode.
+The transport accepts observations from a SocketCAN file descriptor. The transport sends the frames a driver submits through its send API and offers periodic publication. The driver decides what is sent and how often. The caller configures listen-only for an interface that only receives and normal mode for one on which a driver sends. The transport does not probe, configure or bring up an interface on its own. Listen-only for an interface that only receives is the caller's configuration, not a mode the library sets or verifies.
 
 ## Vendor Independence
 

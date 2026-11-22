@@ -4,7 +4,7 @@ The PCS interface carries battery limits, state of charge, electrical values,
 cell extrema and diagnostics to an inverter or system controller. Standard,
 extended and parallel operation use different message layouts.
 
-For a receive-only implementation, start with **Scope and conventions**, select
+For an implementation, start with **Scope and conventions**, select
 one compatible profile, then use the telemetry tables. **Diagnostic codes**
 contains the complete numeric DTC contract and the defined condition names.
 **Opaque fields** lists values that may be retained but have no assigned
@@ -17,13 +17,13 @@ This document includes all PCS version and diagnostic rules it requires.
 
 This is an implementation-neutral protocol contract. It records candidate protocol claims and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
 
-**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product. No public source is cited, and every statement is an unverified candidate claim. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not repository qualification claims.
+Declared from the protocol documents this page rests on. Grades already stated on this page stay. The hardware test level is recorded, not used as a condition, and the families are active when configured. They cite no public source. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not a hardware test level.
 
-**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software. The capability and qualification conditions described here are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.
+Support is declared from the protocol documents. Frames the specification documents as commands have a transmit path. The transport offers the publication API and canbusreg decides what is sent. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. The capability and qualification conditions described here are necessary for a device to accept a message and are insufficient for acceptance. The documented configured inverter-side transmission scope is separate: frames the specification documents as commands have a transmit path, the transport offers the publication API, and canbusreg decides what is sent.
 
 **Relationship to the existing Growatt documents.** The [V1.04 contract](low-voltage-bms-can-v104.md), its [version evidence](growatt-low-voltage-bms-can-version-evidence-v1.md) and the [common projection](growatt-low-voltage-bms-can-common-projection-v1.md) describe frames from published, revision-labelled documents. This document uses a different selector, a project code with a release such as `QAAA0006`, and a different frame vocabulary. The two sets are independent:
 
-- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document. In particular, the standard-frame traffic in this document carries `0x311`, `0x312` and `0x313`, which satisfies the frame geometry of the V1.04 admission tuple, so that tuple alone does not distinguish PCS from V1.04 traffic. V1.04 applies only when the caller explicitly selects it for an interface.
+- The same CAN identifier can carry a different layout in each set. For example, `0x321` is an update-status frame in the V1.04 contract and an identity-and-family frame here. An identifier match never selects a document. In particular, the standard-frame traffic in this document carries `0x311`, `0x312` and `0x313`. Those identifiers do not select the V1.04 profile. An endpoint configured with the V1.04 profile is recognised by that configuration. V1.04 applies only when the caller explicitly selects it for an interface.
 - No correlation between project codes and published revision labels (V1.04, V1.05, V1.07, V1.08) is established. A project-code selector MUST NOT select a revision label, and a revision label MUST NOT select a project code.
 - This document does not change admission, decoding or raw-evidence rules of the V1.04 contract.
 - PID notation below is hexadecimal and is written without the `0x` prefix, except where `0x` marks V1.04 identifiers or raw words.
@@ -267,7 +267,7 @@ There is no universal, side-effect-free CAN command that enumerates application 
 | `qualified-input` | The identified endpoint contract includes this incoming PID and the required role/state is established |
 | `unsupported` | The identified contract omits the operation or implements only a no-op/placeholder |
 
-A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previously observed application-level response (seen passively, in reply to another party) can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
+A device accepts an incoming PID only when its contract includes that PID, the addressing is compatible and the specified state holds (`qualified-input`). When several candidate contracts remain, the incoming operation is identified only if it has identical semantics and prerequisites in **all** of them. A previously observed application-level response (seen passively, in reply to another party) can corroborate support for that operation in that state; it does not qualify other commands or future roles. These conditions describe device behavior; they are necessary and never sufficient. Frames the specification documents as commands have a transmit path, the transport offers the publication API and canbusreg decides what is sent.
 
 A CAN ACK, local loopback, another sender's request, or telemetry from the peer does not prove application acceptance. Periodic `324` does not prove a `212` query handler. For inputs with no defined application acknowledgment, delivery is unconfirmed. Do not use profile switching, clock writes, service entry or balancing/configuration commands as identification probes.
 
@@ -827,7 +827,7 @@ summary into a current, uniquely attributed fault.
 
 ## Standard parallel / clustering profile
 
-Parallel communication shares the PCS bus; it is not a claim that a third CAN controller or dedicated cluster connector exists. The profile separates **coordinator summaries** from **addressed group publications**. `X` below is the low-nibble group address: `ID = base | X`, for example `641` belongs to family `64X`, group 1. It is not the module slot embedded in a payload and not a LINK address. Qualified addressed publishers use the profile's assigned range; these contracts limit their normal group address to values below 8. Do not allocate an address by observing a silent ID.
+Parallel communication shares the PCS bus; it is not a claim that a third CAN controller or dedicated cluster connector exists. The profile separates **coordinator summaries** from **addressed group publications**. `X` below is the low-nibble group address: `ID = base | X`, for example `641` belongs to family `64X`, group 1. It is not the module slot embedded in a payload and not a LINK address. Qualified addressed publishers use the profile's assigned range; these contracts limit their normal group address to values below 8. A configured PCS endpoint, group, or slot outside that documented range, address `FF` included, is invalid configuration and is reported with the documented range. Do not allocate an address by observing a silent ID.
 
 ### Feature and role gates
 

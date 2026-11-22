@@ -17,7 +17,7 @@ assert_rejected() {
 copy_fixture() {
   local fixture=$1
   mkdir -p "$fixture"
-  tar -c -f - --exclude=.git . | tar -C "$fixture" -x -f -
+  tar -c -f - --exclude=.git --exclude=.tmp . | tar -C "$fixture" -x -f -
   test ! -e "$fixture/.git"
 }
 
@@ -43,18 +43,13 @@ assert_rejected "$acquisition_fixture"
 
 deny_fixture="$tmp_dir/deny"
 copy_fixture "$deny_fixture"
-perl -0pi -e 's/sends a CAN frame\. There is no transmit API, automatic configuration, probing,/sends a CAN frame./' "$deny_fixture/architecture/can-transport.md"
+perl -0pi -e 's/The transport sends the frames a driver submits through its send API and offers/The transport receives frames./' "$deny_fixture/architecture/can-transport.md"
 assert_rejected "$deny_fixture"
 
 listen_only_fixture="$tmp_dir/listen-only"
 copy_fixture "$listen_only_fixture"
-perl -0pi -e 's/Caller MUST configure the physical controller in listen-only mode before/Caller SHOULD configure the physical controller in listen-only mode before/' "$listen_only_fixture/contracts/socketcan-receive-only.md"
+perl -0pi -e 's/The caller configures listen-only for an interface that only receives/The caller may omit listen-only for an interface that only receives/' "$listen_only_fixture/contracts/socketcan-receive-only.md"
 assert_rejected "$listen_only_fixture"
-
-permission_fixture="$tmp_dir/permission"
-copy_fixture "$permission_fixture"
-perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY be used to transmit a diagnostic frame./' "$permission_fixture/protocols/gree/vrf-canbus.md"
-assert_rejected "$permission_fixture"
 
 gree_contract_fixture="$tmp_dir/gree-contract"
 copy_fixture "$gree_contract_fixture"
@@ -145,47 +140,11 @@ copy_fixture "$raw_projection_fixture"
 perl -0pi -e 's/identifier format, DLC, raw DLC, and/identifier format and/' "$raw_projection_fixture/protocols/gree/vrf-canbus.md"
 assert_rejected "$raw_projection_fixture"
 
-emit_fixture="$tmp_dir/emit"
-copy_fixture "$emit_fixture"
-perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nAn implementation MAY emit a diagnostic CAN frame./' "$emit_fixture/protocols/gree/vrf-canbus.md"
-assert_rejected "$emit_fixture"
-
-registry_permission_fixture="$tmp_dir/registry-permission"
-copy_fixture "$registry_permission_fixture"
-perl -0pi -e 's/(# Multi-Vendor CAN Registry Boundary)/$1\n\nA profile MAY publish a diagnostic record./' "$registry_permission_fixture/architecture/registry-boundary.md"
-assert_rejected "$registry_permission_fixture"
-
-new_document_fixture="$tmp_dir/new-document"
-copy_fixture "$new_document_fixture"
-cp scripts/fixtures/unsafe-tx-policy.md "$new_document_fixture/architecture/tx-policy.md"
-assert_rejected "$new_document_fixture"
-
-indirect_permission_fixture="$tmp_dir/indirect-permission"
-copy_fixture "$indirect_permission_fixture"
-perl -0pi -e 's/(# Gree VRF CAN Bus Contract)/$1\n\nA diagnostic frame transmit is permitted./' "$indirect_permission_fixture/protocols/gree/vrf-canbus.md"
-assert_rejected "$indirect_permission_fixture"
-
 for material in firmware corpus ghidra trace dump; do
   material_fixture="$tmp_dir/material-$material"
   copy_fixture "$material_fixture"
   perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\n$material detail: restricted./" "$material_fixture/protocols/gree/vrf-canbus.md"
   assert_rejected "$material_fixture"
-done
-
-for action in transmit send write acknowledge probe configure emit inject publish output; do
-  direct_fixture="$tmp_dir/direct-$action"
-  copy_fixture "$direct_fixture"
-  perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation MAY $action a diagnostic CAN frame./" "$direct_fixture/protocols/gree/vrf-canbus.md"
-  assert_rejected "$direct_fixture"
-
-  trailing_index=0
-  for trailing_permission in MAY may permitted authorized; do
-    trailing_index=$((trailing_index + 1))
-    indirect_fixture="$tmp_dir/indirect-${action}-${trailing_index}"
-    copy_fixture "$indirect_fixture"
-    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nA diagnostic CAN frame $action is $trailing_permission./" "$indirect_fixture/protocols/gree/vrf-canbus.md"
-    assert_rejected "$indirect_fixture"
-  done
 done
 
 for forbidden_material in \
@@ -196,24 +155,6 @@ for forbidden_material in \
   copy_fixture "$material_fixture"
   perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\n$forbidden_material detail: restricted./" "$material_fixture/protocols/gree/vrf-canbus.md"
   assert_rejected "$material_fixture"
-done
-
-for permission in MAY may 'permitted to' 'authorized to'; do
-  for action in transmit send write acknowledge probe configure emit inject publish output; do
-    form_fixture="$tmp_dir/form-${RANDOM}"
-    copy_fixture "$form_fixture"
-    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation $permission $action a diagnostic CAN frame./" "$form_fixture/protocols/gree/vrf-canbus.md"
-    assert_rejected "$form_fixture"
-  done
-done
-
-for mandate in MUST must SHOULD should shall; do
-  for action in transmit send write acknowledge probe emit inject publish output; do
-    mandate_fixture="$tmp_dir/mandate-${RANDOM}"
-    copy_fixture "$mandate_fixture"
-    perl -0pi -e "s/(# Gree VRF CAN Bus Contract)/\$1\\n\\nAn implementation $mandate $action a diagnostic CAN frame./" "$mandate_fixture/protocols/gree/vrf-canbus.md"
-    assert_rejected "$mandate_fixture"
-  done
 done
 
 growatt_pcs_file='protocols/growatt/growatt-low-voltage-bms-can-pcs-protocol-v1.md'
@@ -249,20 +190,13 @@ assert_rejected "$growatt_link_relationship_fixture"
 
 growatt_receive_only_fixture="$tmp_dir/growatt-project-code-receive-only"
 copy_fixture "$growatt_receive_only_fixture"
-perl -0pi -e 's/This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action\.//' "$growatt_receive_only_fixture/$growatt_pcs_file"
+perl -0pi -e 's/Frames the specification documents as commands have a transmit path\.//' "$growatt_receive_only_fixture/$growatt_pcs_file"
 assert_rejected "$growatt_receive_only_fixture"
 
 growatt_adjacent_fixture="$tmp_dir/growatt-pcs-adjacent-release"
 copy_fixture "$growatt_adjacent_fixture"
 perl -0pi -e 's/MUST NOT be admitted using a numerically adjacent release/may be admitted using a numerically adjacent release/' "$growatt_adjacent_fixture/$growatt_pcs_file"
 assert_rejected "$growatt_adjacent_fixture"
-
-for growatt_doc in "$growatt_pcs_file" "$growatt_link_file" "$growatt_index_file"; do
-  growatt_permission_fixture="$tmp_dir/growatt-project-code-permission-${RANDOM}"
-  copy_fixture "$growatt_permission_fixture"
-  printf '\nAn implementation MAY transmit a diagnostic CAN frame.\n' >> "$growatt_permission_fixture/$growatt_doc"
-  assert_rejected "$growatt_permission_fixture"
-done
 
 for growatt_material in 'reverse engineering' decompilation ghidra capture trace dump provenance; do
   growatt_material_fixture="$tmp_dir/growatt-project-code-material-${RANDOM}"
@@ -293,13 +227,38 @@ assert_rejected "$growatt_dtc_fixture"
 
 growatt_sufficient_fixture="$tmp_dir/growatt-never-sufficient"
 copy_fixture "$growatt_sufficient_fixture"
-perl -0pi -e 's/are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits\./are sufficient to transmit./' "$growatt_sufficient_fixture/$growatt_pcs_file"
+printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_sufficient_fixture/$growatt_index_file"
 assert_rejected "$growatt_sufficient_fixture"
+
+growatt_pcs_denial_fixture="$tmp_dir/growatt-pcs-denial"
+copy_fixture "$growatt_pcs_denial_fixture"
+printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_pcs_denial_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_pcs_denial_fixture"
+
+growatt_link_denial_fixture="$tmp_dir/growatt-link-denial"
+copy_fixture "$growatt_link_denial_fixture"
+printf '\ndefines no condition under which Helianthus software transmits\n' >> "$growatt_link_denial_fixture/$growatt_link_file"
+assert_rejected "$growatt_link_denial_fixture"
+
+growatt_reading_guide_fixture="$tmp_dir/growatt-reading-guide"
+copy_fixture "$growatt_reading_guide_fixture"
+printf '\nFor a receive-only implementation, start with the telemetry tables.\n' >> "$growatt_reading_guide_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_reading_guide_fixture"
+
+growatt_level_fixture="$tmp_dir/growatt-hardware-level"
+copy_fixture "$growatt_level_fixture"
+perl -0pi -e 's/physical qualification is false and live trials are false//' "$growatt_level_fixture/$growatt_index_file"
+assert_rejected "$growatt_level_fixture"
 
 growatt_evidence_fixture="$tmp_dir/growatt-evidence"
 copy_fixture "$growatt_evidence_fixture"
-perl -0pi -e 's/No public source is cited, and every statement is an unverified candidate claim\.//' "$growatt_evidence_fixture/$growatt_link_file"
+perl -0pi -e 's/They cite no public source\.//' "$growatt_evidence_fixture/$growatt_link_file"
 assert_rejected "$growatt_evidence_fixture"
+
+growatt_index_evidence_fixture="$tmp_dir/growatt-index-evidence"
+copy_fixture "$growatt_index_evidence_fixture"
+perl -0pi -e 's/are the decode contract when an endpoint is configured with them//' "$growatt_index_evidence_fixture/$growatt_index_file"
+assert_rejected "$growatt_index_evidence_fixture"
 
 for growatt_internal in 'payload builder' 'internal timer' 'ADC codes' '/Users/'; do
   growatt_internal_fixture="$tmp_dir/growatt-internal-${RANDOM}"
@@ -315,7 +274,7 @@ assert_rejected "$growatt_mermaid_fixture"
 
 growatt_waiver_fixture="$tmp_dir/growatt-waiver"
 copy_fixture "$growatt_waiver_fixture"
-perl -0pi -e 's/and the public-URL rule in `AGENTS\.md` is waived for them only\./and nothing else applies./' "$growatt_waiver_fixture/$growatt_index_file"
+perl -0pi -e 's/the public-URL rule in `AGENTS\.md` is waived for them only/the publication rule is unchanged/' "$growatt_waiver_fixture/$growatt_index_file"
 assert_rejected "$growatt_waiver_fixture"
 
 for growatt_phrase in 'pre-transmit qualification' 'Before transmitting' 'host request to perform'; do
@@ -354,11 +313,6 @@ for growatt_monitor_term in Banlence Serise Numbwer Detct MAINTANCE ghidra captu
   assert_rejected "$growatt_monitor_term_fixture"
 done
 
-growatt_monitor_permission_fixture="$tmp_dir/growatt-monitor-permission"
-copy_fixture "$growatt_monitor_permission_fixture"
-printf '\nAn implementation MAY transmit a monitor frame.\n' >> "$growatt_monitor_permission_fixture/$growatt_monitor_file"
-assert_rejected "$growatt_monitor_permission_fixture"
-
 growatt_monitor_link_fixture="$tmp_dir/growatt-monitor-link"
 copy_fixture "$growatt_monitor_link_fixture"
 perl -0pi -e 's/\]\(growatt-low-voltage-bms-can-link-protocol-v1\.md#receive-handler-classes\)/](growatt-low-voltage-bms-can-link-protocol-v1.md#receive-handler-classez)/' "$growatt_monitor_link_fixture/$growatt_monitor_file"
@@ -383,3 +337,98 @@ growatt_waiver_scope_fixture="$tmp_dir/growatt-waiver-scope"
 copy_fixture "$growatt_waiver_scope_fixture"
 perl -0pi -e 's/\(issues #37 and #39\)/(issue #37)/' "$growatt_waiver_scope_fixture/$growatt_index_file"
 assert_rejected "$growatt_waiver_scope_fixture"
+
+growatt_scope_sentence_fixture="$tmp_dir/growatt-scope-sentence"
+copy_fixture "$growatt_scope_sentence_fixture"
+perl -0pi -e 's/are insufficient for acceptance. The documented configured inverter-side transmission scope is separate//' "$growatt_scope_sentence_fixture/$growatt_pcs_file"
+assert_rejected "$growatt_scope_sentence_fixture"
+
+growatt_status_bits_fixture="$tmp_dir/growatt-status-bits"
+copy_fixture "$growatt_status_bits_fixture"
+perl -0pi -e 's/Bit 3 is cell-balance status//' "$growatt_status_bits_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_status_bits_fixture"
+
+growatt_protection_fixture="$tmp_dir/growatt-protection-bits"
+copy_fixture "$growatt_protection_fixture"
+perl -0pi -e 's/soft-start failure//' "$growatt_protection_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_protection_fixture"
+
+growatt_warning_fixture="$tmp_dir/growatt-warning-bits"
+copy_fixture "$growatt_warning_fixture"
+perl -0pi -e 's/internal communication failure//' "$growatt_warning_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_warning_fixture"
+
+growatt_decode_contract_fixture="$tmp_dir/growatt-decode-contract"
+copy_fixture "$growatt_decode_contract_fixture"
+perl -0pi -e 's/field reference is the decode contract//' "$growatt_decode_contract_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_decode_contract_fixture"
+
+growatt_old_301_fixture="$tmp_dir/growatt-old-301"
+copy_fixture "$growatt_old_301_fixture"
+printf '\ndoes not interpret that frame\n' >> "$growatt_old_301_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_old_301_fixture"
+
+growatt_301_removed_fixture="$tmp_dir/growatt-301-removed"
+copy_fixture "$growatt_301_removed_fixture"
+perl -0pi -e 's/inverter side sends the standard \(11-bit\) frame `0x301` every second//' "$growatt_301_removed_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_301_removed_fixture"
+
+growatt_compatibility_fixture="$tmp_dir/growatt-compatibility"
+copy_fixture "$growatt_compatibility_fixture"
+printf '\nControl semantics, polling, and transmit behavior are outside this contract\n' >> "$growatt_compatibility_fixture/protocols/growatt/low-voltage-bms-can-v104.md"
+assert_rejected "$growatt_compatibility_fixture"
+
+growatt_peer_fixture="$tmp_dir/growatt-qualified-peer"
+copy_fixture "$growatt_peer_fixture"
+printf '\nselected only by an independently qualified peer\n' >> "$growatt_peer_fixture/$growatt_monitor_file"
+assert_rejected "$growatt_peer_fixture"
+
+growatt_v108_absent_fixture="$tmp_dir/growatt-v108-absent"
+copy_fixture "$growatt_v108_absent_fixture"
+rm "$growatt_v108_absent_fixture/protocols/growatt/low-voltage-bms-can-v108.md"
+assert_rejected "$growatt_v108_absent_fixture"
+
+gree_opaque_default_fixture="$tmp_dir/gree-opaque-default"
+copy_fixture "$gree_opaque_default_fixture"
+printf '\nAn unqualified observation remains opaque by default\n' >> "$gree_opaque_default_fixture/protocols/gree/vrf-canbus.md"
+assert_rejected "$gree_opaque_default_fixture"
+
+gree_waiver_fixture="$tmp_dir/gree-waiver"
+copy_fixture "$gree_waiver_fixture"
+perl -0pi -e 's/the public-URL rule in `AGENTS\.md` is waived for them only//' "$gree_waiver_fixture/protocols/gree/README.md"
+assert_rejected "$gree_waiver_fixture"
+
+gree_candidate_fixture="$tmp_dir/gree-candidate"
+copy_fixture "$gree_candidate_fixture"
+perl -0pi -e 's/Their status is candidate\.//' "$gree_candidate_fixture/protocols/gree/README.md"
+assert_rejected "$gree_candidate_fixture"
+
+gree_private_source_fixture="$tmp_dir/gree-private-source"
+copy_fixture "$gree_private_source_fixture"
+printf '\ntaken from vendor documentation that is not public\n' >> "$gree_private_source_fixture/protocols/gree/README.md"
+assert_rejected "$gree_private_source_fixture"
+
+gree_frame_source_fixture="$tmp_dir/gree-frame-source"
+copy_fixture "$gree_frame_source_fixture"
+printf '\nPublic frames corroborate frame layouts and raw values.\n' >> "$gree_frame_source_fixture/protocols/gree/README.md"
+assert_rejected "$gree_frame_source_fixture"
+
+send_boundary_fixture="$tmp_dir/send-boundary"
+copy_fixture "$send_boundary_fixture"
+perl -0pi -e 's/## Send Boundary/## Receive-Only Boundary/' "$send_boundary_fixture/contracts/socketcan-diagnostics.md"
+assert_rejected "$send_boundary_fixture"
+
+gree_prerequisite_fixture="$tmp_dir/gree-prerequisite"
+copy_fixture "$gree_prerequisite_fixture"
+printf '\nOnly separately qualified facts can be promoted\n' >> "$gree_prerequisite_fixture/protocols/gree/gree-vrf-can-qualification-card-v1.md"
+assert_rejected "$gree_prerequisite_fixture"
+
+gree_interface_fixture="$tmp_dir/gree-interface"
+copy_fixture "$gree_interface_fixture"
+perl -0pi -e 's/exact configured CAN interface/configured bus/' "$gree_interface_fixture/protocols/gree/gree-vrf-can-command-contract.md"
+assert_rejected "$gree_interface_fixture"
+
+gree_generation_fixture="$tmp_dir/gree-generation"
+copy_fixture "$gree_generation_fixture"
+perl -0pi -e 's/active lifecycle generation/current session/' "$gree_generation_fixture/protocols/gree/gree-vrf-can-command-contract.md"
+assert_rejected "$gree_generation_fixture"

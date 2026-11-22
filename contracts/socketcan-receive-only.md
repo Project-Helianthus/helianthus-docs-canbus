@@ -4,13 +4,11 @@
 
 The caller supplies an already-open SocketCAN descriptor and owns network
 namespace selection, interface creation, bit-rate configuration, and controller
-mode. Caller MUST configure the physical controller in listen-only mode before
-opening the descriptor. A descriptor backed by a normal controller MUST NOT be
-admitted.
+mode. The caller configures listen-only for an interface that only receives
+and normal mode for one on which a driver sends, before opening the descriptor.
 
 The library cannot verify or set physical controller mode through this contract.
-The integrator records the controller's listen-only configuration as the
-admission precondition; the library's no-transmit API does not replace it.
+The integrator records that caller configuration; the library does not replace it.
 
 ## Receive Semantics
 
@@ -21,6 +19,8 @@ or a write.
 
 ## Denials
 
-The transport must not transmit, acknowledge, probe, configure, bring up, or
-otherwise mutate a CAN interface. It must not derive a physical-layer type from
-an interface name or received frame.
+The transport sends the frames a driver submits through its send API and
+offers periodic publication. The driver decides what is sent and how often.
+The transport does not probe, configure or bring up an interface on its own.
+It must not derive a physical-layer type from an interface name or received
+frame.

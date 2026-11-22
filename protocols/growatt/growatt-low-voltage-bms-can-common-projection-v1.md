@@ -2,7 +2,7 @@
 
 ## Scope and Safety
 
-This contract defines a caller-selected, receive-only projection for fields
+This contract defines a caller-selected projection for fields
 that are shared by the documented Growatt low-voltage BMS CAN V1.04 and V1.08
 layouts. It is an implementation-neutral projection boundary, not a revision
 profile, decoder admission rule, equipment match, electrical claim, or control
@@ -14,10 +14,11 @@ V1.08, or establish a firmware-to-protocol-revision relation. The documents
 provide no published firmware-to-protocol-revision correlation; firmware MUST
 NOT select a revision.
 
-A conforming implementation MUST remain receive-only. It MUST NOT transmit,
-acknowledge, probe, configure, or change a CAN interface or attached equipment.
-This contract does not establish a physical result, equipment health, or
-installed-product compatibility.
+Support is declared from the protocol documents. Frames the specification
+documents as commands have a transmit path. The transport offers the
+publication API and canbusreg decides what is sent. This contract does not
+establish a physical result, equipment health, or installed-product
+compatibility.
 
 ## Input Boundary
 

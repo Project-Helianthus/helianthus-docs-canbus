@@ -17,9 +17,9 @@ includes all LINK version and diagnostic rules it requires.
 
 This is an implementation-neutral protocol contract. It records candidate protocol claims and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
 
-**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product. No public source is cited, and every statement is an unverified candidate claim. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not repository qualification claims.
+Declared from the protocol documents this page rests on. Grades already stated on this page stay. The hardware test level is recorded, not used as a condition, and the families are active when configured. They cite no public source. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not a hardware test level.
 
-**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software. The capability and qualification conditions described here are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.
+Support is declared from the protocol documents. Frames the specification documents as commands have a transmit path. The transport offers the publication API and canbusreg decides what is sent. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. The capability and qualification conditions described here are necessary for a device to accept a message and are insufficient for acceptance. The documented configured inverter-side transmission scope is separate: frames the specification documents as commands have a transmit path, the transport offers the publication API, and canbusreg decides what is sent.
 
 **Relationship to the existing Growatt documents.** The [V1.04 contract](low-voltage-bms-can-v104.md), its [version evidence](growatt-low-voltage-bms-can-version-evidence-v1.md) and the [common projection](growatt-low-voltage-bms-can-common-projection-v1.md) describe frames from published, revision-labelled documents. This document uses a different selector, a project code with a release such as `QAAA0006`, and a different frame vocabulary. The two sets are independent:
 
@@ -246,7 +246,7 @@ of the protocol contract:
 are satisfied. A state-changing operation also requires the applicable
 coordination or maintenance session. Where the
 table cannot establish those conditions, receive support remains `unknown`.
-Do not infer symmetric support from a shared PID or a monitor's advertised field. These classes describe device behavior; their conditions are necessary and never sufficient, and this repository defines no condition under which Helianthus software transmits.
+Do not infer symmetric support from a shared PID or a monitor's advertised field. These classes describe device behavior; their conditions are necessary and never sufficient. Frames the specification documents as commands have a transmit path, the transport offers the publication API and canbusreg decides what is sent.
 
 ### Native receiver capability matrix
 
@@ -379,7 +379,7 @@ Coordinator-originated traffic may instead use `18xxDFF4` or `18xxF5F4`.
 Keep the whole ID: `18B0DFF4` and `18B0FFF5` are not interchangeable.
 Source addresses `01`–`09` occur in module aggregation, but this is not a generic
 maximum module count or an address range to impose on every future profile.
-`FF` must not be treated as an identified ordinary module.
+`FF` must not be treated as an identified ordinary module. A configured LINK address, group, or slot outside the range this page documents, address `FF` included, is invalid configuration. The documented ordinary slot range is 1–16.
 
 `B0`–`B7` refer to data bytes. `LE16`/`BE16` indicate low/high byte first;
 `LE32` and `LE64` use the same convention. Bit zero of a numeric field is its
@@ -492,7 +492,7 @@ fine-average contract is selected. L4 membership alone does not select that mean
 With zero configured sensors, the L8 average can retain its previous value.
 Do not report that average as a valid fresh sample. The fixed-four-channel
 measurement path does not establish the fine-average update used by the
-count-aware path; preserve its third word as an opaque code until qualified.
+count-aware path; its third word stays raw because this page does not define it.
 The configured count alone does not establish valid sensor inputs.
 **Candidate Hypothesis:** fine-average summation does not filter invalid input
 codes; their numerical inclusion does not qualify a measurement.
@@ -1025,7 +1025,7 @@ are bytes. Unknown state codes remain visible and never become commands.
 
 ## Addressed monitor profile
 
-Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`, `10xx` and `14xx` families (**Monitor-Addressed**). It is a separate addressed profile. It is selected only by an independently qualified peer or protocol association together with compatible traffic. A QAAB identity or a shared service PID does not establish it, and it is not a fallback decoder for native `18xx`. This contract assigns no layout to those families, and it defines no request or reply for them. The separate [addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md) describes them.
+Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`, `10xx` and `14xx` families (**Monitor-Addressed**). It is a separate addressed profile. Configuring an endpoint with the profile is sufficient to select it. No separate peer or protocol qualification and no observation of compatible traffic is required. A QAAB identity or a shared service PID does not establish it, and it is not a fallback decoder for native `18xx`. An identifier match alone selects nothing. No correlation with revision labels is established. This contract assigns no layout to those families, and it defines no request or reply for them. The separate [addressed monitor profile](growatt-low-voltage-bms-can-monitor-addressed-profile-v1.md) describes them.
 
 ## Interoperability rules
 

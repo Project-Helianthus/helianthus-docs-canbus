@@ -1193,9 +1193,6 @@
     "semantics": "opaque"
   },
   "write_policy": {
-    "enabled": false,
-    "encodings": "documentation_only",
-    "profile_b_mapping": false,
-    "safety": "unsafe"
+    "profile_b_mapping": false
   }
 }
