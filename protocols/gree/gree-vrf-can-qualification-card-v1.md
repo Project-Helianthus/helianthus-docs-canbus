@@ -14,11 +14,12 @@ unchanged.
 
 ## Preconditions
 
-The offline check uses only sanitized structural input. A later physical trial
-requires an operator-selected interface backed by a controller already in
-listen-only mode before its descriptor opens. The candidate 20 kbit/s and CAN
-2.0B metadata does not establish a controller setting, electrical layer, or
-equipment compatibility.
+The offline check uses only synthetic structural input. A later physical trial
+of an interface that only receives uses an operator-selected interface backed
+by a controller already in listen-only mode before its descriptor opens. A
+trial of an interface on which a driver sends uses normal mode. The candidate
+20 kbit/s and CAN 2.0B metadata does not establish a controller setting,
+electrical layer, or equipment compatibility.
 
 `M94` and `M115` are explicit map choices. Selecting either map does not
 identify a product or make a cell semantic. `M152` is not an active map and
@@ -60,7 +61,8 @@ material:
 
 The cells are opaque native state. The card assigns no engineering unit,
 property name, equipment identity, capability, health state, or control effect.
-Only separately qualified facts can be promoted by a later owner.
+Documented meanings are declared from the specification. Verification stays
+the recorded level. This card stays frames-only: a cell is not promoted here.
 
 ## Required Negative Controls
 
@@ -87,6 +89,7 @@ explicitly selected candidate/map path preserves bounded native evidence.
 
 The gateway owner may consume the accepted or rejected outcome and the retained
 raw diagnostic context in its separately scoped work. This card does not define
-an MCP surface or a semantic projection. It introduces no transport handle and
-no path for frame submission, acknowledgement, probing, controller change, or
-state-changing operation.
+an MCP surface or a semantic projection. It introduces no transport handle.
+Documented command submission is specified by the
+[command contract](gree-vrf-can-command-contract.md), not by this card. The
+opaque-cell nonclaims above stay.

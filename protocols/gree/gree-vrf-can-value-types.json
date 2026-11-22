@@ -1,0 +1,398 @@
+{
+  "schema": "gree.vrf.can.value_types",
+  "schema_version": 1,
+  "status": "candidate",
+  "conventions": {
+    "b0": "first value byte",
+    "u": "b0 + 256*b1",
+    "multi_byte_order": "little-endian",
+    "division": "real division, not integer division",
+    "reserved_values": "no rule reserves 0xff, 0xffff or 0xffffffff",
+    "raw_bytes": "raw bytes stay available beside the decoded value",
+    "names": "native names, kept as spelled; a name does not describe its rule"
+  },
+  "rules": [
+    {
+      "names": [
+        "uint8"
+      ],
+      "bytes": 1,
+      "result": "b0",
+      "vectors": [
+        {
+          "bytes": "00",
+          "result": "0"
+        },
+        {
+          "bytes": "7d",
+          "result": "125"
+        },
+        {
+          "bytes": "ff",
+          "result": "255"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint8M2"
+      ],
+      "bytes": 1,
+      "result": "2*b0",
+      "vectors": [
+        {
+          "bytes": "10",
+          "result": "32"
+        },
+        {
+          "bytes": "ff",
+          "result": "510"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint8Devide2"
+      ],
+      "bytes": 1,
+      "result": "b0/2",
+      "vectors": [
+        {
+          "bytes": "2d",
+          "result": "22.5"
+        },
+        {
+          "bytes": "ff",
+          "result": "127.5"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint8Minus100"
+      ],
+      "bytes": 1,
+      "result": "b0-100",
+      "vectors": [
+        {
+          "bytes": "00",
+          "result": "-100"
+        },
+        {
+          "bytes": "7d",
+          "result": "25"
+        },
+        {
+          "bytes": "91",
+          "result": "45"
+        },
+        {
+          "bytes": "ff",
+          "result": "155"
+        }
+      ]
+    },
+    {
+      "names": [
+        "cfloat8base10"
+      ],
+      "bytes": 1,
+      "result": "b0/10",
+      "vectors": [
+        {
+          "bytes": "7b",
+          "result": "12.3"
+        },
+        {
+          "bytes": "ff",
+          "result": "25.5"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16",
+        "uint16multi256"
+      ],
+      "bytes": 2,
+      "result": "u",
+      "vectors": [
+        {
+          "bytes": "34 12",
+          "result": "4660"
+        },
+        {
+          "bytes": "ff ff",
+          "result": "65535"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Devide10"
+      ],
+      "bytes": 2,
+      "result": "u/10",
+      "vectors": [
+        {
+          "bytes": "e6 00",
+          "result": "23"
+        },
+        {
+          "bytes": "ff ff",
+          "result": "6553.5"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Devide100",
+        "uint16Multi10"
+      ],
+      "bytes": 2,
+      "result": "u/100",
+      "vectors": [
+        {
+          "bytes": "c4 09",
+          "result": "25"
+        },
+        {
+          "bytes": "ff ff",
+          "result": "655.35"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Devide3600",
+        "uint16Multi1000"
+      ],
+      "bytes": 2,
+      "result": "u/3600",
+      "vectors": [
+        {
+          "bytes": "10 0e",
+          "result": "1"
+        },
+        {
+          "bytes": "08 07",
+          "result": "0.5"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Minus1000Devide10"
+      ],
+      "bytes": 2,
+      "result": "(u-1000)/10",
+      "vectors": [
+        {
+          "bytes": "e2 04",
+          "result": "25"
+        },
+        {
+          "bytes": "f4 01",
+          "result": "-50"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Minus32768Multi10"
+      ],
+      "bytes": 2,
+      "result": "(u-32768)/100",
+      "vectors": [
+        {
+          "bytes": "c4 89",
+          "result": "25"
+        },
+        {
+          "bytes": "3c 76",
+          "result": "-25"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Minus32768Multi1000"
+      ],
+      "bytes": 2,
+      "result": "(u-32768)/3600",
+      "vectors": [
+        {
+          "bytes": "10 8e",
+          "result": "1"
+        },
+        {
+          "bytes": "f8 78",
+          "result": "-0.5"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16DecimalsDevide256"
+      ],
+      "bytes": 2,
+      "result": "b1+b0/256",
+      "vectors": [
+        {
+          "bytes": "80 19",
+          "result": "25.5"
+        },
+        {
+          "bytes": "01 00",
+          "result": "0.00390625"
+        }
+      ]
+    },
+    {
+      "names": [
+        "cfloat16base10"
+      ],
+      "bytes": 2,
+      "result": "b1+b0/10",
+      "vectors": [
+        {
+          "bytes": "05 19",
+          "result": "25.5"
+        },
+        {
+          "bytes": "0c 19",
+          "result": "26.2"
+        }
+      ]
+    },
+    {
+      "names": [
+        "cfloat16base256"
+      ],
+      "bytes": 2,
+      "result": "b1+b0/256, rounded to two decimals, half to even",
+      "vectors": [
+        {
+          "bytes": "80 14",
+          "result": "20.5"
+        },
+        {
+          "bytes": "02 14",
+          "result": "20.01"
+        },
+        {
+          "bytes": "20 00",
+          "result": "0.12"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint16Int"
+      ],
+      "bytes": 2,
+      "result": "b1+f(b0); f(b0)=b0/10000 for b0 0..9, b0/100 for 10..99, b0/1000 for 100..255",
+      "vectors": [
+        {
+          "bytes": "05 19",
+          "result": "25.0005"
+        },
+        {
+          "bytes": "32 19",
+          "result": "25.5"
+        },
+        {
+          "bytes": "96 19",
+          "result": "25.15"
+        }
+      ]
+    },
+    {
+      "names": [
+        "uint32"
+      ],
+      "bytes": 4,
+      "result": "b0+256*b1+65536*b2+16777216*b3",
+      "vectors": [
+        {
+          "bytes": "01 02 03 04",
+          "result": "67305985"
+        }
+      ]
+    },
+    {
+      "names": [
+        "ubytes6"
+      ],
+      "bytes": 6,
+      "result": "six raw bytes in the order b0 to b5; never a number",
+      "vectors": [
+        {
+          "bytes": "01 02 03 04 05 06",
+          "result": "01 02 03 04 05 06"
+        }
+      ]
+    },
+    {
+      "names": [
+        "bits"
+      ],
+      "bytes": 1,
+      "result": "one boolean per defined bit; bit 0 is the least significant",
+      "vectors": [
+        {
+          "bytes": "21",
+          "defined_bits": [
+            0,
+            1,
+            5
+          ],
+          "result": {
+            "0": true,
+            "1": false,
+            "5": true
+          }
+        }
+      ]
+    }
+  ],
+  "without_rule": [
+    {
+      "name": "uint8Multi2",
+      "bytes": 1,
+      "note": "not an alias of uint8M2"
+    },
+    {
+      "name": "uint8Devide10",
+      "bytes": 1
+    },
+    {
+      "name": "uint8Minus100Devide10",
+      "bytes": 1
+    }
+  ],
+  "usage_counts": {
+    "bits": 134,
+    "cfloat16base256": 9,
+    "cfloat8base10": 7,
+    "ubytes6": 1,
+    "uint16": 136,
+    "uint16DecimalsDevide256": 6,
+    "uint16Devide10": 44,
+    "uint16Devide100": 5,
+    "uint16Devide3600": 2,
+    "uint16Minus1000Devide10": 6,
+    "uint16Minus32768Multi10": 1,
+    "uint16Minus32768Multi1000": 1,
+    "uint16Multi10": 1,
+    "uint16Multi1000": 1,
+    "uint16multi256": 6,
+    "uint32": 3,
+    "uint8": 277,
+    "uint8Devide10": 3,
+    "uint8Devide2": 1,
+    "uint8Minus100": 127,
+    "uint8Minus100Devide10": 3,
+    "uint8Multi2": 5
+  }
+}

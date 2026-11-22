@@ -193,8 +193,7 @@ packed decimal. The decoded numeric vector is:
 ```
 
 The controller-to-peer reply payload is exactly the single byte `77`. Reply
-classification precedes the request minimum-length gate. Command transmission
-for this payload remains disabled and unsafe.
+classification precedes the request minimum-length gate.
 
 ## No-Reply Distinctions
 
@@ -214,5 +213,3 @@ Implementations should expose the reason separately from serial I/O errors.
 
 See the [property catalog](gree-vrf-property-catalog.md) for noncanonical,
 profile-qualified candidate labels. Preserve unknown fields as opaque data.
-
-Writes are disabled and unsafe. Command encodings are documentation only.

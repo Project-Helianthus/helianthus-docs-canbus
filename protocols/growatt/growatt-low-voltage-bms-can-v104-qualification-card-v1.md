@@ -20,9 +20,10 @@ by a controller already in listen-only mode before its descriptor opens. The
 V1.04 link metadata does not establish a controller setting, electrical layer,
 or equipment compatibility.
 
-Only the explicit V1.04 low-voltage profile is selected here. V1.05,
-high-voltage, and all other Growatt families are unsupported at this provider
-boundary until separate evidence and a separate contract qualify them.
+Only the explicit V1.04 low-voltage profile is selected for this card. The
+V1.08 contract is a separate page used when an endpoint is configured with
+that revision. Complete V1.05 and V1.07 layouts are unknown. High-voltage
+families are a separate contract.
 
 ## Sanitized Replay Input
 
@@ -65,8 +66,16 @@ result provides no command, control, or equipment-health semantic.
 
 ## Required Negative Controls
 
-Each control produces no V1.04 provider result for the attempted sequence. It
-does not identify an alternative interface, version, profile, or device.
+The incomplete-tuple, malformed-frame, invalid-range, wrong-interface,
+wrong-revision / extended-ID, and window-expiry controls each produce no
+V1.04 snapshot result for the attempted sequence. The window-rollover control
+is positive, not a negative: a later valid `0x311` returns the existing
+complete snapshot with the newest valid limits observation and its evidence.
+A later valid `0x311` that carries limits 568 returns that snapshot with
+limits 568 and the later frame's evidence. None of these controls describes
+the configured profile as awaiting evidence, and the configured profile does
+not depend on the replay window. A control does not identify an alternative
+interface, version, profile, or device.
 
 | Control | Sanitized input change |
 | --- | --- |
@@ -86,6 +95,9 @@ replay shows only that the selected V1.04 provider path preserves the defined
 native evidence and values.
 
 Raw diagnostic expectations belong to their separately scoped integration
-work. This card does not define an MCP or gateway surface, runtime admission,
-or semantic promotion. It introduces no path for frame submission,
-acknowledgement, probing, controller change, or state-changing operation.
+work. Physical qualification is `false`; live trials are `false`. Those
+recorded levels are not conditions on the configured profile. This card does
+not exclude a gateway surface or a semantic promotion. Support is declared
+from the protocol documents. Frames the specification documents as commands
+have a transmit path. The transport offers the publication API and canbusreg
+decides what is sent.

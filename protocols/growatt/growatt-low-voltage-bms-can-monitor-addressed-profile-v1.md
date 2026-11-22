@@ -8,13 +8,13 @@ This document describes a separate addressed profile that some monitor interface
 
 This is an implementation-neutral protocol contract. It records candidate protocol claims and is published in the CC0 `protocols/` lane of this repository. CC0 does not grant rights in vendor specifications, trademarks, patents, software images or other third-party content.
 
-**Helianthus status: candidate.** Nothing in this document is qualified by Helianthus against hardware, and no live trial has been run. A statement here is a documentation claim, not a support claim for any installed product. No public source is cited, and every statement is an unverified candidate claim. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not repository qualification claims.
+Declared from the protocol documents this page rests on. Grades already stated on this page stay. The hardware test level is recorded, not used as a condition, and the families are active when configured. They cite no public source. The words "qualified" and "qualification" below name a decoder's profile-matching state; they are not a hardware test level.
 
-**Receive-only boundary.** This repository authorizes no transmission, acknowledgement, probing, configuration, update or other live bus action. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. It does not make that message available to Helianthus software. The capability and qualification conditions described here are necessary for a device to accept a message and are never sufficient: this repository defines no condition under which Helianthus software transmits.
+Support is declared from the protocol documents. Frames the specification documents as commands have a transmit path. The transport offers the publication API and canbusreg decides what is sent. Where this document describes a message that a device accepts, it records the protocol's receiver behavior so that a decoder can interpret traffic correctly. The capability and qualification conditions described here are necessary for a device to accept a message and are insufficient for acceptance. The documented configured inverter-side transmission scope is separate: frames the specification documents as commands have a transmit path, the transport offers the publication API, and canbusreg decides what is sent.
 
 **Relationship to the existing Growatt documents.** The [LINK protocol](growatt-low-voltage-bms-can-link-protocol-v1.md) and the [PCS protocol](growatt-low-voltage-bms-can-pcs-protocol-v1.md) describe the native module and stack interfaces; the [V1.04 contract](low-voltage-bms-can-v104.md) and its companions describe revision-labelled frames. This profile is independent of all of them:
 
-- It is selected only by an independently qualified peer or protocol association together with compatible traffic. A project-code identity or a shared service PID never selects it, and it is never a fallback decoder for native `18xx` traffic.
+- Configuring an endpoint with this profile is sufficient to select it. No separate peer or protocol qualification and no observation of compatible traffic is required. A project-code identity or a shared service PID never selects it, and it is never a fallback decoder for native `18xx` traffic. An identifier match alone selects nothing.
 - The same CAN identifier can carry a different layout in each set. An identifier match never selects a document.
 - No correlation between this profile and project codes or published revision labels is established. A project-code selector MUST NOT select this profile, and this profile MUST NOT select a revision label.
 - Signal names are descriptive labels. They are not stable identifiers, and a name alone does not establish the physical origin of a sensor or the safety meaning of a fault.
@@ -23,8 +23,7 @@ This is an implementation-neutral protocol contract. It records candidate protoc
 ## Addressed monitor profile
 
 Some monitor interfaces advertise an extended-ID format with `04xx`, `08xx`,
-`10xx` and `14xx` families. Call this **Monitor-Addressed**. It must be selected by an
-independently qualified peer/protocol association and compatible traffic. A QAAB
+`10xx` and `14xx` families. Call this **Monitor-Addressed**. Configuring an endpoint with this profile is sufficient to select it. No separate peer or protocol qualification and no observation of compatible traffic is required. A QAAB
 identity or a shared service PID does **not**
 establish this profile. Do not use it as a fallback decoder for native `18xx`.
 
@@ -41,20 +40,19 @@ and meanings retain their separate contracts. The convention does not establish
 32-bit byte order or bit-to-channel ordering, and does not change fields explicitly
 defined as BE16 in native LINK or PCS.
 
-All rows are monitor telemetry, with RX class **U** (see the [receive-handler classes](growatt-low-voltage-bms-can-link-protocol-v1.md#receive-handler-classes)) for an automatically selected
-peer until Monitor-Addressed support is independently qualified. No request/reply pair
+All rows are monitor telemetry, with RX class **U** (see the [receive-handler classes](growatt-low-voltage-bms-can-link-protocol-v1.md#receive-handler-classes)) for an endpoint configured with this profile. No request/reply pair
 or native LINK receive handler is implied by the advertised data item.
 
-| Base PID | Detection / payload interpretation after Monitor-Addressed qualification |
+| Base PID | Detection / payload interpretation for an endpoint configured with this profile |
 |---|---|
 | `04010000` | Four LE16 words: internal voltage ×0.1 V; current `(raw−30000)×0.1 A`; external voltage ×0.1 V; fuse-voltage field ×0.1 V. |
 | `04020000` | Four LE16: maximum/minimum cell mV, maximum/minimum positions. |
 | `04030000` | Four LE16: maximum/minimum temperature `raw/10−40 °C`, maximum/minimum positions. |
 | `04040000` | Four LE16: USOC, SOH, ASOC (×0.1), cycle count. Preserve USOC and ASOC as separate quantities. |
 | `04050000` | Four LE16: permitted charge/discharge current ×0.1 A; full/remaining capacity ×0.1 Ah. |
-| `04060000` | Two four-byte cumulative charge-in/charge-out fields ×0.1 Ah. Byte order unqualified; retain raw bytes until the field contract is resolved. |
-| `04070000` | Two four-byte cumulative energy-in/energy-out fields ×0.1 Wh. Byte order unqualified; retain raw bytes until the field contract is resolved. |
-| `040A0000`–`040D0000` | Protection/alarm, system faults, other errors and hardware errors respectively; eight bytes each with profile-specific bit fields. Preserve raw until the exact bit dictionary is qualified; not native `185x` bitmaps. |
+| `04060000` | Two four-byte cumulative charge-in/charge-out fields ×0.1 Ah. Byte order is an open point: the document does not state it, so a decoder keeps the raw bytes and publishes no number. |
+| `04070000` | Two four-byte cumulative energy-in/energy-out fields ×0.1 Wh. Byte order is an open point: the document does not state it, so a decoder keeps the raw bytes and publishes no number. |
+| `040A0000`–`040D0000` | Protection/alarm, system faults, other errors and hardware errors respectively; eight bytes each with profile-specific bit fields. The field reference is the decode contract. Bits the field reference leaves undefined stay raw and are named there. Not native `185x` bitmaps. |
 | `04100000` | B0–B3 hardware-state bytes; B4–B5 LE16 capacity ×0.1 Ah; B6–B7 LE16 resistance ×0.1 mΩ. |
 | `04110000` | B0–B1 actuator state; B2 run mode; B3 work mode; B4–B5/B6–B7 LE16 charge/discharge current fields ×0.1. Charge is unsigned LE16; discharge is signed LE16. Mode enums and exact fields are defined in the complete field reference below. |
 | `04120000` | B0/B1 main/sub software version; B2/B3 main/sub hardware version; B4–B7 four-byte numeric serial field, with byte order unqualified. This is not the native ASCII serial. |
@@ -78,8 +76,8 @@ are maintenance-only.
 
 ## Addressed monitor field reference
 
-These tables apply only after the Monitor-Addressed profile and the endpoint's
-scope have been qualified. They do not add receive handlers to native `18xx`
+These tables are the decode contract of this profile when an endpoint is
+configured with it. No separate qualification is required. They do not add receive handlers to native `18xx`
 devices. Signal names that keep an unexpanded vendor-style abbreviation retain a label whose meaning is not established here. The signal names are descriptive labels, not stable identifiers; a name alone does not
 establish the physical origin of a sensor or the safety meaning of a fault.
 
@@ -156,15 +154,15 @@ The `042x`/`082x` companion IDs define no monitor request/reply transactions.
 
 | Position | Signal | Encoding | Conversion / interpretation |
 |---|---|---|---|
-| B0–B3 | Cumulative incoming charge | Four bytes; integer byte order unspecified | After byte-order qualification: raw × 0.1 Ah |
-| B4–B7 | Cumulative outgoing charge | Four bytes; integer byte order unspecified | After byte-order qualification: raw × 0.1 Ah |
+| B0–B3 | Cumulative incoming charge | Four bytes; integer byte order is an open point | A decoder keeps the raw bytes and publishes no number |
+| B4–B7 | Cumulative outgoing charge | Four bytes; integer byte order is an open point | A decoder keeps the raw bytes and publishes no number |
 
 ### `04070000` — Cumulative energy
 
 | Position | Signal | Encoding | Conversion / interpretation |
 |---|---|---|---|
-| B0–B3 | Cumulative incoming energy | Four bytes; integer byte order unspecified | After byte-order qualification: raw × 0.1 Wh |
-| B4–B7 | Cumulative outgoing energy | Four bytes; integer byte order unspecified | After byte-order qualification: raw × 0.1 Wh |
+| B0–B3 | Cumulative incoming energy | Four bytes; integer byte order is an open point | A decoder keeps the raw bytes and publishes no number |
+| B4–B7 | Cumulative outgoing energy | Four bytes; integer byte order is an open point | A decoder keeps the raw bytes and publishes no number |
 
 ### `040A0000` — Protection and alarm state
 

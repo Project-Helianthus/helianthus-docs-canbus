@@ -95,5 +95,5 @@ https://github.com/Project-Helianthus/helianthus-canbus/blob/cb4c25a1a389da23963
 
 Replay input MUST be delivered through an injected backend or an equivalent
 offline source. It MUST NOT open a platform endpoint, change an interface,
-configure a controller, or submit a frame. The replay result is raw transport
-evidence only and MUST NOT create a semantic projection.
+or configure a controller. The replay result is raw transport evidence only
+and MUST NOT create a semantic projection. A test sends nothing on a real bus.

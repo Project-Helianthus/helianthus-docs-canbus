@@ -5,12 +5,16 @@
 This contract defines the Gree-specific candidate CAN profile and its complete
 deterministic offline state-projection maps. It does not define generic CAN,
 SocketCAN configuration, connector wiring, voltage levels, transceiver
-selection, installed-equipment compatibility, or a live bus operation.
+selection, or installed-equipment compatibility.
 
 A conforming implementation MUST retain unsupported, malformed, and
-out-of-profile observations without a Gree projection. Offline decoding and
-encoding do not authorize a transmit, acknowledgement, probe, configuration
-change, or state-changing request.
+out-of-profile observations without a Gree projection. A documented command
+is sent through the [command contract](gree-vrf-can-command-contract.md).
+The transport sends the frames a driver submits through its send API and
+offers periodic publication. The driver decides what is sent and how often.
+The caller configures listen-only for an interface that only receives and
+normal mode for one on which a driver sends. The transport does not probe,
+configure or bring up an interface on its own.
 
 ## Candidate Link Profile
 
@@ -41,8 +45,11 @@ polarity or final unit semantics.
 
 ## Candidate Identifier Gate
 
-A candidate frame uses a 29-bit extended identifier and requires every one of
-these conditions:
+The register families feed the maps, so a documented map row of any source-key type reaches lookup after structural frame gates 1–5 in
+[Receive Layout](#receive-layout). The identifier gate constrains only the
+specialised projection surface and its bounded opaque cell projection. Its
+type set is class `0xf7`, unit 8, and types `0x10`, `0x11`, `0x52` and
+`0x58`:
 
 ~~~text
 class8 = 0xf7
@@ -71,6 +78,14 @@ The masked comparison alone is insufficient because it does not include
 unit7. `opaque7` is part of the received identifier and MUST NOT be normalized,
 discarded, or assigned a device or property meaning.
 
+This gate is a specialised projection for unit 8. It is not the admission
+rule of the register families described in the
+[register model](gree-vrf-can-register-model.md). Of the map rows below, 5 of
+94 `M94` rows and 4 of 115 `M115` rows have a source-key type in the gate
+set. A documented map row whose source-key type is outside that set, for
+example `0x1e13`, still reaches lookup. The function of the projection is
+not established, and its state cells carry no photovoltaic meaning.
+
 ## Receive Layout
 
 A table-driven state update uses:
@@ -94,6 +109,15 @@ Strict implementations must apply these structural gates before table lookup:
    `start <= coordinate < start + 8 * (dlc - 1)`;
 4. reject coordinate-span overflow above `0xff`;
 5. for `u16_le_byte_stream`, reject a frame when `data[0]` bit 0 is set.
+
+In a source key, the coordinate of a `bit` row is a bit coordinate and the
+coordinate of any other row is a byte coordinate. For example, `0x1e13` is
+type `0x1e`, container `0x02`, bit 3. Gate 5 belongs to the
+`u16_le_byte_stream` rows of these maps. Registers also place 16-bit values
+at odd coordinates; see the
+[register model](gree-vrf-can-register-model.md#register-coordinates-and-frame-rules).
+Every source key resolves either to a
+[dictionary](gree-vrf-can-dictionary.md) entry or to a label-only entry.
 
 The complete deterministic rows are in
 [gree-vrf-can-profile.json](gree-vrf-can-profile.json).
@@ -192,14 +216,17 @@ with a redaction marker.
 
 The [command map](gree-vrf-command-map.md) defines deterministic in-memory
 encoding for its explicitly supported rows. It makes no live, electrical,
-delivery, acceptance, or safe operating-effect claim. The generic SocketCAN
-transport contract remains receive-only.
+delivery, acceptance, or physical-effect claim. A send uses the
+[command contract](gree-vrf-can-command-contract.md).
 
 ## Compatibility
 
-This is a candidate profile. It does not establish electrical compatibility,
-installed-unit support, timing behavior, arbitration behavior, or delivery to
-a physical bus. An unqualified observation remains opaque by default.
+This is a candidate profile. It does not establish electrical compatibility, installed-unit support, timing behavior, arbitration behavior, or delivery to a physical bus. A documented register frame reaches the register-feed lookup
+with no separate qualification level, so a documented frame outside the
+projection gate, such as the input for map key `0x1e13`, is looked up and is
+not kept opaque for lack of a qualification. Opaque results are scoped to
+unsupported or malformed data and to the existing specialised projection
+boundary, the bounded opaque cell projection.
 
 ## What one interface establishes
 
@@ -208,7 +235,11 @@ a unit role. No field on this surface is a canonical resource identity or a
 zone. The unit field `unit7` is a coordinate and never an identity anchor.
 [Extended Identifier Layout](#extended-identifier-layout) does not establish
 source/destination polarity. On a received frame, whether `unit7` names a
-destination or a sender is therefore unknown.
+destination or a sender is therefore unknown. The
+[register model](gree-vrf-can-register-model.md#identifier-families-and-addressing)
+states a destination role only for its addressed data and addressed write
+families; it does not change this statement for the identifiers admitted
+here.
 [Candidate Command Identifier](gree-vrf-command-map.md#candidate-command-identifier)
 inserts `unit7` as the unit field of a constructed command. That construction
 does not establish the polarity of a received identifier. Whether the
@@ -218,6 +249,8 @@ sender field is not established either. A consumer must not interpret any
 partition of a received identifier as a destination or as a sender. A display
 number is presentation; this
 surface does not define one, and a display number is not an identity anchor.
+The [device classes](gree-vrf-can-device-classes.md) define a display number
+for presentation only.
 An index in `all_slot_flags` is an ordered collection position. Slot order is
 not membership and is not a relation.
 
@@ -227,8 +260,12 @@ scope, and which token identifies a unit stably, in which canonical form.
 Until those answers are stated for this family, the default is two resources,
 no relation, and the relation unknown.
 
-`unit7` equal to 8 is the candidate identifier gate. It admits frames. It
-does not count systems, and it does not name a unit that holds system values.
+`unit7` equal to 8 is the unit field of the specialised projection gate. It
+does not admit register frames and it does not count systems, and the gate
+itself does not name a unit that holds system values. The register families
+feed every documented map row after structural frame gates 1–5. The [register model](gree-vrf-can-register-model.md#register-coordinates-and-frame-rules)
+separately states, as a candidate, that outdoor reference sets keep system
+values under unit `0x08`.
 `opaque7` stays part of the identifier and must not be assigned a device or
 property meaning. That partition is not a stable unit token and not a
 canonical resource identity. The projection latch `aggregate_error_latch` is
@@ -246,9 +283,9 @@ are not a basis. No row defers to a later site result.
 | Question | What one interface establishes | Grade | Evidence |
 | --- | --- | --- | --- |
 | One system per bus, or not | Not established. | Unknown | Missing fact: whether one interface carries one system, more than one system, or no system. No protocol page under `protocols/gree/` states it, and this repository cites no public installation or service document that states it. |
-| Which unit supplies the system aggregates | Not established. | Unknown | Missing fact: which unit, if any, supplies system aggregate values. [State-Cell Update Rules](#state-cell-update-rules) defines `aggregate_error_latch` only as a projection rule. No protocol page under `protocols/gree/` names a supplying unit, and this repository cites no public installation or service document that states it. |
-| Whether outdoor-module values belong to that system | Not established. | Unknown | Missing fact: whether a value of an outdoor module belongs to a system on this interface, and how an outdoor module relates to a refrigerant circuit. No protocol page under `protocols/gree/` defines an outdoor module, and this repository cites no public installation or service document that states it. |
-| How indoor, hot-water and tank units relate to the system and to the refrigerant circuit | Not established. | Unknown | Missing fact: how an indoor unit relates to a system, how an indoor unit relates to a refrigerant circuit, and the same two relations for a hot-water unit and for a tank unit. No protocol page under `protocols/gree/` defines those roles, and this repository cites no public installation or service document that states it. |
+| Which unit supplies the system aggregates | Unit `0x08`, as a candidate. | Hypothesis | The [register model](gree-vrf-can-register-model.md#register-coordinates-and-frame-rules) states that outdoor reference sets take system values from unit `0x08` and module values from units `0x08..0x0b`. Whether other modules also send system values is not established. [State-Cell Update Rules](#state-cell-update-rules) defines `aggregate_error_latch` only as a projection rule; that latch names no supplying unit. |
+| Whether outdoor-module values belong to that system | Not established. | Unknown | Missing fact: whether a value of an outdoor module belongs to a system on this interface, and how an outdoor module relates to a refrigerant circuit. The [device classes](gree-vrf-can-device-classes.md) define the outdoor class and its unit range, and the [register model](gree-vrf-can-register-model.md) the module values, but no protocol page under `protocols/gree/` states that relation, and this repository cites no public installation or service document that states it. |
+| How indoor, hot-water and tank units relate to the system and to the refrigerant circuit | Not established. | Unknown | Missing fact: how an indoor unit relates to a system, how an indoor unit relates to a refrigerant circuit, and the same two relations for a hot-water unit and for a tank unit. The [device classes](gree-vrf-can-device-classes.md) define the three classes and their unit range, but no protocol page under `protocols/gree/` states those relations, and this repository cites no public installation or service document that states them. |
 | Whether any field is a stable unit token | Not established. | Unknown | Missing fact: a token that identifies a unit stably, and the canonical form of that token. [Extended Identifier Layout](#extended-identifier-layout) states that the partitions do not establish final unit semantics. [Candidate Command Identifier](gree-vrf-command-map.md#candidate-command-identifier) places `unit7` in the identifier as the unit field. [Bounded Opaque Cell Projection](#bounded-opaque-cell-projection) assigns the cell pair no equipment identity. None of those pages names a stable unit token. |
 
 None of these grades admits a relation. A relation stays unknown until native

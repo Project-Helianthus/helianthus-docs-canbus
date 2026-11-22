@@ -1,0 +1,516 @@
+{
+  "schema": "gree.vrf.can.device_classes",
+  "schema_version": 1,
+  "status": "candidate",
+  "identity_register": {
+    "type": "0x10",
+    "coordinate": "0x04",
+    "value_type": "uint16"
+  },
+  "version_registers": {
+    "general_protocol_version": "10:00",
+    "device_protocol_version": "10:02"
+  },
+  "classes": {
+    "outdoor_unit": {
+      "identifiers": [
+        {
+          "identifier": "0x0603",
+          "label": "0603"
+        },
+        {
+          "identifier": "0x6030",
+          "label": "GMV5"
+        },
+        {
+          "identifier": "0x6031",
+          "label": "GMV5(T)"
+        },
+        {
+          "identifier": "0x6032",
+          "label": "WaterSourceHeatPump"
+        },
+        {
+          "identifier": "0x6033",
+          "label": "J65"
+        },
+        {
+          "identifier": "0x6034",
+          "label": "GMVUnic"
+        },
+        {
+          "identifier": "0x6037",
+          "label": "GMV Unic"
+        },
+        {
+          "identifier": "0x6038",
+          "label": "GMV HR3"
+        },
+        {
+          "identifier": "0x6039",
+          "label": "8K8"
+        },
+        {
+          "identifier": "0x6062",
+          "label": "8H5"
+        },
+        {
+          "identifier": "0x6063",
+          "label": "GMV5Single"
+        },
+        {
+          "identifier": "0x6064",
+          "label": "GWV"
+        },
+        {
+          "identifier": "0x6066",
+          "label": "GMV-H160WL/D"
+        },
+        {
+          "identifier": "0x6067",
+          "label": "photovoltaic"
+        },
+        {
+          "identifier": "0x6068",
+          "label": "GMV EVI"
+        },
+        {
+          "identifier": "0x6069",
+          "label": "GMV RD"
+        },
+        {
+          "identifier": "0x606a",
+          "label": "GMV5Compact"
+        },
+        {
+          "identifier": "0x606e",
+          "label": "J65PowerStatistics"
+        },
+        {
+          "identifier": "0x6070",
+          "label": "MV2"
+        },
+        {
+          "identifier": "0x607a",
+          "label": "607A"
+        },
+        {
+          "identifier": "0x607b",
+          "label": "ID607B"
+        },
+        {
+          "identifier": "0x607d",
+          "label": "ID607D"
+        },
+        {
+          "identifier": "0x6082",
+          "label": "ID6082"
+        },
+        {
+          "identifier": "0x6083",
+          "label": "ID6083"
+        },
+        {
+          "identifier": "0x6089",
+          "label": "ID6089"
+        },
+        {
+          "identifier": "0x608a",
+          "label": "ID608A"
+        },
+        {
+          "identifier": "0x608c",
+          "label": "ID608C"
+        },
+        {
+          "identifier": "0x6090",
+          "label": "ID6090"
+        },
+        {
+          "identifier": "0x6094",
+          "label": "ID6094"
+        },
+        {
+          "identifier": "0x6095",
+          "label": "ID6095"
+        },
+        {
+          "identifier": "0x6096",
+          "label": "ID6096"
+        },
+        {
+          "identifier": "0x6097",
+          "label": "ID6097"
+        },
+        {
+          "identifier": "0x609a",
+          "label": "ID609A"
+        },
+        {
+          "identifier": "0x609b",
+          "label": "ID609B"
+        },
+        {
+          "identifier": "0x609c",
+          "label": "ID609C"
+        },
+        {
+          "identifier": "0x609f",
+          "label": "ID609F"
+        }
+      ],
+      "unit_ranges": {
+        "system_values": {
+          "first": "0x08",
+          "last": "0x08"
+        },
+        "module_values": {
+          "first": "0x08",
+          "last": "0x0b"
+        }
+      },
+      "display_offset": 7,
+      "count": 36
+    },
+    "indoor_unit": {
+      "identifiers": [
+        {
+          "identifier": "0x4021",
+          "label": "ID4021"
+        },
+        {
+          "identifier": "0x6040",
+          "label": "Duct(PL)"
+        },
+        {
+          "identifier": "0x6041",
+          "label": "Duct(D-HC)"
+        },
+        {
+          "identifier": "0x6042",
+          "label": "Duct(PH)"
+        },
+        {
+          "identifier": "0x6043",
+          "label": "Duct(H)"
+        },
+        {
+          "identifier": "0x6044",
+          "label": "Cassette(T)"
+        },
+        {
+          "identifier": "0x6045",
+          "label": "Duct(D-HW)"
+        },
+        {
+          "identifier": "0x6046",
+          "label": "Duct(D-HY)"
+        },
+        {
+          "identifier": "0x6047",
+          "label": "Duct(D-HK)"
+        },
+        {
+          "identifier": "0x6048",
+          "label": "FCeiling(ZD)"
+        },
+        {
+          "identifier": "0x6049",
+          "label": "W-Mounted(G)"
+        },
+        {
+          "identifier": "0x604a",
+          "label": "Duct(PHB-NA)"
+        },
+        {
+          "identifier": "0x604b",
+          "label": "Duct(D-PL)"
+        },
+        {
+          "identifier": "0x604c",
+          "label": "Duct(D-PH)"
+        },
+        {
+          "identifier": "0x604d",
+          "label": "Duct(D-H)"
+        },
+        {
+          "identifier": "0x604e",
+          "label": "Cassette(D-T)"
+        },
+        {
+          "identifier": "0x604f",
+          "label": "Cassette(D-TS)"
+        },
+        {
+          "identifier": "0x6050",
+          "label": "Cassette(D-TD)"
+        },
+        {
+          "identifier": "0x6051",
+          "label": "Cassette(D-?)"
+        },
+        {
+          "identifier": "0x6052",
+          "label": "FCeiling(D-ZD)"
+        },
+        {
+          "identifier": "0x6053",
+          "label": "W-Mounted(D-G)"
+        },
+        {
+          "identifier": "0x6054",
+          "label": "HF-Standing(?)"
+        },
+        {
+          "identifier": "0x6055",
+          "label": "Console(D-?)"
+        },
+        {
+          "identifier": "0x6056",
+          "label": "FAPU"
+        },
+        {
+          "identifier": "0x6057",
+          "label": "HRV"
+        },
+        {
+          "identifier": "0x6058",
+          "label": "AC-HRV"
+        },
+        {
+          "identifier": "0x6059",
+          "label": "Duct(?)"
+        },
+        {
+          "identifier": "0x605a",
+          "label": "Duct(PHB+W)"
+        },
+        {
+          "identifier": "0x605b",
+          "label": "AHU"
+        },
+        {
+          "identifier": "0x605c",
+          "label": "Duct(PHB)"
+        },
+        {
+          "identifier": "0x605d",
+          "label": "ID605D"
+        },
+        {
+          "identifier": "0x605e",
+          "label": "ID605E"
+        },
+        {
+          "identifier": "0x6071",
+          "label": "MV2F"
+        },
+        {
+          "identifier": "0x6072",
+          "label": "MV2G"
+        },
+        {
+          "identifier": "0x6073",
+          "label": "MV2A"
+        },
+        {
+          "identifier": "0x6074",
+          "label": "ID6074"
+        },
+        {
+          "identifier": "0x6075",
+          "label": "Air-Handler"
+        },
+        {
+          "identifier": "0x6076",
+          "label": "ID6076"
+        },
+        {
+          "identifier": "0x6079",
+          "label": "ID6079"
+        },
+        {
+          "identifier": "0x607f",
+          "label": "ID607F"
+        },
+        {
+          "identifier": "0x6080",
+          "label": "ID6080"
+        },
+        {
+          "identifier": "0x6084",
+          "label": "ID6084"
+        },
+        {
+          "identifier": "0x6085",
+          "label": "ID6085"
+        },
+        {
+          "identifier": "0x6086",
+          "label": "ID6086"
+        },
+        {
+          "identifier": "0x6087",
+          "label": "ID6087"
+        },
+        {
+          "identifier": "0x6088",
+          "label": "ID6088"
+        },
+        {
+          "identifier": "0x608b",
+          "label": "Duct(H)"
+        },
+        {
+          "identifier": "0x608d",
+          "label": "ID608D"
+        },
+        {
+          "identifier": "0x608e",
+          "label": "ID608E"
+        },
+        {
+          "identifier": "0x608f",
+          "label": "ID608F"
+        },
+        {
+          "identifier": "0x6091",
+          "label": "ID6091"
+        },
+        {
+          "identifier": "0x6092",
+          "label": "ID6092"
+        },
+        {
+          "identifier": "0x6098",
+          "label": "ID6098"
+        },
+        {
+          "identifier": "0x6099",
+          "label": "ID6099"
+        },
+        {
+          "identifier": "0x609d",
+          "label": "ID609D"
+        },
+        {
+          "identifier": "0x60a1",
+          "label": "ID60A1"
+        },
+        {
+          "identifier": "0x60ff",
+          "label": "ID60FF"
+        }
+      ],
+      "unit_ranges": {
+        "unit_values": {
+          "first": "0x20",
+          "last": "0x6f"
+        }
+      },
+      "display_offset": 31,
+      "count": 57
+    },
+    "hot_water_unit": {
+      "identifiers": [
+        {
+          "identifier": "0x6036",
+          "label": "HWG"
+        },
+        {
+          "identifier": "0x6065",
+          "label": "GWV6065"
+        }
+      ],
+      "unit_ranges": {
+        "unit_values": {
+          "first": "0x20",
+          "last": "0x6f"
+        }
+      },
+      "display_offset": 31,
+      "count": 2
+    },
+    "water_tank": {
+      "identifiers": [
+        {
+          "identifier": "0x6035",
+          "label": "WaterTank"
+        }
+      ],
+      "unit_ranges": {
+        "unit_values": {
+          "first": "0x20",
+          "last": "0x6f"
+        }
+      },
+      "display_offset": 31,
+      "count": 1
+    }
+  },
+  "identifiers_without_class": [
+    {
+      "identifier": "0x6093",
+      "label": "ID6093"
+    }
+  ],
+  "profile_lookup": {
+    "key": [
+      "10:04",
+      "10:02"
+    ],
+    "order": [
+      "exact device protocol version",
+      "higher versions up to 255",
+      "lower versions down to 0"
+    ],
+    "status": "candidate lookup order; it does not establish compatibility between versions"
+  },
+  "m115_selectors": [
+    {
+      "identifier": "0x605d",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x6079",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x6084",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x608d",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x608e",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x6091",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x6098",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x6099",
+      "class": "indoor_unit"
+    },
+    {
+      "identifier": "0x60a0",
+      "class": null
+    },
+    {
+      "identifier": "0x60a4",
+      "class": null
+    },
+    {
+      "identifier": "0x60a9",
+      "class": null
+    }
+  ]
+}

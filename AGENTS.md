@@ -10,8 +10,11 @@ semantics, universal cross-protocol semantics, or live-device control.
 
 Keep generic CAN transport separate from product profiles. Preserve native
 facts and explicit projection loss; distinguish candidate, qualified,
-unsupported, and unknown claims. Receive-only remains default-denied for
-transmit, probing, configuration, acknowledgment, and live bus actions.
+unsupported, and unknown claims. The transport sends the frames a driver
+submits through its send API and offers periodic publication. The driver
+decides what is sent and how often. The caller configures listen-only for an
+interface that only receives and normal mode for one on which a driver sends.
+The transport does not probe, configure or bring up an interface on its own.
 
 ## Documentation Routing
 

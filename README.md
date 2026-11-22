@@ -10,7 +10,7 @@ implementation-neutral vendor protocol contracts.
 - [Fail-closed CAN registry conformance](contracts/registry-conformance.md)
 - [Passive SocketCAN diagnostic model](contracts/socketcan-diagnostics.md)
 - [Passive SocketCAN conformance replay guide](contracts/socketcan-replay.md)
-- [Receive-only SocketCAN contract](contracts/socketcan-receive-only.md)
+- [SocketCAN contract](contracts/socketcan-receive-only.md), including the send side
 - [Gree VRF protocol contracts](protocols/gree/)
 - [Growatt low-voltage BMS CAN V1.04 contract](protocols/growatt/low-voltage-bms-can-v104.md)
 - [Growatt low-voltage BMS CAN V1.04 qualification card](protocols/growatt/growatt-low-voltage-bms-can-v104-qualification-card-v1.md)
@@ -30,8 +30,11 @@ helianthus-canbusreg owns multi-vendor identification, bounded raw evidence,
 capability profiles, and evidence-backed projections. Gree VRF is its first
 vendor flavor; additional vendors are separate profiles.
 
-SocketCAN is receive/listen-only in the current milestone. Transmit is
-default-denied and no document authorizes a live bus operation.
+The transport sends the frames a driver submits through its send API and
+offers periodic publication. The driver decides what is sent and how often.
+The caller configures listen-only for an interface that only receives and
+normal mode for one on which a driver sends. The transport does not probe,
+configure or bring up an interface on its own.
 
 ## Licensing
 

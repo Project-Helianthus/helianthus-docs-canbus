@@ -6,10 +6,11 @@ This contract defines passive decoding for
 `growatt.bms.low_voltage.can.v1_04`. It applies only to a low-voltage BMS
 interface explicitly selected as V1.04.
 
-A conforming implementation MUST remain receive-only. It MUST NOT transmit,
-acknowledge, probe, configure, or otherwise change a CAN interface or attached
-equipment. It MUST NOT infer connector wiring, transceiver voltage, termination,
-or any other electrical property from this contract.
+Support is declared from the protocol documents. Frames the specification
+documents as commands have a transmit path. The transport offers the
+publication API and canbusreg decides what is sent. This contract does not
+infer connector wiring, transceiver voltage, termination, or any other
+electrical property.
 
 ## Link Profile
 
@@ -30,9 +31,14 @@ Defined BMS report frames use a standard, non-RTR identifier and DLC 8. A
 frame with a listed identifier but another identifier format, RTR state, or DLC
 MUST remain opaque.
 
-The standard data frame `0x301` occurs in protocol exchange as a query or
-keepalive observation. This receive-only contract does not interpret that frame
-and does not require that it be observed.
+The inverter side sends the standard (11-bit) frame `0x301` every second. Its
+payload is the one the document lists, `11-22-33-44-55-66-77-88`, which the
+document presents as a standard frame in decimal and which this page states
+as the source presents it, assigning no further meaning to it. An
+inverter-side endpoint configured with the V1.04 profile therefore has the
+revision's frame, sender, cadence and payload on this page. A caller that
+only observes may still observe `0x301`, which is optional and required of no
+decoder.
 
 ## Frame Map
 
@@ -52,19 +58,37 @@ named value.
 
 ## Status and Errors
 
-For `0x311`, the low two bits of the status word are the BMS operating state:
-`0` soft-starting, `1` standby, `2` charging, and `3` discharging. The status
-word also contains an error-valid flag, balance state, sleep state, charge and
-discharge output-enable states, battery-terminal state, master-box mode, and
-storage-system state. A decoder MUST retain unrecognized or reserved bits as
+For `0x311`, the status word is bytes 6-7. Bits 0-1 are the operating state:
+`00` soft-starting, `01` standby, `10` charging, and `11` discharging. Bit 2
+is the error-byte valid flag. Bit 3 is cell-balance status, `0` unbalance and
+`1` balance. Bit 4 is sleep status. Bit 5 is discharge-output status. Bit 6
+is charge-output status. Bit 7 is battery-terminal status, `0` connected and
+`1` open. Bits 8-9 are the master operation mode: `00` standalone, `01`
+parallel, `10` parallel preparation. Bits 10-11 are the storage-system state:
+`00` none, `01` standby, `10` charging, `11` discharging. Bits 12-15 are not
+defined and stay raw. A decoder MUST retain unrecognized or reserved bits as
 raw status; it MUST NOT convert their absence into a healthy state.
 
-For `0x312`, bytes 0-1 are protection flags and bytes 2-3 are warning flags.
-Named conditions include over-current, short-circuit discharge, cell and module
-over- and under-voltage, charge and discharge temperature limits, system error,
-delta-voltage failure, pre-shutdown, and internal-communication failure. A set
-bit is a reported condition. A clear bit is not an independent proof that the
-condition is absent outside this frame's observation time.
+For `0x312`, byte 0 and byte 1 are protection and byte 2 and byte 3 are
+warning. A set bit is a reported condition. A clear bit is not an independent
+proof that the condition is absent outside this frame's observation time.
+
+Protection byte 0, bit 7 to bit 0: discharge over-current, charge
+over-current, short-circuit discharge, cell over-voltage, cell under-voltage,
+module over-voltage, module under-voltage, soft-start failure.
+
+Protection byte 1, bit 7 to bit 2: discharge over-temperature, charge
+over-temperature, discharge under-temperature, charge under-temperature,
+system error, delta-voltage failure. Bits 1 and 0 are not defined and stay raw.
+
+Warning byte 0, bit 7 to bit 0: discharge over-current, charge over-current,
+bit 5 undefined and raw, cell over-voltage, cell under-voltage, module
+over-voltage, module under-voltage, bit 0 undefined and raw.
+
+Warning byte 1, bit 7 to bit 0: discharge over-temperature, charge
+over-temperature, discharge under-temperature, charge under-temperature,
+bit 3 undefined and raw, delta-voltage failure, warning before shutdown,
+internal communication failure.
 
 For `0x319`, the request/type byte records battery chemistry in bits 0-1,
 force-charge request in bit 5, discharge enable in bit 6, and charge enable in
@@ -90,17 +114,15 @@ represented as zero voltage or as a missing-cell fault.
 
 ## Registry Admission
 
-The registry MAY classify evidence as
-`growatt.bms.low_voltage.can.v1_04` only after it observes valid `0x311`,
-`0x312`, and `0x313` frames with the required geometry among the most recent
-16 accepted observations from one interface. A malformed listed frame resets
-the admission window for that interface. The tuple is a positive
-V1.04-compatible discriminator; `0x301`, a single listed ID, or a bitrate
-setting is insufficient.
+An endpoint configured with the V1.04 profile is recognised by that
+configuration. The `0x311`, `0x312`, and `0x313` geometry decides only whether
+a complete V1.04 snapshot is decoded and published. An incomplete, malformed,
+or inconsistent snapshot stays raw for that snapshot and never makes the
+configured profile unrecognised. `0x301`, a single listed ID, or a bitrate
+setting does not by itself publish a complete snapshot.
 
 If two profiles admit the same evidence, the registry MUST return no profile
-and no semantic projection. If the required tuple is incomplete, malformed, or
-inconsistent, the evidence MUST remain raw and opaque.
+and no semantic projection.
 
 ## Native MCP Observation Boundary
 
@@ -124,9 +146,8 @@ snapshot or its valid decoded values. It remains a transport diagnostic outcome
 and is either excluded from `raw_evidence` or reported by the transport's error
 contract without becoming a V1.04 frame projection.
 
-`outbound_allowed` reflects the provider's available capability state. It does
-not authorize a caller to transmit, acknowledge, probe, configure, or mutate a
-CAN interface or attached equipment.
+`outbound_allowed` reflects the provider's available capability state. It is
+separate from an applied effect. The driver decides what is sent.
 
 The following is synthetic structural data only:
 
@@ -160,5 +181,8 @@ them.
 ## Compatibility
 
 This contract establishes neither installed-device compatibility nor electrical
-interoperability. A different protocol revision is a separate profile. Control
-semantics, polling, and transmit behavior are outside this contract.
+interoperability. A different protocol revision is a separate profile. The
+documented one-second `0x301` send of the inverter-side endpoint configured
+with the V1.04 profile is within this contract. Control semantics, polling,
+and any other transmit behavior the V1.04 document does not declare stay
+outside it.
